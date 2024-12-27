@@ -56,6 +56,7 @@ jobs:
           key: ${{ secrets.EC2_PRIVATE_KEY }}
 
           script: |
+            cd /home/ubuntu/SpringBoot_CICD
             sudo docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
             sudo docker rm -f $(sudo docker ps -qa)
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}
