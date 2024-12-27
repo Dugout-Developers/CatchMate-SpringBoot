@@ -1,9 +1,12 @@
-# Workflow 이름
 name: Spring Boot & Gradle CI/CD
 
 on:
   push:
-    branches: [ "master" ]
+    branches: 
+      - develop
+  pull_request:
+    branches:
+      - develop
 
 permissions:
   contents: read
