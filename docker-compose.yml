@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+
+  application:
+    container_name: springboot
+    image: ${DOCKER_USERNAME}/${DOCKER_IMAGE_NAME}
+    ports:
+      - "8080:8080"
+    expose:
+      - "8080"
