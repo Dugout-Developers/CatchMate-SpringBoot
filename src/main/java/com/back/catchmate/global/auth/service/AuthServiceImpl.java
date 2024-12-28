@@ -41,12 +41,12 @@ public class AuthServiceImpl implements AuthService {
         // 결합한 문자열로 사용자 조회
         Optional<User> findUserOptional = userRepository.findByProviderId(providerIdWithProvider);
         boolean isFirstLogin = false;
-        LoginInfo loginResponse;
+        LoginInfo loginInfo;
 
         if (findUserOptional.isEmpty()) {
             // 사용자가 없으면 최초 회원가입 여부를 true 반환
             isFirstLogin = true;
-            loginResponse = authConverter.toLoginInfo(null, null, isFirstLogin);
+            loginInfo = authConverter.toLoginInfo(null, null, isFirstLogin);
         } else {
             // 회원가입된 사용자가 있으면 AccessToken과 RefreshToken 반환
             User user = findUserOptional.get();
@@ -61,10 +61,10 @@ public class AuthServiceImpl implements AuthService {
 
             // RefreshToken을 Redis에 저장
             refreshTokenRedisRepository.save(RefreshToken.of(refreshToken, userId));
-            loginResponse = authConverter.toLoginInfo(accessToken, refreshToken, isFirstLogin);
+            loginInfo = authConverter.toLoginInfo(accessToken, refreshToken, isFirstLogin);
         }
 
-        return loginResponse;
+        return loginInfo;
     }
 
     private void checkFcmToken(AuthRequest.LoginRequest loginRequest, User user) {
