@@ -40,6 +40,7 @@ public class UserServiceImpl implements UserService{
     private final ClubConverter clubConverter;
 
     @Override
+    @Transactional
     public UserResponse.LoginInfo joinUser(UserJoinRequest request) {
         String providerIdWithProvider = request.getProviderId() + PROVIDER_ID_SEPARATOR + request.getProvider();
         Club favoreiteClub = clubRepository.findById(request.getFavoriteClubId())
