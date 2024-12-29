@@ -4,12 +4,15 @@ import com.back.catchmate.domain.board.converter.BoardConverter;
 import com.back.catchmate.domain.board.dto.BoardResponse.BoardInfo;
 import com.back.catchmate.domain.board.entity.Board;
 import com.back.catchmate.domain.enroll.dto.EnrollRequest.CreateEnrollRequest;
+import com.back.catchmate.domain.enroll.dto.EnrollResponse;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.CancelEnrollInfo;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.CreateEnrollInfo;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.EnrollReceiveInfo;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.EnrollRequestInfo;
+import com.back.catchmate.domain.enroll.dto.EnrollResponse.NewEnrollCountInfo;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.PagedEnrollReceiveInfo;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.PagedEnrollRequestInfo;
+import com.back.catchmate.domain.enroll.dto.EnrollResponse.UpdateEnrollInfo;
 import com.back.catchmate.domain.enroll.entity.AcceptStatus;
 import com.back.catchmate.domain.enroll.entity.Enroll;
 import com.back.catchmate.domain.user.converter.UserConverter;
@@ -104,6 +107,19 @@ public class EnrollConverter {
                 .isNew(enroll.isNew())
                 .userInfo(userInfo)
                 .boardInfo(boardInfo)
+                .build();
+    }
+
+    public NewEnrollCountInfo toNewEnrollCountResponse(int enrollListCount) {
+        return NewEnrollCountInfo.builder()
+                .newEnrollCount(enrollListCount)
+                .build();
+    }
+
+    public UpdateEnrollInfo toUpdateEnrollInfo(Enroll enroll, AcceptStatus acceptStatus) {
+        return UpdateEnrollInfo.builder()
+                .enrollId(enroll.getId())
+                .acceptStatus(acceptStatus)
                 .build();
     }
 }

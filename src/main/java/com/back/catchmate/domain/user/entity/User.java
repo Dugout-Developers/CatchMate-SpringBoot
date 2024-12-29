@@ -141,4 +141,8 @@ public class User extends BaseTimeEntity {
     public void deleteFcmToken() {
         this.fcmToken = null;
     }
+
+    public boolean isDifferentUserFrom(User boardWriter) {
+        return !this.equals(boardWriter);
+    }
 }
