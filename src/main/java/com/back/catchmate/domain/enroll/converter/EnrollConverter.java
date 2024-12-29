@@ -3,9 +3,7 @@ package com.back.catchmate.domain.enroll.converter;
 import com.back.catchmate.domain.board.converter.BoardConverter;
 import com.back.catchmate.domain.board.dto.BoardResponse.BoardInfo;
 import com.back.catchmate.domain.board.entity.Board;
-import com.back.catchmate.domain.club.dto.ClubResponse;
 import com.back.catchmate.domain.enroll.dto.EnrollRequest.CreateEnrollRequest;
-import com.back.catchmate.domain.enroll.dto.EnrollResponse;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.CancelEnrollInfo;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.CreateEnrollInfo;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.EnrollReceiveInfo;
@@ -108,5 +106,4 @@ public class EnrollConverter {
                 .boardInfo(boardInfo)
                 .build();
     }
-
 }

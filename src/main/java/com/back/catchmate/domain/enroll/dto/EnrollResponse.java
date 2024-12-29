@@ -63,7 +63,6 @@ public abstract class EnrollResponse {
         private Boolean isLast;
     }
 
-
     @Getter
     @Builder
     @NoArgsConstructor
