@@ -13,9 +13,9 @@ import com.back.catchmate.domain.user.repository.UserRepository;
 import com.back.catchmate.global.error.ErrorCode;
 import com.back.catchmate.global.error.exception.BaseException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
@@ -26,7 +26,7 @@ public class EnrollServiceImpl implements EnrollService {
     private final EnrollConverter enrollConverter;
 
     @Override
-    public CreateEnrollInfo createEnroll(CreateEnrollRequest request, Long boardId, Long userId) throws IOException {
+    public CreateEnrollInfo requestEnroll(CreateEnrollRequest request, Long boardId, Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
@@ -39,8 +39,8 @@ public class EnrollServiceImpl implements EnrollService {
 
         enrollRepository.findByUserIdAndBoardId(user.getId(), board.getId())
                 .ifPresent(enroll -> {
-            throw new BaseException(ErrorCode.ENROLL_ALREADY_EXIST);
-        });
+                    throw new BaseException(ErrorCode.ENROLL_ALREADY_EXIST);
+                });
 
         Enroll enroll = enrollConverter.toEntity(request, user, board);
         enrollRepository.save(enroll);
@@ -62,5 +62,41 @@ public class EnrollServiceImpl implements EnrollService {
 
         enrollRepository.delete(enroll);
         return enrollConverter.toCancelEnrollInfo(enroll);
+    }
+
+    @Override
+    public EnrollResponse.PagedEnrollRequestInfo getRequestEnrollList(Long userId, Pageable pageable) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+
+        Page<Enroll> enrollList = enrollRepository.findByUserId(user.getId(), pageable);
+        return enrollConverter.toPagedEnrollRequestInfo(enrollList);
+    }
+
+    @Override
+    public EnrollResponse.PagedEnrollReceiveInfo getReceiveEnrollList(Long userId, Pageable pageable) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+
+        Page<Enroll> enrollList = enrollRepository.findEnrollListByBoardWriter(user.getId(), pageable);
+        return enrollConverter.toPagedEnrollReceiveInfo(enrollList);
+    }
+
+    @Override
+    public EnrollResponse.PagedEnrollReceiveInfo getReceiveEnrollListByBoardId(Long userId, Long boardId, Pageable pageable) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new BaseException(ErrorCode.BOARD_NOT_FOUND));
+
+        // 게시글 작성자가 맞는지 확인
+        if (!board.getUser().equals(user)) {
+            throw new BaseException(ErrorCode.ENROLL_GET_INVALID);
+        }
+
+        // 게시글에 신청된 목록 조회
+        Page<Enroll> enrollList = enrollRepository.findByBoardId(boardId, pageable);
+        return enrollConverter.toPagedEnrollReceiveInfo(enrollList);
     }
 }

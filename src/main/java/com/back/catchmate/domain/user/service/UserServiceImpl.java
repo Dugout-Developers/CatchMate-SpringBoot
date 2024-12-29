@@ -1,13 +1,11 @@
 package com.back.catchmate.domain.user.service;
 
 import com.back.catchmate.domain.club.converter.ClubConverter;
-import com.back.catchmate.domain.club.dto.ClubResponse.ClubInfo;
 import com.back.catchmate.domain.club.entity.Club;
 import com.back.catchmate.domain.club.repository.ClubRepository;
 import com.back.catchmate.domain.user.converter.UserConverter;
 import com.back.catchmate.domain.user.dto.UserRequest.UserJoinRequest;
 import com.back.catchmate.domain.user.dto.UserRequest.UserProfileUpdateRequest;
-import com.back.catchmate.domain.user.dto.UserResponse;
 import com.back.catchmate.domain.user.dto.UserResponse.LoginInfo;
 import com.back.catchmate.domain.user.dto.UserResponse.UpdateAlarmInfo;
 import com.back.catchmate.domain.user.dto.UserResponse.UserInfo;
@@ -73,8 +71,7 @@ public class UserServiceImpl implements UserService{
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
-        ClubInfo clubInfo = clubConverter.toClubInfo(user.getClub());
-        return userConverter.toUserInfo(user, clubInfo);
+        return userConverter.toUserInfo(user);
     }
 
     // 다른 사용자의 프로필 정보를 가져오는 메서드
@@ -84,8 +81,7 @@ public class UserServiceImpl implements UserService{
         User user = userRepository.findById(profileUserId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
-        ClubInfo clubInfo = clubConverter.toClubInfo(user.getClub());
-        return userConverter.toUserInfo(user, clubInfo);
+        return userConverter.toUserInfo(user);
     }
 
     @Override

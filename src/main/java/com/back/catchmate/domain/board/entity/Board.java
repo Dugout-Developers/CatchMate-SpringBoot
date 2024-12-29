@@ -29,6 +29,9 @@ public class Board extends BaseTimeEntity {
     @Column(name = "board_id")
     private Long id;
 
+    @Column(nullable = false)
+    private String title;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
