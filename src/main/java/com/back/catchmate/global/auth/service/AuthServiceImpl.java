@@ -8,7 +8,7 @@ import com.back.catchmate.global.auth.dto.response.AuthResponse.LoginInfo;
 import com.back.catchmate.global.auth.dto.response.AuthResponse.NicknameCheckInfo;
 import com.back.catchmate.global.auth.dto.response.AuthResponse.ReissueInfo;
 import com.back.catchmate.global.auth.entity.RefreshToken;
-import com.back.catchmate.global.auth.repository.RefreshTokenRedisRepository;
+import com.back.catchmate.global.auth.repository.RefreshTokenRepository;
 import com.back.catchmate.global.dto.StateResponse;
 import com.back.catchmate.global.error.ErrorCode;
 import com.back.catchmate.global.error.exception.BaseException;
@@ -25,7 +25,7 @@ import java.util.Optional;
 public class AuthServiceImpl implements AuthService {
     private final JwtService jwtService;
     private final UserRepository userRepository;
-    private final RefreshTokenRedisRepository refreshTokenRedisRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final AuthConverter authConverter;
 
     // Provider ID와 구분자를 결합하기 위한 상수
@@ -60,7 +60,7 @@ public class AuthServiceImpl implements AuthService {
             String refreshToken = jwtService.createRefreshToken(userId);
 
             // RefreshToken을 Redis에 저장
-            refreshTokenRedisRepository.save(RefreshToken.of(refreshToken, userId));
+            refreshTokenRepository.save(RefreshToken.of(refreshToken, userId));
             loginInfo = authConverter.toLoginInfo(accessToken, refreshToken, isFirstLogin);
         }
 
@@ -86,7 +86,7 @@ public class AuthServiceImpl implements AuthService {
         // RefreshToken을 파싱하여 사용자 ID를 가져옴
         Long userId = jwtService.parseJwtToken(refreshToken);
         // RefreshToken이 유효한지 확인
-        refreshTokenRedisRepository.findById(refreshToken)
+        refreshTokenRepository.findById(refreshToken)
                 .orElseThrow(() -> new BaseException(ErrorCode.INVALID_REFRESH_TOKEN));
 
         // 새로운 AccessToken을 생성
@@ -106,7 +106,7 @@ public class AuthServiceImpl implements AuthService {
         // FCM 토큰 삭제
         user.deleteFcmToken();
         // RefreshToken을 Redis에서 삭제
-        refreshTokenRedisRepository.deleteById(refreshToken);
+        refreshTokenRepository.deleteById(refreshToken);
         return new StateResponse(true);
     }
 }

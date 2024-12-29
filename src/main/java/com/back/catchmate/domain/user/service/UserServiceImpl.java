@@ -8,13 +8,14 @@ import com.back.catchmate.domain.user.converter.UserConverter;
 import com.back.catchmate.domain.user.dto.UserRequest.UserJoinRequest;
 import com.back.catchmate.domain.user.dto.UserRequest.UserProfileUpdateRequest;
 import com.back.catchmate.domain.user.dto.UserResponse;
+import com.back.catchmate.domain.user.dto.UserResponse.LoginInfo;
 import com.back.catchmate.domain.user.dto.UserResponse.UpdateAlarmInfo;
 import com.back.catchmate.domain.user.dto.UserResponse.UserInfo;
 import com.back.catchmate.domain.user.entity.AlarmType;
 import com.back.catchmate.domain.user.entity.User;
 import com.back.catchmate.domain.user.repository.UserRepository;
 import com.back.catchmate.global.auth.entity.RefreshToken;
-import com.back.catchmate.global.auth.repository.RefreshTokenRedisRepository;
+import com.back.catchmate.global.auth.repository.RefreshTokenRepository;
 import com.back.catchmate.global.dto.StateResponse;
 import com.back.catchmate.global.error.ErrorCode;
 import com.back.catchmate.global.error.exception.BaseException;
@@ -27,21 +28,22 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
+import static com.back.catchmate.global.auth.service.AuthServiceImpl.PROVIDER_ID_SEPARATOR;
+
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService{
-    public final String PROVIDER_ID_SEPARATOR = "@";
     private final JwtService jwtService;
     private final S3Service s3Service;
     private final UserRepository userRepository;
     private final ClubRepository clubRepository;
-    private final RefreshTokenRedisRepository refreshTokenRedisRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final UserConverter userConverter;
     private final ClubConverter clubConverter;
 
     @Override
     @Transactional
-    public UserResponse.LoginInfo joinUser(UserJoinRequest request) {
+    public LoginInfo joinUser(UserJoinRequest request) {
         String providerIdWithProvider = request.getProviderId() + PROVIDER_ID_SEPARATOR + request.getProvider();
         Club favoreiteClub = clubRepository.findById(request.getFavoriteClubId())
                 .orElseThrow(() -> new BaseException(ErrorCode.CLUB_NOT_FOUND));
@@ -59,7 +61,7 @@ public class UserServiceImpl implements UserService{
         // accessToken, refreshToken 발급
         String accessToken = jwtService.createAccessToken(user.getId());
         String refreshToken = jwtService.createRefreshToken(user.getId());
-        refreshTokenRedisRepository.save(RefreshToken.of(refreshToken, user.getId()));
+        refreshTokenRepository.save(RefreshToken.of(refreshToken, user.getId()));
 
         return userConverter.toLoginInfo(user, accessToken, refreshToken);
     }
