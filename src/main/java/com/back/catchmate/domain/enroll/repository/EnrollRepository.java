@@ -18,4 +18,7 @@ public interface EnrollRepository extends JpaRepository<Enroll, Long> {
     Page<Enroll> findEnrollListByBoardWriter(@Param("userId") Long userId, Pageable pageable);
 
     Page<Enroll> findByBoardId(Long boardId, Pageable pageable);
+
+    @Query("SELECT COUNT(e) FROM Enroll e JOIN e.board b WHERE e.isNew = true AND b.user.id = :userId")
+    int countNewEnrollListByUserId(@Param("userId") Long userId);
 }

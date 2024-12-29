@@ -3,8 +3,10 @@ package com.back.catchmate.domain.enroll.controller;
 import com.back.catchmate.domain.enroll.dto.EnrollRequest.CreateEnrollRequest;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.CancelEnrollInfo;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.CreateEnrollInfo;
+import com.back.catchmate.domain.enroll.dto.EnrollResponse.NewEnrollCountInfo;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.PagedEnrollReceiveInfo;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.PagedEnrollRequestInfo;
+import com.back.catchmate.domain.enroll.dto.EnrollResponse.UpdateEnrollInfo;
 import com.back.catchmate.domain.enroll.service.EnrollService;
 import com.back.catchmate.global.jwt.JwtValidation;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,6 +19,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -67,5 +70,25 @@ public class EnrollController {
                                                                 @RequestParam Long boardId,
                                                                 @Parameter(hidden = true) Pageable pageable) {
         return enrollService.getReceiveEnrollListByBoardId(userId, boardId, pageable);
+    }
+
+    @GetMapping("/new-count")
+    @Operation(summary = "내가 작성한 게시글에 대한 새로운 직관 신청 갯수 반환 API", description = "내가 작성한 게시글에 대한 새로윤 직관 신청 갯수를 반환하는 API 입니다.")
+    public NewEnrollCountInfo getNewEnrollmentListCount(@JwtValidation Long userId) {
+        return enrollService.getNewEnrollListCount(userId);
+    }
+
+    @PatchMapping("/{enrollId}/accept")
+    @Operation(summary = "받은 직관 신청 수락 API", description = "내가 받은 직관 신청을 수락하는 API 입니다.")
+    public UpdateEnrollInfo acceptEnroll(@PathVariable Long enrollId,
+                                         @JwtValidation Long userId) {
+        return enrollService.acceptEnroll(enrollId, userId);
+    }
+
+    @PatchMapping("/{enrollId}/reject")
+    @Operation(summary = "받은 직관 신청 거절 API", description = "내가 받은 직관 신청을 거절하는 API 입니다.")
+    public UpdateEnrollInfo rejectEnroll(@PathVariable Long enrollId,
+                                         @JwtValidation Long userId) {
+        return enrollService.rejectEnroll(enrollId, userId);
     }
 }

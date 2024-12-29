@@ -1,11 +1,16 @@
 package com.back.catchmate.domain.enroll.service;
 
 import com.back.catchmate.domain.enroll.dto.EnrollRequest.CreateEnrollRequest;
+import com.back.catchmate.domain.enroll.dto.EnrollResponse;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.CancelEnrollInfo;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.CreateEnrollInfo;
+import com.back.catchmate.domain.enroll.dto.EnrollResponse.NewEnrollCountInfo;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.PagedEnrollReceiveInfo;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.PagedEnrollRequestInfo;
+import com.back.catchmate.domain.enroll.dto.EnrollResponse.UpdateEnrollInfo;
 import org.springframework.data.domain.Pageable;
+
+import java.io.IOException;
 
 public interface EnrollService {
     CreateEnrollInfo requestEnroll(CreateEnrollRequest request, Long boardId, Long userId);
@@ -18,4 +23,9 @@ public interface EnrollService {
 
     PagedEnrollReceiveInfo getReceiveEnrollListByBoardId(Long userId, Long boardId, Pageable pageable);
 
+    NewEnrollCountInfo getNewEnrollListCount(Long userId);
+
+    UpdateEnrollInfo acceptEnroll(Long enrollId, Long userId);
+
+    UpdateEnrollInfo rejectEnroll(Long enrollId, Long userId);
 }
