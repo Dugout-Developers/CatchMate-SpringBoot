@@ -9,21 +9,60 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public abstract class EnrollResponse {
     @Getter
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class EnrollInfo {
+    public static class EnrollRequestInfo {
         private Long enrollId;
         private AcceptStatus acceptStatus;
         private String description;
         private LocalDateTime requestDate;
+        private UserInfo userInfo;
+        private BoardInfo boardInfo;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class EnrollReceiveInfo {
+        private Long enrollId;
+        private AcceptStatus acceptStatus;
+        private String description;
+        private LocalDateTime receiveDate;
         private boolean isNew;
         private UserInfo userInfo;
         private BoardInfo boardInfo;
     }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class PagedEnrollRequestInfo {
+        private List<EnrollRequestInfo> enrollInfoList;
+        private Integer totalPages;
+        private Long totalElements;
+        private Boolean isFirst;
+        private Boolean isLast;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class PagedEnrollReceiveInfo {
+        private List<EnrollReceiveInfo> enrollInfoList;
+        private Integer totalPages;
+        private Long totalElements;
+        private Boolean isFirst;
+        private Boolean isLast;
+    }
+
 
     @Getter
     @Builder

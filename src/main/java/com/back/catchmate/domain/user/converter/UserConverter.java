@@ -1,5 +1,6 @@
 package com.back.catchmate.domain.user.converter;
 
+import com.back.catchmate.domain.club.converter.ClubConverter;
 import com.back.catchmate.domain.club.dto.ClubResponse.ClubInfo;
 import com.back.catchmate.domain.club.entity.Club;
 import com.back.catchmate.domain.user.dto.UserRequest;
@@ -9,12 +10,16 @@ import com.back.catchmate.domain.user.dto.UserResponse.UserInfo;
 import com.back.catchmate.domain.user.entity.AlarmType;
 import com.back.catchmate.domain.user.entity.Provider;
 import com.back.catchmate.domain.user.entity.User;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 
 @Component
+@RequiredArgsConstructor
 public class UserConverter {
+    private final ClubConverter clubConverter;
+
     public User toEntity(UserRequest.UserJoinRequest request, Club favoriteClub, String providerIdWithProvider) {
         return User.builder()
                 .email(request.getEmail())
@@ -43,7 +48,9 @@ public class UserConverter {
                 .build();
     }
 
-    public UserInfo toUserInfo(User user, ClubInfo clubInfo) {
+    public UserInfo toUserInfo(User user) {
+        ClubInfo clubInfo = clubConverter.toClubInfo(user.getClub());
+
         return UserInfo.builder()
                 .userId(user.getId())
                 .email(user.getEmail())
