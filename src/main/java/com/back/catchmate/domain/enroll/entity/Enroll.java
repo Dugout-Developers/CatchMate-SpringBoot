@@ -50,4 +50,8 @@ public class Enroll extends BaseTimeEntity {
 
     @Column(nullable = false)
     private boolean isNew;
+
+    public boolean isDifferentFromLoginUser(User user) {
+        return !this.user.equals(user);
+    }
 }

@@ -40,4 +40,8 @@ public class Board extends BaseTimeEntity {
     @Builder.Default
     @OneToMany(mappedBy = "board")
     private List<Notification> notificationList = new ArrayList<>();
+
+    public boolean isWriterSameAsLoginUser(User user) {
+        return this.user.equals(user);
+    }
 }
