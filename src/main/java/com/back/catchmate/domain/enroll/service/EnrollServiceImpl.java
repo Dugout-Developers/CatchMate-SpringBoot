@@ -200,4 +200,3 @@ public class EnrollServiceImpl implements EnrollService {
         return enrollConverter.toUpdateEnrollInfo(enroll, AcceptStatus.REJECTED);
     }
 }
-i
