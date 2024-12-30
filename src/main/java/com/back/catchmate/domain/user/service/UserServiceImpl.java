@@ -38,7 +38,6 @@ public class UserServiceImpl implements UserService{
     private final ClubRepository clubRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final UserConverter userConverter;
-    private final ClubConverter clubConverter;
 
     @Override
     @Transactional

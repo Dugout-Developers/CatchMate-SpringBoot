@@ -4,16 +4,18 @@ import com.back.catchmate.domain.board.entity.Board;
 import com.back.catchmate.domain.board.repository.BoardRepository;
 import com.back.catchmate.domain.enroll.converter.EnrollConverter;
 import com.back.catchmate.domain.enroll.dto.EnrollRequest.CreateEnrollRequest;
-import com.back.catchmate.domain.enroll.dto.EnrollResponse;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.CancelEnrollInfo;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.CreateEnrollInfo;
+import com.back.catchmate.domain.enroll.dto.EnrollResponse.NewEnrollCountInfo;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.PagedEnrollReceiveInfo;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.PagedEnrollRequestInfo;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.UpdateEnrollInfo;
 import com.back.catchmate.domain.enroll.entity.AcceptStatus;
 import com.back.catchmate.domain.enroll.entity.Enroll;
 import com.back.catchmate.domain.enroll.repository.EnrollRepository;
+import com.back.catchmate.domain.notification.message.NotificationMessages;
 import com.back.catchmate.domain.notification.service.FCMService;
+import com.back.catchmate.domain.notification.service.NotificationService;
 import com.back.catchmate.domain.user.entity.User;
 import com.back.catchmate.domain.user.repository.UserRepository;
 import com.back.catchmate.global.error.ErrorCode;
@@ -35,11 +37,12 @@ public class EnrollServiceImpl implements EnrollService {
     private final UserRepository userRepository;
     private final BoardRepository boardRepository;
     private final FCMService fcmService;
+    private final NotificationService notificationService;
     private final EnrollConverter enrollConverter;
 
     @Override
     @Transactional
-    public CreateEnrollInfo requestEnroll(CreateEnrollRequest request, Long boardId, Long userId) {
+    public CreateEnrollInfo requestEnroll(CreateEnrollRequest request, Long boardId, Long userId) throws IOException {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
@@ -57,6 +60,18 @@ public class EnrollServiceImpl implements EnrollService {
 
         Enroll enroll = enrollConverter.toEntity(request, user, board);
         enrollRepository.save(enroll);
+
+        String title = NotificationMessages.ENROLLMENT_NOTIFICATION_TITLE;
+        String body = String.format(NotificationMessages.ENROLLMENT_NOTIFICATION_BODY, user.getNickName());
+
+        // 게시글 작성자의 아이디를 통해 FCM 토큰 확인
+        User boardWriter = userRepository.findById(board.getUser().getId())
+                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+
+        fcmService.sendMessage(boardWriter.getFcmToken(), title, body, boardId);
+
+        // 데이터베이스에 저장
+        notificationService.createNotification(title, body, enroll.getUser().getProfileImageUrl(), boardId, boardWriter.getId());
         return enrollConverter.toCreateEnrollInfo(enroll);
     }
 
@@ -119,7 +134,7 @@ public class EnrollServiceImpl implements EnrollService {
 
     @Override
     @Transactional(readOnly = true)
-    public EnrollResponse.NewEnrollCountInfo getNewEnrollListCount(Long userId) {
+    public NewEnrollCountInfo getNewEnrollListCount(Long userId) {
         int enrollListCount = enrollRepository.countNewEnrollListByUserId(userId);
         return enrollConverter.toNewEnrollCountResponse(enrollListCount);
     }

@@ -39,6 +39,9 @@ public class Notification extends BaseTimeEntity {
     private Board board;
 
     @Column(nullable = false)
+    private String senderProfileImageUrl;
+
+    @Column(nullable = false)
     private String title;
 
     @Column(nullable = false)
