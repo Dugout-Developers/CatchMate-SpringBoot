@@ -40,7 +40,7 @@ public class EnrollController {
     @Operation(summary = "직관 신청 API", description = "직관 신청을 요청하는 API 입니다.")
     public CreateEnrollInfo requestEnroll(@Valid @RequestBody CreateEnrollRequest createEnrollRequest,
                                           @PathVariable Long boardId,
-                                          @JwtValidation Long userId) {
+                                          @JwtValidation Long userId) throws IOException {
         return enrollService.requestEnroll(createEnrollRequest, boardId, userId);
     }
 

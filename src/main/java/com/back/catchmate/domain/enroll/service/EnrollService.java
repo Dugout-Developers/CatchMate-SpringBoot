@@ -13,7 +13,7 @@ import org.springframework.data.domain.Pageable;
 import java.io.IOException;
 
 public interface EnrollService {
-    CreateEnrollInfo requestEnroll(CreateEnrollRequest request, Long boardId, Long userId);
+    CreateEnrollInfo requestEnroll(CreateEnrollRequest request, Long boardId, Long userId) throws IOException;
 
     CancelEnrollInfo cancelEnroll(Long enrollId, Long userId);
 
