@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -20,13 +21,13 @@ public class S3Service {
     private final AmazonS3Client amazonS3Client;
 
     public String uploadFile(MultipartFile file) throws IOException {
-        String fileName = file.getOriginalFilename();
+        String uniqueFileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentType(file.getContentType());
         metadata.setContentLength(file.getSize());
 
-        amazonS3Client.putObject(bucket, fileName, file.getInputStream(), metadata);
-        return getPublicUrl(fileName);
+        amazonS3Client.putObject(bucket, uniqueFileName, file.getInputStream(), metadata);
+        return getPublicUrl(uniqueFileName);
     }
 
     private String getPublicUrl(String fileName) {
