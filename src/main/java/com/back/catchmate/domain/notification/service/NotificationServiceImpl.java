@@ -9,6 +9,7 @@ import com.back.catchmate.domain.notification.entity.Notification;
 import com.back.catchmate.domain.notification.repository.NotificationRepository;
 import com.back.catchmate.domain.user.entity.User;
 import com.back.catchmate.domain.user.repository.UserRepository;
+import com.back.catchmate.global.dto.StateResponse;
 import com.back.catchmate.global.error.ErrorCode;
 import com.back.catchmate.global.error.exception.BaseException;
 import lombok.RequiredArgsConstructor;
@@ -63,5 +64,18 @@ public class NotificationServiceImpl implements NotificationService {
         }
 
         return notificationConverter.toNotificationInfo(notification, notification.getBoard());
+    }
+
+    @Override
+    @Transactional
+    public StateResponse deleteNotification(Long userId, Long notificationId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+
+        Notification notification = notificationRepository.findByIdAndUserId(notificationId, user.getId())
+                .orElseThrow(() -> new BaseException(ErrorCode.NOTIFICATION_NOT_FOUND));
+
+        notificationRepository.delete(notification);
+        return new StateResponse(true);
     }
 }

@@ -62,6 +62,7 @@ public class EnrollController {
     @GetMapping("/receive/all")
     @Operation(summary = "내가 작성한 게시글에 대한 직관 신청 목록 전체 조회 API", description = "내가 작성한 게시글에 대한 직관 신청 목록을 전체 조회하는 API 입니다.")
     public PagedEnrollReceiveInfo getReceiveEnrollList(@JwtValidation Long userId,
+                                                       @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
                                                        @Parameter(hidden = true) Pageable pageable) {
         return enrollService.getReceiveEnrollList(userId, pageable);
     }
@@ -70,6 +71,7 @@ public class EnrollController {
     @Operation(summary = "내가 작성한 게시글에 대한 직관 신청 목록 조회 API", description = "내가 작성한 게시글에 대한 직관 신청 목록을 조회하는 API 입니다.")
     public PagedEnrollReceiveInfo getReceiveEnrollListByBoardId(@JwtValidation Long userId,
                                                                 @RequestParam Long boardId,
+                                                                @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
                                                                 @Parameter(hidden = true) Pageable pageable) {
         return enrollService.getReceiveEnrollListByBoardId(userId, boardId, pageable);
     }
