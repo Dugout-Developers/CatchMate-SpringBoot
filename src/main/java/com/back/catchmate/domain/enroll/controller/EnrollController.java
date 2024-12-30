@@ -27,6 +27,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
+
 @Tag(name = "직관 신청 관련 API")
 @RestController
 @RequestMapping("/enroll")
@@ -81,14 +83,14 @@ public class EnrollController {
     @PatchMapping("/{enrollId}/accept")
     @Operation(summary = "받은 직관 신청 수락 API", description = "내가 받은 직관 신청을 수락하는 API 입니다.")
     public UpdateEnrollInfo acceptEnroll(@PathVariable Long enrollId,
-                                         @JwtValidation Long userId) {
+                                         @JwtValidation Long userId) throws IOException {
         return enrollService.acceptEnroll(enrollId, userId);
     }
 
     @PatchMapping("/{enrollId}/reject")
     @Operation(summary = "받은 직관 신청 거절 API", description = "내가 받은 직관 신청을 거절하는 API 입니다.")
     public UpdateEnrollInfo rejectEnroll(@PathVariable Long enrollId,
-                                         @JwtValidation Long userId) {
+                                         @JwtValidation Long userId) throws IOException {
         return enrollService.rejectEnroll(enrollId, userId);
     }
 }

@@ -33,6 +33,12 @@ jobs:
           echo "${{ secrets.APPLICATION_DEV_YML }}" >> ./application-dev.yml
         shell: bash
 
+      - name: Create Firebase Config Directory
+        run: |
+          mkdir -p src/main/resources/firebase
+          echo "${{ secrets.FIREBASE_SERVICE_KEY }}" | base64 --decode > src/main/resources/firebase/catchmate-9653a-firebase-adminsdk-kh06c-0315680471.json
+        shell: bash
+
       # gradlew에 실행 권한을 부여합니다.
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew

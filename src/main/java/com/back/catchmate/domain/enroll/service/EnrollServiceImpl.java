@@ -13,6 +13,7 @@ import com.back.catchmate.domain.enroll.dto.EnrollResponse.UpdateEnrollInfo;
 import com.back.catchmate.domain.enroll.entity.AcceptStatus;
 import com.back.catchmate.domain.enroll.entity.Enroll;
 import com.back.catchmate.domain.enroll.repository.EnrollRepository;
+import com.back.catchmate.domain.notification.service.FCMService;
 import com.back.catchmate.domain.user.entity.User;
 import com.back.catchmate.domain.user.repository.UserRepository;
 import com.back.catchmate.global.error.ErrorCode;
@@ -23,12 +24,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+
+import static com.back.catchmate.domain.notification.message.NotificationMessages.*;
+
 @Service
 @RequiredArgsConstructor
 public class EnrollServiceImpl implements EnrollService {
     private final EnrollRepository enrollRepository;
     private final UserRepository userRepository;
     private final BoardRepository boardRepository;
+    private final FCMService fcmService;
     private final EnrollConverter enrollConverter;
 
     @Override
@@ -120,7 +126,7 @@ public class EnrollServiceImpl implements EnrollService {
 
     @Override
     @Transactional
-    public UpdateEnrollInfo acceptEnroll(Long enrollId, Long userId) {
+    public UpdateEnrollInfo acceptEnroll(Long enrollId, Long userId) throws IOException {
         User loginUser = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
@@ -136,13 +142,16 @@ public class EnrollServiceImpl implements EnrollService {
             throw new BaseException(ErrorCode.ENROLL_ACCEPT_INVALID);
         }
 
+        // 직관 신청자에게 수락 푸시 알림 메세지 전송
+        fcmService.sendMessage(enrollApplicant.getFcmToken(), ENROLLMENT_ACCEPT_TITLE, ENROLLMENT_ACCEPT_BODY, enroll.getBoard().getId());
+
         enroll.setAcceptStatus(AcceptStatus.ACCEPTED);
         return enrollConverter.toUpdateEnrollInfo(enroll, AcceptStatus.ACCEPTED);
     }
 
     @Override
     @Transactional
-    public UpdateEnrollInfo rejectEnroll(Long enrollId, Long userId) {
+    public UpdateEnrollInfo rejectEnroll(Long enrollId, Long userId) throws IOException {
         User loginUser = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
@@ -157,6 +166,9 @@ public class EnrollServiceImpl implements EnrollService {
         if (loginUser.isDifferentUserFrom(boardWriter)) {
             throw new BaseException(ErrorCode.ENROLL_REJECT_INVALID);
         }
+
+        // 직관 신청자에게 거절 푸시 알림 메세지 전송
+        fcmService.sendMessage(enrollApplicant.getFcmToken(), ENROLLMENT_REJECT_TITLE, ENROLLMENT_REJECT_BODY, enroll.getBoard().getId());
 
         enroll.setAcceptStatus(AcceptStatus.REJECTED);
         return enrollConverter.toUpdateEnrollInfo(enroll, AcceptStatus.REJECTED);
