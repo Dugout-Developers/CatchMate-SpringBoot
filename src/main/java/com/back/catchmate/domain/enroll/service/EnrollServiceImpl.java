@@ -61,8 +61,8 @@ public class EnrollServiceImpl implements EnrollService {
         Enroll enroll = enrollConverter.toEntity(request, user, board);
         enrollRepository.save(enroll);
 
-        String title = NotificationMessages.ENROLLMENT_NOTIFICATION_TITLE;
-        String body = String.format(NotificationMessages.ENROLLMENT_NOTIFICATION_BODY, user.getNickName());
+        String title = ENROLLMENT_NOTIFICATION_TITLE;
+        String body = String.format(ENROLLMENT_NOTIFICATION_BODY, user.getNickName());
 
         // 게시글 작성자의 아이디를 통해 FCM 토큰 확인
         User boardWriter = userRepository.findById(board.getUser().getId())
@@ -157,8 +157,14 @@ public class EnrollServiceImpl implements EnrollService {
             throw new BaseException(ErrorCode.ENROLL_ACCEPT_INVALID);
         }
 
+        String title = ENROLLMENT_ACCEPT_TITLE;
+        String body = ENROLLMENT_ACCEPT_BODY;
+
         // 직관 신청자에게 수락 푸시 알림 메세지 전송
-        fcmService.sendMessage(enrollApplicant.getFcmToken(), ENROLLMENT_ACCEPT_TITLE, ENROLLMENT_ACCEPT_BODY, enroll.getBoard().getId());
+        fcmService.sendMessage(enrollApplicant.getFcmToken(), title, body, enroll.getBoard().getId());
+        // 데이터베이스에 저장
+        notificationService.createNotification(title, body, boardWriter.getProfileImageUrl(), enroll.getBoard().getId(), enrollApplicant.getId());
+
 
         enroll.setAcceptStatus(AcceptStatus.ACCEPTED);
         return enrollConverter.toUpdateEnrollInfo(enroll, AcceptStatus.ACCEPTED);
@@ -182,10 +188,16 @@ public class EnrollServiceImpl implements EnrollService {
             throw new BaseException(ErrorCode.ENROLL_REJECT_INVALID);
         }
 
+        String title = ENROLLMENT_REJECT_TITLE;
+        String body = ENROLLMENT_REJECT_BODY;
+
         // 직관 신청자에게 거절 푸시 알림 메세지 전송
-        fcmService.sendMessage(enrollApplicant.getFcmToken(), ENROLLMENT_REJECT_TITLE, ENROLLMENT_REJECT_BODY, enroll.getBoard().getId());
+        fcmService.sendMessage(enrollApplicant.getFcmToken(), title, body, enroll.getBoard().getId());
+        // 데이터베이스에 저장
+        notificationService.createNotification(title, body, boardWriter.getProfileImageUrl(), enroll.getBoard().getId(), enrollApplicant.getId());
 
         enroll.setAcceptStatus(AcceptStatus.REJECTED);
         return enrollConverter.toUpdateEnrollInfo(enroll, AcceptStatus.REJECTED);
     }
 }
+i
