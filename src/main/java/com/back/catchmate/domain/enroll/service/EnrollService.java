@@ -25,7 +25,7 @@ public interface EnrollService {
 
     NewEnrollCountInfo getNewEnrollListCount(Long userId);
 
-    UpdateEnrollInfo acceptEnroll(Long enrollId, Long userId);
+    UpdateEnrollInfo acceptEnroll(Long enrollId, Long userId) throws IOException;
 
-    UpdateEnrollInfo rejectEnroll(Long enrollId, Long userId);
+    UpdateEnrollInfo rejectEnroll(Long enrollId, Long userId) throws IOException;
 }

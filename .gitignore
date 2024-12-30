@@ -37,3 +37,4 @@ out/
 .vscode/
 
 application-dev.yml
+/src/main/resources/firebase/catchmate-9653a-firebase-adminsdk-kh06c-0315680471.json

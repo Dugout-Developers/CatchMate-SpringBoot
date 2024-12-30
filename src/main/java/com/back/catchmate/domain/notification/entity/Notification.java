@@ -46,4 +46,13 @@ public class Notification extends BaseTimeEntity {
 
     @Column(nullable = false)
     private boolean isRead;
+
+    // 알림 수신 여부 설정 메서드
+    public void markAsRead() {
+        this.isRead = true;
+    }
+
+    public boolean isNotRead() {
+        return !this.isRead;
+    }
 }
