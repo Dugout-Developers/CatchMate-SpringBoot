@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public abstract class NotificationResponse {
-
     @Getter
     @Builder
     @NoArgsConstructor
