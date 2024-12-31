@@ -12,5 +12,6 @@ public abstract class BoardResponse {
     @AllArgsConstructor
     public static class BoardInfo {
         String title;
+        String content;
     }
 }
