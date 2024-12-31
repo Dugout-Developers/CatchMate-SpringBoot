@@ -13,4 +13,7 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
     @Modifying
     @Query("UPDATE Board b SET b.deletedAt = CURRENT_TIMESTAMP WHERE b.user.id = :userId AND b.id = :boardId")
     int softDeleteByUserIdAndBoardId(@Param("userId") Long userId, @Param("boardId") Long boardId);
+
+    @Query("SELECT b FROM Board b WHERE b.id = :boardId AND b.deletedAt IS NULL")
+    Optional<Board> findByIdAndDeletedAtIsNull(Long boardId);
 }

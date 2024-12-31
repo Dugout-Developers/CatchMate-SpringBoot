@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @MappedSuperclass
-@SQLRestriction("deleted_at is NULL")
+@SQLRestriction("deleted_at = NULL")
 @EntityListeners(AuditingEntityListener.class)
 public abstract class BaseTimeEntity {
     @CreatedDate

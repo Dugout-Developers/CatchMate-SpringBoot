@@ -74,7 +74,7 @@ public class BoardServiceImpl implements BoardService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
-        Board board = boardRepository.findById(boardId)
+        Board board = boardRepository.findByIdAndDeletedAtIsNull(boardId)
                 .orElseThrow(() -> new BaseException(ErrorCode.BOARD_NOT_FOUND));
 
         return boardConverter.toBoardInfo(board, board.getGame());
