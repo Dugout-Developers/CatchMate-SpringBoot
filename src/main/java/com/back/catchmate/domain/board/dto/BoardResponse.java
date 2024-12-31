@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 public abstract class BoardResponse {
     @Getter
     @Builder
@@ -13,5 +15,14 @@ public abstract class BoardResponse {
     public static class BoardInfo {
         String title;
         String content;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class BoardDeleteInfo {
+        Long boardId;
+        LocalDateTime deletedAt;
     }
 }
