@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.*;
 public class BoardController {
     private final BoardService boardService;
 
-    @PostMapping()
+    @PostMapping
     @Operation(summary = "게시글 등록 API", description = "게시글을 등록합니다.")
     public BoardInfo createBoard(@JwtValidation Long userId,
                                  @Valid @RequestBody CreateBoardRequest request) {
@@ -41,6 +41,14 @@ public class BoardController {
     public BoardInfo getBoard(@JwtValidation Long userId,
                               @PathVariable Long boardId) {
         return boardService.getBoard(userId, boardId);
+    }
+
+    @GetMapping
+    @Operation(summary = "게시글 리스트 조회 API", description = "게시글 리스트를 조회하는 API 입니다.")
+    public PagedBoardInfo getBoardList(@JwtValidation Long userId,
+                                       @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
+                                       @Parameter(hidden = true) Pageable pageable) {
+        return boardService.getBoardList(userId, pageable);
     }
 
     @DeleteMapping("/{boardId}")
