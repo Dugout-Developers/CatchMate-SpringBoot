@@ -37,11 +37,11 @@ public class Board extends BaseTimeEntity {
     private User user;
 
     @Builder.Default
-    @OneToMany(mappedBy = "board")
+    @OneToMany(mappedBy = "board", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Enroll> enrollList = new ArrayList<>();
 
     @Builder.Default
-    @OneToMany(mappedBy = "board")
+    @OneToMany(mappedBy = "board", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Notification> notificationList = new ArrayList<>();
 
     public boolean isWriterSameAsLoginUser(User user) {
