@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 public abstract class GameResponse {
     @Getter
     @Builder
@@ -17,7 +19,7 @@ public abstract class GameResponse {
         @NotNull
         private Long awayClubId;
         @NotNull
-        private String gameStartDate;
+        private LocalDateTime gameStartDate;
         @NotNull
         private String location;
     }

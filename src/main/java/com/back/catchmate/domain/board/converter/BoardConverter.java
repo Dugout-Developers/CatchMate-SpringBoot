@@ -1,14 +1,14 @@
 package com.back.catchmate.domain.board.converter;
 
-import com.back.catchmate.domain.board.dto.BoardRequest;
 import com.back.catchmate.domain.board.dto.BoardRequest.CreateBoardRequest;
-import com.back.catchmate.domain.board.dto.BoardResponse;
-import com.back.catchmate.domain.board.dto.BoardResponse.BoardInfo;
+import com.back.catchmate.domain.board.dto.BoardResponse.*;
 import com.back.catchmate.domain.board.entity.Board;
 import com.back.catchmate.domain.club.entity.Club;
 import com.back.catchmate.domain.game.entity.Game;
 import com.back.catchmate.domain.user.entity.User;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDateTime;
 
 @Component
 public class BoardConverter {
@@ -26,8 +26,20 @@ public class BoardConverter {
 
     public BoardInfo toBoardInfo(Board board) {
         return BoardInfo.builder()
+                .boardId(board.getId())
                 .title(board.getTitle())
                 .content(board.getContent())
+                .cheerClubId(board.getClub().getId())
+                .preferredGender(board.getPreferredGender())
+                .preferredAgeRange(board.getPreferredAgeRange())
+                .gameInfo()
+                .build();
+    }
+
+    public BoardDeleteInfo toBoardDeleteInfo(Long boardId) {
+        return BoardDeleteInfo.builder()
+                .boardId(boardId)
+                .deletedAt(LocalDateTime.now())
                 .build();
     }
 }

@@ -1,8 +1,8 @@
 package com.back.catchmate.domain.board.service;
 
 import com.back.catchmate.domain.board.converter.BoardConverter;
-import com.back.catchmate.domain.board.dto.BoardRequest.CreateBoardRequest;
-import com.back.catchmate.domain.board.dto.BoardResponse.BoardInfo;
+import com.back.catchmate.domain.board.dto.BoardRequest.*;
+import com.back.catchmate.domain.board.dto.BoardResponse.*;
 import com.back.catchmate.domain.board.entity.Board;
 import com.back.catchmate.domain.board.repository.BoardRepository;
 import com.back.catchmate.domain.club.entity.Club;
@@ -57,6 +57,18 @@ public class BoardServiceImpl implements BoardService {
         return boardConverter.toBoardInfo(board);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public BoardInfo getBoard(Long userId, Long boardId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new BaseException(ErrorCode.BOARD_NOT_FOUND));
+
+        boardConverter.toBoardInfo(board);
+    }
+
     private Game findOrCreateGame(Club homeClub, Club awayClub, CreateGameRequest createGameRequest) {
         Game game = gameRepository.findByHomeClubAndAwayClubAndGameStartDate(
                 homeClub, awayClub, LocalDateTime.parse(createGameRequest.getGameStartDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
@@ -66,5 +78,16 @@ public class BoardServiceImpl implements BoardService {
             gameRepository.save(game);
         }
         return game;
+    }
+
+    @Transactional
+    public BoardDeleteInfo deleteBoard(Long userId, Long boardId) {
+        int updatedRows = boardRepository.softDeleteByUserIdAndBoardId(userId, boardId);
+
+        if (updatedRows == 0) {
+            throw new IllegalStateException("Board not found or already deleted. Board ID: " + boardId);
+        }
+
+        return boardConverter.toBoardDeleteInfo(boardId);
     }
 }

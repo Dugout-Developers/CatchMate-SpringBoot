@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 public abstract class BoardResponse {
     @Getter
     @Builder
@@ -19,5 +21,14 @@ public abstract class BoardResponse {
         private String preferredGender;
         private String preferredAgeRange;
         private GameInfo gameInfo;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class BoardDeleteInfo {
+        Long boardId;
+        LocalDateTime deletedAt;
     }
 }
