@@ -39,6 +39,8 @@ public class NotificationConverter {
                 .notificationInfoList(enrollRequestInfoList)
                 .totalPages(notificationList.getTotalPages())
                 .totalElements(notificationList.getTotalElements())
+                .isFirst(notificationList.isFirst())
+                .isLast(notificationList.isLast())
                 .build();
     }
 

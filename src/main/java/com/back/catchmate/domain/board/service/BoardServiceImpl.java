@@ -16,6 +16,8 @@ import com.back.catchmate.domain.user.repository.UserRepository;
 import com.back.catchmate.global.error.ErrorCode;
 import com.back.catchmate.global.error.exception.BaseException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,9 +64,10 @@ public class BoardServiceImpl implements BoardService {
         );
 
         if (game == null) {
-            game = this.gameConverter.toEntity(homeClub, awayClub, createGameRequest);
+            game = gameConverter.toEntity(homeClub, awayClub, createGameRequest);
             gameRepository.save(game);
         }
+
         return game;
     }
 
@@ -78,6 +81,15 @@ public class BoardServiceImpl implements BoardService {
                 .orElseThrow(() -> new BaseException(ErrorCode.BOARD_NOT_FOUND));
 
         return boardConverter.toBoardInfo(board, board.getGame());
+    }
+
+    @Override
+    public PagedBoardInfo getBoardList(Long userId, Pageable pageable) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+
+        Page<Board> boardList = boardRepository.findAllByDeletedAtIsNull(pageable);
+        return boardConverter.toPagedBoardInfo(boardList);
     }
 
     @Override

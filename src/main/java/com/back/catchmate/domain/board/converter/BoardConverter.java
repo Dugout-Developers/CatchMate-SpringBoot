@@ -10,9 +10,12 @@ import com.back.catchmate.domain.game.dto.GameResponse.GameInfo;
 import com.back.catchmate.domain.game.entity.Game;
 import com.back.catchmate.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -29,6 +32,20 @@ public class BoardConverter {
                 .game(game)
                 .preferredGender(createBoardRequest.getPreferredGender())
                 .preferredAgeRange(String.join(",", createBoardRequest.getPreferredAgeRange()))
+                .build();
+    }
+
+    public PagedBoardInfo toPagedBoardInfo(Page<Board> boardList) {
+        List<BoardInfo> boardInfoList = boardList.stream()
+                .map(board -> toBoardInfo(board, board.getGame()))
+                .toList();
+
+        return PagedBoardInfo.builder()
+                .boardInfoList(boardInfoList)
+                .totalPages(boardList.getTotalPages())
+                .totalElements(boardList.getTotalElements())
+                .isFirst(boardList.isFirst())
+                .isLast(boardList.isLast())
                 .build();
     }
 

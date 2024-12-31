@@ -1,8 +1,6 @@
 package com.back.catchmate.domain.board.dto;
 
 import com.back.catchmate.domain.game.dto.GameRequest.CreateGameRequest;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

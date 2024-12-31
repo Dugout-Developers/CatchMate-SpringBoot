@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public abstract class BoardResponse {
     @Getter
@@ -23,6 +24,18 @@ public abstract class BoardResponse {
         private String preferredGender;
         private String preferredAgeRange;
         private GameInfo gameInfo;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class PagedBoardInfo {
+        private List<BoardInfo> boardInfoList;
+        private Integer totalPages;
+        private Long totalElements;
+        private Boolean isFirst;
+        private Boolean isLast;
     }
 
     @Getter
