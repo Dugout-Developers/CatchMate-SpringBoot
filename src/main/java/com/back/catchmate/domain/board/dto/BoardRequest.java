@@ -1,11 +1,14 @@
 package com.back.catchmate.domain.board.dto;
 
 import com.back.catchmate.domain.game.dto.GameRequest.CreateGameRequest;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Range;
 
 import java.util.List;
 
@@ -19,6 +22,9 @@ public abstract class BoardRequest {
         private String title;
         @NotNull
         private String content;
+        @NotNull
+        @Range(min = 1, max = 8)
+        private int maxPerson;
         @NotNull
         private Long cheerClubId;
         @NotNull

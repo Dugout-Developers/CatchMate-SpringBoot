@@ -18,6 +18,8 @@ public abstract class BoardResponse {
         private String title;
         private String content;
         private Long cheerClubId;
+        private int currentPerson;
+        private int maxPerson;
         private String preferredGender;
         private String preferredAgeRange;
         private GameInfo gameInfo;
