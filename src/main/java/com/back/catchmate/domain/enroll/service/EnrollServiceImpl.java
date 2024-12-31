@@ -13,7 +13,6 @@ import com.back.catchmate.domain.enroll.dto.EnrollResponse.UpdateEnrollInfo;
 import com.back.catchmate.domain.enroll.entity.AcceptStatus;
 import com.back.catchmate.domain.enroll.entity.Enroll;
 import com.back.catchmate.domain.enroll.repository.EnrollRepository;
-import com.back.catchmate.domain.notification.message.NotificationMessages;
 import com.back.catchmate.domain.notification.service.FCMService;
 import com.back.catchmate.domain.notification.service.NotificationService;
 import com.back.catchmate.domain.user.entity.User;
@@ -67,7 +66,7 @@ public class EnrollServiceImpl implements EnrollService {
         // 게시글 작성자의 아이디를 통해 FCM 토큰 확인
         User boardWriter = userRepository.findById(board.getUser().getId())
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
-
+        // 게시글 작성자에게 푸시 알림 메세지 전송
         fcmService.sendMessage(boardWriter.getFcmToken(), title, body, boardId);
 
         // 데이터베이스에 저장
@@ -166,7 +165,7 @@ public class EnrollServiceImpl implements EnrollService {
         notificationService.createNotification(title, body, boardWriter.getProfileImageUrl(), enroll.getBoard().getId(), enrollApplicant.getId());
 
 
-        enroll.setAcceptStatus(AcceptStatus.ACCEPTED);
+        enroll.respondToEnroll(AcceptStatus.ACCEPTED);
         return enrollConverter.toUpdateEnrollInfo(enroll, AcceptStatus.ACCEPTED);
     }
 
@@ -196,7 +195,7 @@ public class EnrollServiceImpl implements EnrollService {
         // 데이터베이스에 저장
         notificationService.createNotification(title, body, boardWriter.getProfileImageUrl(), enroll.getBoard().getId(), enrollApplicant.getId());
 
-        enroll.setAcceptStatus(AcceptStatus.REJECTED);
+        enroll.respondToEnroll(AcceptStatus.REJECTED);
         return enrollConverter.toUpdateEnrollInfo(enroll, AcceptStatus.REJECTED);
     }
 }

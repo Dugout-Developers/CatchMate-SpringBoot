@@ -8,5 +8,7 @@ import com.back.catchmate.domain.board.dto.BoardResponse.BoardInfo;
 public interface BoardService {
     BoardInfo createBoard(Long userId, CreateBoardRequest boardRequest);
 
+    BoardInfo getBoard(Long userId, Long boardId);
+
     BoardDeleteInfo deleteBoard(Long userId, Long boardId);
 }

@@ -43,7 +43,7 @@ public class NotificationConverter {
     }
 
     public NotificationInfo toNotificationInfo(Notification notification, Board board) {
-        BoardInfo boardInfo = boardConverter.toBoardInfo(board);
+        BoardInfo boardInfo = boardConverter.toBoardInfo(board, board.getGame());
 
         return NotificationInfo.builder()
                 .notificationId(notification.getId())
