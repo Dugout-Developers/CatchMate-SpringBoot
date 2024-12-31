@@ -14,17 +14,16 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Getter
-@Setter
 @Builder
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Table(name = "enrolls")
 public class Enroll extends BaseTimeEntity {
@@ -53,5 +52,9 @@ public class Enroll extends BaseTimeEntity {
 
     public boolean isDifferentFromLoginUser(User user) {
         return !this.user.equals(user);
+    }
+
+    public void respondToEnroll(AcceptStatus acceptStatus) {
+        this.acceptStatus = acceptStatus;
     }
 }
