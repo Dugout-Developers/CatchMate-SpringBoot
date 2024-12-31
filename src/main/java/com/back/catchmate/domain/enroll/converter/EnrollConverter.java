@@ -58,7 +58,7 @@ public class EnrollConverter {
         List<EnrollRequestInfo> enrollRequestInfoList = enrollList.stream()
                 .map(enroll -> {
                     UserInfo userInfo = userConverter.toUserInfo(enroll.getUser());
-                    BoardInfo boardInfo = boardConverter.toBoardInfo(enroll.getBoard());
+                    BoardInfo boardInfo = boardConverter.toBoardInfo(enroll.getBoard(), enroll.getBoard().getGame());
                     return toEnrollRequestInfo(enroll, userInfo, boardInfo);
                 })
                 .collect(Collectors.toList());
@@ -85,7 +85,7 @@ public class EnrollConverter {
         List<EnrollReceiveInfo> enrollRequestInfoList = enrollList.stream()
                 .map(enroll -> {
                     UserInfo userInfo = userConverter.toUserInfo(enroll.getUser());
-                    BoardInfo boardInfo = boardConverter.toBoardInfo(enroll.getBoard());
+                    BoardInfo boardInfo = boardConverter.toBoardInfo(enroll.getBoard(), enroll.getBoard().getGame());
                     return toEnrollReceiveInfo(enroll, userInfo, boardInfo);
                 })
                 .collect(Collectors.toList());

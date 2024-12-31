@@ -26,16 +26,11 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "boards")
-@Where(clause = "deleted = false")
 public class Board extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "board_id")
     private Long id;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "game_id", nullable = false)
-    private Game game;
 
     @Column(nullable = false)
     private String title;
@@ -48,6 +43,10 @@ public class Board extends BaseTimeEntity {
 
     @Column(nullable = false)
     private String preferredAgeRange;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "game_id", nullable = false)
+    private Game game;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "club_id", nullable = false)

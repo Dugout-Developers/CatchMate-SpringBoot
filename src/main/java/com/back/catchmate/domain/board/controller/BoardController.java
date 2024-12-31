@@ -36,17 +36,17 @@ public class BoardController {
         return boardService.createBoard(userId, request);
     }
 
-    @DeleteMapping("/{boardId}")
-    @Operation(summary = "게시글 삭제 API", description = "게시글을 삭제합니다.")
-    public BoardDeleteInfo deleteBoard(@JwtValidation Long userId,
-                                     @PathVariable Long boardId) {
-        return boardService.deleteBoard(userId, boardId);
-    }
-
-    @GetMapping("/{boardId}}")
-    @Operation(summary = "내가 보낸 직관 신청 목록 조회 API", description = "내가 보낸 직관 신청 목록을 조회하는 API 입니다.")
+    @GetMapping("/{boardId}")
+    @Operation(summary = "게시글 단일 조회 API", description = "게시글을 단일 조회하는 API 입니다.")
     public BoardInfo getBoard(@JwtValidation Long userId,
                               @PathVariable Long boardId) {
         return boardService.getBoard(userId, boardId);
+    }
+
+    @DeleteMapping("/{boardId}")
+    @Operation(summary = "게시글 삭제 API", description = "게시글을 삭제합니다.")
+    public BoardDeleteInfo deleteBoard(@JwtValidation Long userId,
+                                       @PathVariable Long boardId) {
+        return boardService.deleteBoard(userId, boardId);
     }
 }

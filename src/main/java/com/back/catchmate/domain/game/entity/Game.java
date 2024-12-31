@@ -27,11 +27,11 @@ public class Game extends BaseTimeEntity {
     @Column(nullable = false)
     private LocalDateTime gameStartDate;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "home_club_id", nullable = false)
     private Club homeClub;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "away_club_id", nullable = false)
     private Club awayClub;
 
