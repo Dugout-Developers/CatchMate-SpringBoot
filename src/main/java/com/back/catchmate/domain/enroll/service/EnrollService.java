@@ -1,7 +1,6 @@
 package com.back.catchmate.domain.enroll.service;
 
 import com.back.catchmate.domain.enroll.dto.EnrollRequest.CreateEnrollRequest;
-import com.back.catchmate.domain.enroll.dto.EnrollResponse;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.CancelEnrollInfo;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.CreateEnrollInfo;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.NewEnrollCountInfo;

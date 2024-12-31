@@ -13,7 +13,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.annotations.Where;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +36,9 @@ public class Board extends BaseTimeEntity {
 
     @Column(nullable = false)
     private String content;
+
+    @Column(nullable = false)
+    private int maxPerson;
 
     @Column(nullable = false)
     private String preferredGender;

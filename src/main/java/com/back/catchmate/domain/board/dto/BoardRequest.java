@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Range;
 
 import java.util.List;
 
@@ -19,6 +20,9 @@ public abstract class BoardRequest {
         private String title;
         @NotNull
         private String content;
+        @NotNull
+        @Range(min = 1, max = 8)
+        private int maxPerson;
         @NotNull
         private Long cheerClubId;
         @NotNull
