@@ -1,9 +1,7 @@
 package com.back.catchmate.domain.board.controller;
 
-import com.back.catchmate.domain.board.dto.BoardRequest;
 import com.back.catchmate.domain.board.dto.BoardRequest.CreateBoardRequest;
 import com.back.catchmate.domain.board.dto.BoardRequest.UpdateBoardRequest;
-import com.back.catchmate.domain.board.dto.BoardResponse;
 import com.back.catchmate.domain.board.dto.BoardResponse.BoardDeleteInfo;
 import com.back.catchmate.domain.board.dto.BoardResponse.BoardInfo;
 import com.back.catchmate.domain.board.dto.BoardResponse.PagedBoardInfo;
@@ -29,7 +27,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-
 
 @Tag(name = "게시글 관련 API")
 @RestController
@@ -80,6 +77,14 @@ public class BoardController {
         return bookMarkService.addBookMark(userId, boardId);
     }
 
+    @GetMapping("/bookmark")
+    @Operation(summary = "찜한 게시글 조회 API", description = "사용자가 찜한 게시글을 조회하는 API입니다.")
+    public PagedBoardInfo getBookMarkBoardList(@JwtValidation Long userId,
+                                               @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
+                                               @Parameter(hidden = true) Pageable pageable) {
+        return bookMarkService.getBookMarkBoardList(userId, pageable);
+    }
+
     @DeleteMapping("/bookmark/{boardId}")
     @Operation(summary = "원하는 게시글을의 찜을 삭제하는 API", description = "원하는 게시글을의 찜을 삭제하는 API 입니다.")
     public StateResponse removeBookMark(@JwtValidation Long userId,
@@ -98,7 +103,7 @@ public class BoardController {
     @DeleteMapping("/{boardId}")
     @Operation(summary = "게시글 삭제 API", description = "게시글을 삭제합니다.")
     public BoardDeleteInfo deleteBoard(@JwtValidation Long userId,
-                                                     @PathVariable Long boardId) {
+                                       @PathVariable Long boardId) {
         return boardService.deleteBoard(userId, boardId);
     }
 }
