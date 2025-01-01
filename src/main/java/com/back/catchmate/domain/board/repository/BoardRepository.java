@@ -18,5 +18,5 @@ public interface BoardRepository extends JpaRepository<Board, Long>, BoardReposi
     @Query("SELECT b FROM Board b WHERE b.id = :boardId AND b.deletedAt IS NULL")
     Optional<Board> findByIdAndDeletedAtIsNull(Long boardId);
 
-    Page<Board> findAllByDeletedAtIsNull(Pageable pageable);
+    Page<Board> findAllByUserIdAndDeletedAtIsNull(Long userId, Pageable pageable);
 }

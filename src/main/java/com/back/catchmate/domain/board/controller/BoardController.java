@@ -46,15 +46,24 @@ public class BoardController {
         return boardService.getBoard(userId, boardId);
     }
 
-    @GetMapping
-    @Operation(summary = "게시글 리스트 조회 API", description = "게시글 리스트를 조회하는 API 입니다.")
-    public PagedBoardInfo getBoardList(
-            @JwtValidation Long userId,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate gameStartDate,
-            @RequestParam(required = false) Integer maxPerson,
-            @RequestParam(required = false) Long preferredTeamId,
-            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) @Parameter(hidden = true) Pageable pageable) {
+    @GetMapping("/list")
+    @Operation(summary = "게시글 리스트 전체 조회 API", description = "게시글 리스트를 전체 조회하는 API 입니다.")
+    public PagedBoardInfo getBoardList(@JwtValidation Long userId,
+                                       @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate gameStartDate,
+                                       @RequestParam(required = false) Integer maxPerson,
+                                       @RequestParam(required = false) Long preferredTeamId,
+                                       @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
+                                       @Parameter(hidden = true) Pageable pageable) {
         return boardService.getBoardList(userId, gameStartDate, maxPerson, preferredTeamId, pageable);
+    }
+
+    @GetMapping("/list/{userId}")
+    @Operation(summary = "상대방이 작성한 게시글 조회 API", description = "상대방이 작성한 게시글을 조회하는 API 입니다.")
+    public PagedBoardInfo getBoardListByUserId(@JwtValidation Long loginUserId,
+                                               @PathVariable Long userId,
+                                               @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
+                                               @Parameter(hidden = true) Pageable pageable) {
+        return boardService.getBoardListByUserId(loginUserId, userId, pageable);
     }
 
     @DeleteMapping("/{boardId}")
