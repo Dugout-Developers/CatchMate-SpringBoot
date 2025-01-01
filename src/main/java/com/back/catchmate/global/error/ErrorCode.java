@@ -32,6 +32,8 @@ public enum ErrorCode {
     BOARD_BAD_REQUEST(HttpStatus.BAD_REQUEST, "자신의 게시글만 수정할 수 있습니다."),
     INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 액세스 토큰입니다."),
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 리프레시 토큰입니다."),
+    ALREADY_BOOKMARK(HttpStatus.BAD_REQUEST, "이미 찜한 게시글입니다."),
+    BOOKMARK_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 찜입니다."),
 
     // 알림
     NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 알림입니다."),

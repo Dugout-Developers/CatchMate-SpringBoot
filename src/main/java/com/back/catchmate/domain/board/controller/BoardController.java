@@ -3,6 +3,8 @@ package com.back.catchmate.domain.board.controller;
 import com.back.catchmate.domain.board.dto.BoardRequest.*;
 import com.back.catchmate.domain.board.dto.BoardResponse.*;
 import com.back.catchmate.domain.board.service.BoardService;
+import com.back.catchmate.domain.board.service.BookMarkService;
+import com.back.catchmate.global.dto.StateResponse;
 import com.back.catchmate.global.jwt.JwtValidation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -30,6 +32,7 @@ import java.time.LocalDate;
 @RequiredArgsConstructor
 public class BoardController {
     private final BoardService boardService;
+    private final BookMarkService bookMarkService;
 
     @PostMapping
     @Operation(summary = "게시글 등록 API", description = "게시글을 등록합니다.")
@@ -65,11 +68,18 @@ public class BoardController {
         return boardService.getBoardListByUserId(loginUserId, userId, pageable);
     }
 
-    @DeleteMapping("/{boardId}")
-    @Operation(summary = "게시글 삭제 API", description = "게시글을 삭제합니다.")
-    public BoardDeleteInfo deleteBoard(@JwtValidation Long userId,
-                                       @PathVariable Long boardId) {
-        return boardService.deleteBoard(userId, boardId);
+    @PostMapping("/bookmark/{boardId}")
+    @Operation(summary = "원하는 게시글을 찜하는 API", description = "원하는 게시글을 찜하는 API 입니다.")
+    public StateResponse addBookMark(@JwtValidation Long userId,
+                                     @PathVariable Long boardId) {
+        return bookMarkService.addBookMark(userId, boardId);
+    }
+
+    @DeleteMapping("/bookmark/{boardId}")
+    @Operation(summary = "원하는 게시글을의 찜을 삭제하는 API", description = "원하는 게시글을의 찜을 삭제하는 API 입니다.")
+    public StateResponse removeBookMark(@JwtValidation Long userId,
+                                        @PathVariable Long boardId) {
+        return bookMarkService.removeBookMark(userId, boardId);
     }
 
     @PatchMapping("/{boardId}")
@@ -78,5 +88,12 @@ public class BoardController {
                                  @PathVariable Long boardId,
                                  @Valid @RequestBody UpdateBoardRequest request) {
         return boardService.updateBoard(userId, boardId, request);
+    }
+
+    @DeleteMapping("/{boardId}")
+    @Operation(summary = "게시글 삭제 API", description = "게시글을 삭제합니다.")
+    public BoardDeleteInfo deleteBoard(@JwtValidation Long userId,
+                                       @PathVariable Long boardId) {
+        return boardService.deleteBoard(userId, boardId);
     }
 }

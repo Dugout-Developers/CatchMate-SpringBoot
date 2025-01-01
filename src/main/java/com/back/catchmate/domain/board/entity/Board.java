@@ -67,6 +67,10 @@ public class Board extends BaseTimeEntity {
     @OneToMany(mappedBy = "board")
     private List<Notification> notificationList = new ArrayList<>();
 
+    @Builder.Default
+    @OneToMany(mappedBy = "board")
+    private List<BookMark> bookMarkList = new ArrayList<>();
+
     @Column(nullable = false)
     private Boolean isCompleted = false;
 
