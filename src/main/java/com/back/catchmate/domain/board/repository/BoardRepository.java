@@ -10,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
-public interface BoardRepository extends JpaRepository<Board, Long> {
+public interface BoardRepository extends JpaRepository<Board, Long>, BoardRepositoryCustom {
     @Modifying
     @Query("UPDATE Board b SET b.deletedAt = CURRENT_TIMESTAMP WHERE b.user.id = :userId AND b.id = :boardId")
     int softDeleteByUserIdAndBoardId(@Param("userId") Long userId, @Param("boardId") Long boardId);

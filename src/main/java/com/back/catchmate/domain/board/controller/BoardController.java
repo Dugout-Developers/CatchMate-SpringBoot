@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +21,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
 
 
 @Tag(name = "게시글 관련 API")
@@ -45,10 +48,13 @@ public class BoardController {
 
     @GetMapping
     @Operation(summary = "게시글 리스트 조회 API", description = "게시글 리스트를 조회하는 API 입니다.")
-    public PagedBoardInfo getBoardList(@JwtValidation Long userId,
-                                       @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
-                                       @Parameter(hidden = true) Pageable pageable) {
-        return boardService.getBoardList(userId, pageable);
+    public PagedBoardInfo getBoardList(
+            @JwtValidation Long userId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate gameStartDate,
+            @RequestParam(required = false) Integer maxPerson,
+            @RequestParam(required = false) Long preferredTeamId,
+            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) @Parameter(hidden = true) Pageable pageable) {
+        return boardService.getBoardList(userId, gameStartDate, maxPerson, preferredTeamId, pageable);
     }
 
     @DeleteMapping("/{boardId}")
