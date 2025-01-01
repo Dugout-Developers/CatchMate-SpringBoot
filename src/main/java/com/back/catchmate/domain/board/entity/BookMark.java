@@ -1,6 +1,5 @@
 package com.back.catchmate.domain.board.entity;
 
-import com.back.catchmate.domain.game.entity.Game;
 import com.back.catchmate.domain.user.entity.User;
 import com.back.catchmate.global.entity.BaseTimeEntity;
 import jakarta.persistence.Column;

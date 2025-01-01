@@ -1,9 +1,11 @@
 package com.back.catchmate.domain.board.service;
 
 import com.back.catchmate.domain.board.converter.BoardConverter;
-import com.back.catchmate.domain.board.dto.BoardRequest;
-import com.back.catchmate.domain.board.dto.BoardRequest.*;
-import com.back.catchmate.domain.board.dto.BoardResponse.*;
+import com.back.catchmate.domain.board.dto.BoardRequest.CreateBoardRequest;
+import com.back.catchmate.domain.board.dto.BoardRequest.UpdateBoardRequest;
+import com.back.catchmate.domain.board.dto.BoardResponse.BoardDeleteInfo;
+import com.back.catchmate.domain.board.dto.BoardResponse.BoardInfo;
+import com.back.catchmate.domain.board.dto.BoardResponse.PagedBoardInfo;
 import com.back.catchmate.domain.board.entity.Board;
 import com.back.catchmate.domain.board.repository.BoardRepository;
 import com.back.catchmate.domain.club.entity.Club;
@@ -38,22 +40,22 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     @Transactional
-    public BoardInfo createBoard(Long userId, CreateBoardRequest createBoardRequest) {
+    public BoardInfo createBoard(Long userId, CreateBoardRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
-        Club cheerClub = clubRepository.findById(createBoardRequest.getCheerClubId())
+        Club cheerClub = clubRepository.findById(request.getCheerClubId())
                 .orElseThrow(() -> new BaseException(ErrorCode.CLUB_NOT_FOUND));
 
-        Club homeClub = clubRepository.findById(createBoardRequest.getGameRequest().getHomeClubId())
+        Club homeClub = clubRepository.findById(request.getGameRequest().getHomeClubId())
                 .orElseThrow(() -> new BaseException(ErrorCode.CLUB_NOT_FOUND));
 
-        Club awayClub = clubRepository.findById(createBoardRequest.getGameRequest().getAwayClubId())
+        Club awayClub = clubRepository.findById(request.getGameRequest().getAwayClubId())
                 .orElseThrow(() -> new BaseException(ErrorCode.CLUB_NOT_FOUND));
 
-        Game game = findOrCreateGame(homeClub, awayClub, createBoardRequest.getGameRequest());
+        Game game = findOrCreateGame(homeClub, awayClub, request.getGameRequest());
 
-        Board board = boardConverter.toEntity(user, game, cheerClub, createBoardRequest);
+        Board board = boardConverter.toEntity(user, game, cheerClub, request);
         this.boardRepository.save(board);
 
         return boardConverter.toBoardInfo(board, game);
@@ -113,19 +115,7 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     @Transactional
-    public BoardDeleteInfo deleteBoard(Long userId, Long boardId) {
-        int updatedRows = boardRepository.softDeleteByUserIdAndBoardId(userId, boardId);
-
-        if (updatedRows == 0) {
-            throw new BaseException(ErrorCode.BOARD_NOT_FOUND);
-        }
-
-        return boardConverter.toBoardDeleteInfo(boardId);
-    }
-
-    @Override
-    @Transactional
-    public BoardInfo updateBoard(Long userId, Long boardId, UpdateBoardRequest updateBoardRequest) {
+    public BoardInfo updateBoard(Long userId, Long boardId, UpdateBoardRequest request) {
         Board board = this.boardRepository.findById(boardId)
                 .orElseThrow(() -> new BaseException(ErrorCode.BOARD_NOT_FOUND));
 
@@ -136,18 +126,30 @@ public class BoardServiceImpl implements BoardService {
             throw new BaseException(ErrorCode.BOARD_BAD_REQUEST);
         }
 
-        Club cheerClub = this.clubRepository.findById(updateBoardRequest.getCheerClubId())
+        Club cheerClub = clubRepository.findById(request.getCheerClubId())
                 .orElseThrow(() -> new BaseException(ErrorCode.CLUB_NOT_FOUND));
 
-        Club homeClub = this.clubRepository.findById(updateBoardRequest.getGameRequest().getHomeClubId())
+        Club homeClub = clubRepository.findById(request.getGameRequest().getHomeClubId())
                 .orElseThrow(() -> new BaseException(ErrorCode.CLUB_NOT_FOUND));
 
-        Club awayClub = this.clubRepository.findById(updateBoardRequest.getGameRequest().getAwayClubId())
+        Club awayClub = clubRepository.findById(request.getGameRequest().getAwayClubId())
                 .orElseThrow(() -> new BaseException(ErrorCode.CLUB_NOT_FOUND));
 
-        Game game = this.findOrCreateGame(homeClub, awayClub, updateBoardRequest.getGameRequest());
+        Game game = findOrCreateGame(homeClub, awayClub, request.getGameRequest());
 
-        board.updateBoard(cheerClub, game, updateBoardRequest);
+        board.updateBoard(cheerClub, game, request);
         return boardConverter.toBoardInfo(board, game);
+    }
+
+    @Override
+    @Transactional
+    public BoardDeleteInfo deleteBoard(Long userId, Long boardId) {
+        int updatedRows = boardRepository.softDeleteByUserIdAndBoardId(userId, boardId);
+
+        if (updatedRows == 0) {
+            throw new BaseException(ErrorCode.BOARD_NOT_FOUND);
+        }
+
+        return boardConverter.toBoardDeleteInfo(boardId);
     }
 }

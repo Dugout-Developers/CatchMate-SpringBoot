@@ -11,7 +11,7 @@ import org.springframework.data.domain.Pageable;
 import java.time.LocalDate;
 
 public interface BoardService {
-    BoardInfo createBoard(Long userId, CreateBoardRequest boardRequest);
+    BoardInfo createBoard(Long userId, CreateBoardRequest request);
 
     BoardInfo getBoard(Long userId, Long boardId);
 

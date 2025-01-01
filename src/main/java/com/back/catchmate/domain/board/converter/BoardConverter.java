@@ -5,7 +5,6 @@ import com.back.catchmate.domain.board.dto.BoardResponse.*;
 import com.back.catchmate.domain.board.entity.Board;
 import com.back.catchmate.domain.club.entity.Club;
 import com.back.catchmate.domain.game.converter.GameConverter;
-import com.back.catchmate.domain.game.dto.GameResponse;
 import com.back.catchmate.domain.game.dto.GameResponse.GameInfo;
 import com.back.catchmate.domain.game.entity.Game;
 import com.back.catchmate.domain.user.entity.User;
@@ -15,7 +14,6 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
