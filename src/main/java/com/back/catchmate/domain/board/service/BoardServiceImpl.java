@@ -96,6 +96,19 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public PagedBoardInfo getBoardListByUserId(Long loginUserId, Long userId, Pageable pageable) {
+        User loginUser = userRepository.findById(userId)
+                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+
+        Page<Board> boardList = boardRepository.findAllByUserIdAndDeletedAtIsNull(user.getId(), pageable);
+        return boardConverter.toPagedBoardInfo(boardList);
+    }
+
+    @Override
     @Transactional
     public BoardDeleteInfo deleteBoard(Long userId, Long boardId) {
         int updatedRows = boardRepository.softDeleteByUserIdAndBoardId(userId, boardId);

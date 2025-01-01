@@ -15,5 +15,7 @@ public interface BoardService {
 
     PagedBoardInfo getBoardList(Long userId, LocalDate localDate, Integer maxPerson, Long preferredTeamId, Pageable pageable);
 
+    PagedBoardInfo getBoardListByUserId(Long loginUserId, Long userId, Pageable pageable);
+
     BoardDeleteInfo deleteBoard(Long userId, Long boardId);
 }
