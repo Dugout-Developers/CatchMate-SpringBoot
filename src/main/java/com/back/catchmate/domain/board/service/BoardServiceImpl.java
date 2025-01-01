@@ -1,8 +1,7 @@
 package com.back.catchmate.domain.board.service;
 
 import com.back.catchmate.domain.board.converter.BoardConverter;
-import com.back.catchmate.domain.board.dto.BoardRequest.CreateBoardRequest;
-import com.back.catchmate.domain.board.dto.BoardRequest.UpdateBoardRequest;
+import com.back.catchmate.domain.board.dto.BoardRequest.CreateOrUpdateBoardRequest;
 import com.back.catchmate.domain.board.dto.BoardResponse.BoardDeleteInfo;
 import com.back.catchmate.domain.board.dto.BoardResponse.BoardInfo;
 import com.back.catchmate.domain.board.dto.BoardResponse.PagedBoardInfo;
@@ -40,23 +39,45 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     @Transactional
-    public BoardInfo createBoard(Long userId, CreateBoardRequest request) {
+    public BoardInfo createOrUpdateBoard(Long userId, Long boardId, CreateOrUpdateBoardRequest request) {
+        // 유저 정보 조회
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
+        // Cheer Club 조회
         Club cheerClub = clubRepository.findById(request.getCheerClubId())
                 .orElseThrow(() -> new BaseException(ErrorCode.CLUB_NOT_FOUND));
 
+        // Home Club 및 Away Club 조회
         Club homeClub = clubRepository.findById(request.getGameRequest().getHomeClubId())
                 .orElseThrow(() -> new BaseException(ErrorCode.CLUB_NOT_FOUND));
 
         Club awayClub = clubRepository.findById(request.getGameRequest().getAwayClubId())
                 .orElseThrow(() -> new BaseException(ErrorCode.CLUB_NOT_FOUND));
 
+        // Game 조회 또는 생성
         Game game = findOrCreateGame(homeClub, awayClub, request.getGameRequest());
 
-        Board board = boardConverter.toEntity(user, game, cheerClub, request);
-        this.boardRepository.save(board);
+        Board board;
+
+        // note: 최초 임시저장은 create, 이후의 임시저장은 update endpoint를 호출하도록 한다.
+        if (boardId != null) {
+            // 기존 Board 업데이트
+            board = boardRepository.findByIdAndDeletedAtIsNull(boardId)
+                    .orElseThrow(() -> new BaseException(ErrorCode.BOARD_NOT_FOUND));
+
+            // 작성자가 동일하지 않은 경우 예외 처리
+            if (user.isDifferentUserFrom(board.getUser())) {
+                throw new BaseException(ErrorCode.BOARD_BAD_REQUEST);
+            }
+
+            // Board 업데이트
+            board.updateBoard(cheerClub, game, request);
+        } else {
+            // 새로운 Board 생성
+            board = boardConverter.toEntity(user, game, cheerClub, request);
+            boardRepository.save(board);
+        }
 
         return boardConverter.toBoardInfo(board, game);
     }
@@ -111,34 +132,6 @@ public class BoardServiceImpl implements BoardService {
 
         Page<Board> boardList = boardRepository.findAllByUserIdAndDeletedAtIsNullAndIsCompletedIsTrue(user.getId(), pageable);
         return boardConverter.toPagedBoardInfoFromBoardList(boardList);
-    }
-
-    @Override
-    @Transactional
-    public BoardInfo updateBoard(Long userId, Long boardId, UpdateBoardRequest request) {
-        Board board = this.boardRepository.findByIdAndDeletedAtIsNull(boardId)
-                .orElseThrow(() -> new BaseException(ErrorCode.BOARD_NOT_FOUND));
-
-        User user = this.userRepository.findById(userId)
-                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
-
-        if (user.isDifferentUserFrom(board.getUser())) {
-            throw new BaseException(ErrorCode.BOARD_BAD_REQUEST);
-        }
-
-        Club cheerClub = clubRepository.findById(request.getCheerClubId())
-                .orElseThrow(() -> new BaseException(ErrorCode.CLUB_NOT_FOUND));
-
-        Club homeClub = clubRepository.findById(request.getGameRequest().getHomeClubId())
-                .orElseThrow(() -> new BaseException(ErrorCode.CLUB_NOT_FOUND));
-
-        Club awayClub = clubRepository.findById(request.getGameRequest().getAwayClubId())
-                .orElseThrow(() -> new BaseException(ErrorCode.CLUB_NOT_FOUND));
-
-        Game game = findOrCreateGame(homeClub, awayClub, request.getGameRequest());
-
-        board.updateBoard(cheerClub, game, request);
-        return boardConverter.toBoardInfo(board, game);
     }
 
     @Override

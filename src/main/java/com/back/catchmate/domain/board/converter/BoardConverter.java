@@ -22,7 +22,7 @@ import java.util.List;
 public class BoardConverter {
     private final GameConverter gameConverter;
 
-    public Board toEntity(User user, Game game, Club cheerClub, CreateBoardRequest boardRequest) {
+    public Board toEntity(User user, Game game, Club cheerClub, CreateOrUpdateBoardRequest boardRequest) {
         return Board.builder()
                 .title(boardRequest.getTitle())
                 .content(boardRequest.getContent())
