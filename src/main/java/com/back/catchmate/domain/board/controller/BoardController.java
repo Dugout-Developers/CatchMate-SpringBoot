@@ -1,7 +1,6 @@
 package com.back.catchmate.domain.board.controller;
 
-import com.back.catchmate.domain.board.dto.BoardRequest.CreateBoardRequest;
-import com.back.catchmate.domain.board.dto.BoardRequest.UpdateBoardRequest;
+import com.back.catchmate.domain.board.dto.BoardRequest.CreateOrUpdateBoardRequest;
 import com.back.catchmate.domain.board.dto.BoardResponse.BoardDeleteInfo;
 import com.back.catchmate.domain.board.dto.BoardResponse.BoardInfo;
 import com.back.catchmate.domain.board.dto.BoardResponse.PagedBoardInfo;
@@ -39,8 +38,8 @@ public class BoardController {
     @PostMapping
     @Operation(summary = "게시글 등록 API", description = "게시글을 등록합니다.")
     public BoardInfo createBoard(@JwtValidation Long userId,
-                                 @Valid @RequestBody CreateBoardRequest request) {
-        return boardService.createBoard(userId, request);
+                                 @Valid @RequestBody CreateOrUpdateBoardRequest request) {
+        return boardService.createOrUpdateBoard(userId, null, request);
     }
 
     @GetMapping("/{boardId}")
@@ -103,8 +102,8 @@ public class BoardController {
     @Operation(summary = "게시글 수정 API", description = "게시글을 수정합니다.")
     public BoardInfo updateBoard(@JwtValidation Long userId,
                                  @PathVariable Long boardId,
-                                 @Valid @RequestBody UpdateBoardRequest request) {
-        return boardService.updateBoard(userId, boardId, request);
+                                 @Valid @RequestBody CreateOrUpdateBoardRequest request) {
+        return boardService.createOrUpdateBoard(userId, boardId, request);
     }
 
     @DeleteMapping("/{boardId}")

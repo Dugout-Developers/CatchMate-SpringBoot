@@ -1,6 +1,6 @@
 package com.back.catchmate.domain.board.entity;
 
-import com.back.catchmate.domain.board.dto.BoardRequest.UpdateBoardRequest;
+import com.back.catchmate.domain.board.dto.BoardRequest.CreateOrUpdateBoardRequest;
 import com.back.catchmate.domain.club.entity.Club;
 import com.back.catchmate.domain.enroll.entity.Enroll;
 import com.back.catchmate.domain.game.entity.Game;
@@ -78,7 +78,7 @@ public class Board extends BaseTimeEntity {
         return this.user.getId().equals(user.getId());
     }
 
-    public void updateBoard(Club cheerClub, Game game, UpdateBoardRequest boardRequest) {
+    public void updateBoard(Club cheerClub, Game game, CreateOrUpdateBoardRequest boardRequest) {
         this.title = boardRequest.getTitle();
         this.content = boardRequest.getContent();
         this.maxPerson = boardRequest.getMaxPerson();
