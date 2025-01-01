@@ -1,6 +1,7 @@
 package com.back.catchmate.domain.board.service;
 
 import com.back.catchmate.domain.board.converter.BoardConverter;
+import com.back.catchmate.domain.board.dto.BoardRequest;
 import com.back.catchmate.domain.board.dto.BoardRequest.*;
 import com.back.catchmate.domain.board.dto.BoardResponse.*;
 import com.back.catchmate.domain.board.entity.Board;
@@ -21,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -84,11 +86,25 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
-    public PagedBoardInfo getBoardList(Long userId, Pageable pageable) {
+    @Transactional(readOnly = true)
+    public PagedBoardInfo getBoardList(Long userId, LocalDate gameStartDate, Integer maxPerson, Long preferredTeamId, Pageable pageable) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
-        Page<Board> boardList = boardRepository.findAllByDeletedAtIsNull(pageable);
+        Page<Board> boardList = boardRepository.findFilteredBoards(gameStartDate, maxPerson, preferredTeamId, pageable);
+        return boardConverter.toPagedBoardInfo(boardList);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PagedBoardInfo getBoardListByUserId(Long loginUserId, Long userId, Pageable pageable) {
+        User loginUser = userRepository.findById(userId)
+                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+
+        Page<Board> boardList = boardRepository.findAllByUserIdAndDeletedAtIsNull(user.getId(), pageable);
         return boardConverter.toPagedBoardInfo(boardList);
     }
 
