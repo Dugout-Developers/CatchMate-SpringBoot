@@ -1,41 +1,41 @@
 package com.back.catchmate.domain.board.converter;
 
-import com.back.catchmate.domain.board.dto.BoardRequest.CreateBoardRequest;
+import com.back.catchmate.domain.board.dto.BoardRequest.*;
 import com.back.catchmate.domain.board.dto.BoardResponse.*;
 import com.back.catchmate.domain.board.entity.Board;
+import com.back.catchmate.domain.board.entity.BookMark;
 import com.back.catchmate.domain.club.entity.Club;
 import com.back.catchmate.domain.game.converter.GameConverter;
-import com.back.catchmate.domain.game.dto.GameResponse;
 import com.back.catchmate.domain.game.dto.GameResponse.GameInfo;
 import com.back.catchmate.domain.game.entity.Game;
 import com.back.catchmate.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
 public class BoardConverter {
     private final GameConverter gameConverter;
 
-    public Board toEntity(User user, Game game, Club cheerClub, CreateBoardRequest createBoardRequest) {
+    public Board toEntity(User user, Game game, Club cheerClub, CreateOrUpdateBoardRequest boardRequest) {
         return Board.builder()
-                .title(createBoardRequest.getTitle())
-                .content(createBoardRequest.getContent())
-                .maxPerson(createBoardRequest.getMaxPerson())
+                .title(boardRequest.getTitle())
+                .content(boardRequest.getContent())
                 .user(user)
                 .club(cheerClub)
                 .game(game)
-                .preferredGender(createBoardRequest.getPreferredGender())
-                .preferredAgeRange(String.join(",", createBoardRequest.getPreferredAgeRange()))
+                .preferredGender(boardRequest.getPreferredGender())
+                .preferredAgeRange(String.join(",", boardRequest.getPreferredAgeRange()))
+                .isCompleted(boardRequest.getIsCompleted())
                 .build();
     }
 
-    public PagedBoardInfo toPagedBoardInfo(Page<Board> boardList) {
+    public PagedBoardInfo toPagedBoardInfoFromBoardList(Page<Board> boardList) {
         List<BoardInfo> boardInfoList = boardList.stream()
                 .map(board -> toBoardInfo(board, board.getGame()))
                 .toList();
@@ -69,5 +69,14 @@ public class BoardConverter {
                 .boardId(boardId)
                 .deletedAt(LocalDateTime.now())
                 .build();
+    }
+
+    public PagedBoardInfo toPagedBoardInfoFromBookMarkList(Page<BookMark> bookMarkList) {
+        List<Board> boards = bookMarkList.stream()
+                .map(BookMark::getBoard)
+                .toList();
+
+        Page<Board> boardPage = new PageImpl<>(boards, bookMarkList.getPageable(), bookMarkList.getTotalElements());
+        return toPagedBoardInfoFromBoardList(boardPage);
     }
 }

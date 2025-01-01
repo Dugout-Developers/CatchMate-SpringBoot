@@ -1,9 +1,12 @@
 package com.back.catchmate.domain.board.controller;
 
-import com.back.catchmate.domain.board.dto.BoardRequest.*;
-import com.back.catchmate.domain.board.dto.BoardResponse.*;
+import com.back.catchmate.domain.board.dto.BoardRequest.CreateOrUpdateBoardRequest;
+import com.back.catchmate.domain.board.dto.BoardResponse.BoardDeleteInfo;
+import com.back.catchmate.domain.board.dto.BoardResponse.BoardInfo;
+import com.back.catchmate.domain.board.dto.BoardResponse.PagedBoardInfo;
 import com.back.catchmate.domain.board.service.BoardService;
-import com.back.catchmate.domain.enroll.dto.EnrollResponse;
+import com.back.catchmate.domain.board.service.BookMarkService;
+import com.back.catchmate.global.dto.StateResponse;
 import com.back.catchmate.global.jwt.JwtValidation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -24,19 +27,19 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 
-
 @Tag(name = "게시글 관련 API")
 @RestController
 @RequestMapping("/board")
 @RequiredArgsConstructor
 public class BoardController {
     private final BoardService boardService;
+    private final BookMarkService bookMarkService;
 
     @PostMapping
     @Operation(summary = "게시글 등록 API", description = "게시글을 등록합니다.")
     public BoardInfo createBoard(@JwtValidation Long userId,
-                                 @Valid @RequestBody CreateBoardRequest request) {
-        return boardService.createBoard(userId, request);
+                                 @Valid @RequestBody CreateOrUpdateBoardRequest request) {
+        return boardService.createOrUpdateBoard(userId, null, request);
     }
 
     @GetMapping("/{boardId}")
@@ -64,6 +67,43 @@ public class BoardController {
                                                @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
                                                @Parameter(hidden = true) Pageable pageable) {
         return boardService.getBoardListByUserId(loginUserId, userId, pageable);
+    }
+
+    @GetMapping("/temp/{boardId}")
+    @Operation(summary = "임시저장된 게시글 단일 조회 API", description = "임시저장된 게시글 단일 조회하는 API 구현.")
+    public BoardInfo getBoardListByUserId(@JwtValidation Long userId,
+                                               @PathVariable Long boardId) {
+        return boardService.getTempBoard(userId, boardId);
+    }
+
+    @PostMapping("/bookmark/{boardId}")
+    @Operation(summary = "원하는 게시글을 찜하는 API", description = "원하는 게시글을 찜하는 API 입니다.")
+    public StateResponse addBookMark(@JwtValidation Long userId,
+                                     @PathVariable Long boardId) {
+        return bookMarkService.addBookMark(userId, boardId);
+    }
+
+    @GetMapping("/bookmark")
+    @Operation(summary = "찜한 게시글 조회 API", description = "사용자가 찜한 게시글을 조회하는 API입니다.")
+    public PagedBoardInfo getBookMarkBoardList(@JwtValidation Long userId,
+                                               @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
+                                               @Parameter(hidden = true) Pageable pageable) {
+        return bookMarkService.getBookMarkBoardList(userId, pageable);
+    }
+
+    @DeleteMapping("/bookmark/{boardId}")
+    @Operation(summary = "원하는 게시글을의 찜을 삭제하는 API", description = "원하는 게시글을의 찜을 삭제하는 API 입니다.")
+    public StateResponse removeBookMark(@JwtValidation Long userId,
+                                        @PathVariable Long boardId) {
+        return bookMarkService.removeBookMark(userId, boardId);
+    }
+
+    @PatchMapping("/{boardId}")
+    @Operation(summary = "게시글 수정 API", description = "게시글을 수정합니다.")
+    public BoardInfo updateBoard(@JwtValidation Long userId,
+                                 @PathVariable Long boardId,
+                                 @Valid @RequestBody CreateOrUpdateBoardRequest request) {
+        return boardService.createOrUpdateBoard(userId, boardId, request);
     }
 
     @DeleteMapping("/{boardId}")

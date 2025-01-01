@@ -8,8 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Range;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 public abstract class BoardRequest {
@@ -17,7 +15,7 @@ public abstract class BoardRequest {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class CreateBoardRequest {
+    public static class CreateOrUpdateBoardRequest {
         @NotNull
         private String title;
         @NotNull
@@ -33,5 +31,7 @@ public abstract class BoardRequest {
         private List<String> preferredAgeRange;
         @NotNull
         private CreateGameRequest gameRequest;
+        @NotNull
+        private Boolean isCompleted;
     }
 }

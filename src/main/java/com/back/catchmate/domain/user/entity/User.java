@@ -1,6 +1,7 @@
 package com.back.catchmate.domain.user.entity;
 
 import com.back.catchmate.domain.board.entity.Board;
+import com.back.catchmate.domain.board.entity.BookMark;
 import com.back.catchmate.domain.club.entity.Club;
 import com.back.catchmate.domain.enroll.entity.Enroll;
 import com.back.catchmate.domain.user.dto.UserRequest.UserProfileUpdateRequest;
@@ -41,6 +42,10 @@ public class User extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "club_id", nullable = false)
     private Club club;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "user")
+    private List<BookMark> bookMarkList = new ArrayList<>();
 
     @Column(nullable = false)
     private String email;
@@ -135,6 +140,6 @@ public class User extends BaseTimeEntity {
     }
 
     public boolean isDifferentUserFrom(User boardWriter) {
-        return !this.equals(boardWriter);
+        return !this.id.equals(boardWriter.getId());
     }
 }
