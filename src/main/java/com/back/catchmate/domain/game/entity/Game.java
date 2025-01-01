@@ -5,6 +5,7 @@ import com.back.catchmate.domain.club.entity.Club;
 import com.back.catchmate.global.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.joda.time.DateTime;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -27,11 +28,11 @@ public class Game extends BaseTimeEntity {
     @Column(nullable = false)
     private LocalDateTime gameStartDate;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "home_club_id", nullable = false)
     private Club homeClub;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "away_club_id", nullable = false)
     private Club awayClub;
 

@@ -53,7 +53,6 @@ public class BoardServiceImpl implements BoardService {
 
         Game game = findOrCreateGame(homeClub, awayClub, createBoardRequest.getGameRequest());
 
-
         Board board = boardConverter.toEntity(user, game, cheerClub, createBoardRequest);
         this.boardRepository.save(board);
 
@@ -65,8 +64,12 @@ public class BoardServiceImpl implements BoardService {
                 homeClub, awayClub, LocalDateTime.parse(createGameRequest.getGameStartDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
         );
 
-        if (game == null) {
-            game = gameConverter.toEntity(homeClub, awayClub, createGameRequest);
+        if (game != null) {
+            game.setGameStartDate(LocalDateTime.parse(createGameRequest.getGameStartDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            game.setHomeClub(homeClub);
+            game.setAwayClub(awayClub);
+        } else {
+            game = this.gameConverter.toEntity(homeClub, awayClub, createGameRequest);
             gameRepository.save(game);
         }
 
@@ -114,9 +117,37 @@ public class BoardServiceImpl implements BoardService {
         int updatedRows = boardRepository.softDeleteByUserIdAndBoardId(userId, boardId);
 
         if (updatedRows == 0) {
-            throw new IllegalStateException("Board not found or already deleted. Board ID: " + boardId);
+            throw new BaseException(ErrorCode.BOARD_NOT_FOUND);
         }
 
         return boardConverter.toBoardDeleteInfo(boardId);
+    }
+
+    @Override
+    @Transactional
+    public BoardInfo updateBoard(Long userId, Long boardId, UpdateBoardRequest updateBoardRequest) {
+        Board board = this.boardRepository.findById(boardId)
+                .orElseThrow(() -> new BaseException(ErrorCode.BOARD_NOT_FOUND));
+
+        User user = this.userRepository.findById(userId)
+                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+
+        if (user.isDifferentUserFrom(board.getUser())) {
+            throw new BaseException(ErrorCode.BOARD_BAD_REQUEST);
+        }
+
+        Club cheerClub = this.clubRepository.findById(updateBoardRequest.getCheerClubId())
+                .orElseThrow(() -> new BaseException(ErrorCode.CLUB_NOT_FOUND));
+
+        Club homeClub = this.clubRepository.findById(updateBoardRequest.getGameRequest().getHomeClubId())
+                .orElseThrow(() -> new BaseException(ErrorCode.CLUB_NOT_FOUND));
+
+        Club awayClub = this.clubRepository.findById(updateBoardRequest.getGameRequest().getAwayClubId())
+                .orElseThrow(() -> new BaseException(ErrorCode.CLUB_NOT_FOUND));
+
+        Game game = this.findOrCreateGame(homeClub, awayClub, updateBoardRequest.getGameRequest());
+
+        board.updateBoard(cheerClub, game, updateBoardRequest);
+        return boardConverter.toBoardInfo(board, game);
     }
 }
