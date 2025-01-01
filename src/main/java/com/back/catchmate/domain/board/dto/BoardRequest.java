@@ -33,5 +33,30 @@ public abstract class BoardRequest {
         private List<String> preferredAgeRange;
         @NotNull
         private CreateGameRequest gameRequest;
+        @NotNull
+        private Boolean isCompleted;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UpdateBoardRequest {
+        @NotNull
+        private String title;
+        @NotNull
+        private String content;
+        @Range(min = 1, max = 8)
+        private int maxPerson;
+        @NotNull
+        private Long cheerClubId;
+        @NotNull
+        private String preferredGender;
+        @NotNull
+        private List<String> preferredAgeRange;
+        @NotNull
+        private CreateGameRequest gameRequest;
+        @NotNull
+        private Boolean isCompleted;
     }
 }

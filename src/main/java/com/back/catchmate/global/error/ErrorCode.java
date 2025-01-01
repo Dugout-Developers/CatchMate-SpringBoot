@@ -29,6 +29,7 @@ public enum ErrorCode {
     // 게시글
     BOARD_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 게시글입니다."),
     BOARD_DELETED(HttpStatus.NOT_FOUND, "삭제된 게시글이거나 잘못된 접근입니다."),
+    BOARD_BAD_REQUEST(HttpStatus.BAD_REQUEST, "자신의 게시글만 수정할 수 있습니다."),
     INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 액세스 토큰입니다."),
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 리프레시 토큰입니다."),
 

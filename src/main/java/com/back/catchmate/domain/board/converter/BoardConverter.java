@@ -1,6 +1,6 @@
 package com.back.catchmate.domain.board.converter;
 
-import com.back.catchmate.domain.board.dto.BoardRequest.CreateBoardRequest;
+import com.back.catchmate.domain.board.dto.BoardRequest.*;
 import com.back.catchmate.domain.board.dto.BoardResponse.*;
 import com.back.catchmate.domain.board.entity.Board;
 import com.back.catchmate.domain.club.entity.Club;
@@ -22,16 +22,16 @@ import java.util.stream.Collectors;
 public class BoardConverter {
     private final GameConverter gameConverter;
 
-    public Board toEntity(User user, Game game, Club cheerClub, CreateBoardRequest createBoardRequest) {
+    public Board toEntity(User user, Game game, Club cheerClub, CreateBoardRequest boardRequest) {
         return Board.builder()
-                .title(createBoardRequest.getTitle())
-                .content(createBoardRequest.getContent())
-                .maxPerson(createBoardRequest.getMaxPerson())
+                .title(boardRequest.getTitle())
+                .content(boardRequest.getContent())
                 .user(user)
                 .club(cheerClub)
                 .game(game)
-                .preferredGender(createBoardRequest.getPreferredGender())
-                .preferredAgeRange(String.join(",", createBoardRequest.getPreferredAgeRange()))
+                .preferredGender(boardRequest.getPreferredGender())
+                .preferredAgeRange(String.join(",", boardRequest.getPreferredAgeRange()))
+                .isCompleted(boardRequest.getIsCompleted())
                 .build();
     }
 

@@ -1,5 +1,6 @@
 package com.back.catchmate.domain.board.entity;
 
+import com.back.catchmate.domain.board.dto.BoardRequest.UpdateBoardRequest;
 import com.back.catchmate.domain.club.entity.Club;
 import com.back.catchmate.domain.enroll.entity.Enroll;
 import com.back.catchmate.domain.game.entity.Game;
@@ -66,7 +67,21 @@ public class Board extends BaseTimeEntity {
     @OneToMany(mappedBy = "board")
     private List<Notification> notificationList = new ArrayList<>();
 
+    @Column(nullable = false)
+    private Boolean isCompleted = false;
+
     public boolean isWriterSameAsLoginUser(User user) {
         return this.user.equals(user);
+    }
+
+    public void updateBoard(Club cheerClub, Game game, UpdateBoardRequest boardRequest) {
+        this.title = boardRequest.getTitle();
+        this.content = boardRequest.getContent();
+        this.maxPerson = boardRequest.getMaxPerson();
+        this.preferredGender = boardRequest.getPreferredGender();
+        this.preferredAgeRange = String.join(",", boardRequest.getPreferredAgeRange());
+        this.isCompleted = boardRequest.getIsCompleted();
+        this.club = cheerClub;
+        this.game = game;
     }
 }

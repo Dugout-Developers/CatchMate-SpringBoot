@@ -3,7 +3,6 @@ package com.back.catchmate.domain.board.controller;
 import com.back.catchmate.domain.board.dto.BoardRequest.*;
 import com.back.catchmate.domain.board.dto.BoardResponse.*;
 import com.back.catchmate.domain.board.service.BoardService;
-import com.back.catchmate.domain.enroll.dto.EnrollResponse;
 import com.back.catchmate.global.jwt.JwtValidation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -71,5 +70,13 @@ public class BoardController {
     public BoardDeleteInfo deleteBoard(@JwtValidation Long userId,
                                        @PathVariable Long boardId) {
         return boardService.deleteBoard(userId, boardId);
+    }
+
+    @PatchMapping("/{boardId}")
+    @Operation(summary = "게시글 수정 API", description = "게시글을 수정합니다.")
+    public BoardInfo updateBoard(@JwtValidation Long userId,
+                                 @PathVariable Long boardId,
+                                 @Valid @RequestBody UpdateBoardRequest request) {
+        return boardService.updateBoard(userId, boardId, request);
     }
 }

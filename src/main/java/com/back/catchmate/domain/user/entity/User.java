@@ -135,6 +135,6 @@ public class User extends BaseTimeEntity {
     }
 
     public boolean isDifferentUserFrom(User boardWriter) {
-        return !this.equals(boardWriter);
+        return !this.id.equals(boardWriter.getId());
     }
 }
