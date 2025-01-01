@@ -69,6 +69,13 @@ public class BoardController {
         return boardService.getBoardListByUserId(loginUserId, userId, pageable);
     }
 
+    @GetMapping("/temp/{boardId}")
+    @Operation(summary = "임시저장된 게시글 단일 조회 API", description = "임시저장된 게시글 단일 조회하는 API 구현.")
+    public BoardInfo getBoardListByUserId(@JwtValidation Long userId,
+                                               @PathVariable Long boardId) {
+        return boardService.getTempBoard(userId, boardId);
+    }
+
     @PostMapping("/bookmark/{boardId}")
     @Operation(summary = "원하는 게시글을 찜하는 API", description = "원하는 게시글을 찜하는 API 입니다.")
     public StateResponse addBookMark(@JwtValidation Long userId,
