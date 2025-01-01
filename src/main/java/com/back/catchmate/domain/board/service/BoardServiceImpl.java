@@ -115,6 +115,22 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     @Transactional
+    public BoardInfo getTempBoard(Long userId, Long boardId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+
+        Board tempBoard = boardRepository.findByIdAndUserIdAndIsCompletedIsFalse(boardId, user.getId())
+                .orElseThrow(() -> new BaseException(ErrorCode.TEMP_BOARD_NOT_FOUND));
+
+        if (user.isDifferentUserFrom(tempBoard.getUser())) {
+            throw new BaseException(ErrorCode.TEMP_BOARD_BAD_REQUEST);
+        }
+
+        return boardConverter.toBoardInfo(tempBoard, tempBoard.getGame());
+    }
+
+    @Override
+    @Transactional
     public BoardInfo updateBoard(Long userId, Long boardId, UpdateBoardRequest request) {
         Board board = this.boardRepository.findByIdAndDeletedAtIsNull(boardId)
                 .orElseThrow(() -> new BaseException(ErrorCode.BOARD_NOT_FOUND));

@@ -18,6 +18,8 @@ public interface BoardService {
 
     PagedBoardInfo getBoardListByUserId(Long loginUserId, Long userId, Pageable pageable);
 
+    BoardInfo getTempBoard(Long userId, Long boardId);
+
     BoardDeleteInfo deleteBoard(Long userId, Long boardId);
 
     BoardInfo updateBoard(Long userId, Long boardId, UpdateBoardRequest boardRequest);
