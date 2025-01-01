@@ -1,8 +1,7 @@
 package com.back.catchmate.domain.board.service;
 
 import com.back.catchmate.domain.board.dto.BoardRequest.CreateBoardRequest;
-import com.back.catchmate.domain.board.dto.BoardRequest.*;
-import com.back.catchmate.domain.board.dto.BoardResponse;
+import com.back.catchmate.domain.board.dto.BoardRequest.UpdateBoardRequest;
 import com.back.catchmate.domain.board.dto.BoardResponse.BoardDeleteInfo;
 import com.back.catchmate.domain.board.dto.BoardResponse.BoardInfo;
 import com.back.catchmate.domain.board.dto.BoardResponse.PagedBoardInfo;

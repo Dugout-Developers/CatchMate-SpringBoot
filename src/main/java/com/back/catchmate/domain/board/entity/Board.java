@@ -75,7 +75,7 @@ public class Board extends BaseTimeEntity {
     private Boolean isCompleted = false;
 
     public boolean isWriterSameAsLoginUser(User user) {
-        return this.user.equals(user);
+        return this.user.getId().equals(user.getId());
     }
 
     public void updateBoard(Club cheerClub, Game game, UpdateBoardRequest boardRequest) {

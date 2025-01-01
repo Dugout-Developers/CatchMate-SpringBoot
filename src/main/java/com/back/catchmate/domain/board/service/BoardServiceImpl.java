@@ -97,7 +97,7 @@ public class BoardServiceImpl implements BoardService {
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
         Page<Board> boardList = boardRepository.findFilteredBoards(gameStartDate, maxPerson, preferredTeamId, pageable);
-        return boardConverter.toPagedBoardInfo(boardList);
+        return boardConverter.toPagedBoardInfoFromBoardList(boardList);
     }
 
     @Override
@@ -109,14 +109,14 @@ public class BoardServiceImpl implements BoardService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
-        Page<Board> boardList = boardRepository.findAllByUserIdAndDeletedAtIsNull(user.getId(), pageable);
-        return boardConverter.toPagedBoardInfo(boardList);
+        Page<Board> boardList = boardRepository.findAllByUserIdAndDeletedAtIsNullAndIsCompletedIsTrue(user.getId(), pageable);
+        return boardConverter.toPagedBoardInfoFromBoardList(boardList);
     }
 
     @Override
     @Transactional
     public BoardInfo updateBoard(Long userId, Long boardId, UpdateBoardRequest request) {
-        Board board = this.boardRepository.findById(boardId)
+        Board board = this.boardRepository.findByIdAndDeletedAtIsNull(boardId)
                 .orElseThrow(() -> new BaseException(ErrorCode.BOARD_NOT_FOUND));
 
         User user = this.userRepository.findById(userId)

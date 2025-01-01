@@ -31,6 +31,9 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
         // 삭제되지 않은 게시글만 조회
         builder.and(board.deletedAt.isNull());
 
+        // 저장된 게시글만 조회 (임시 저장 X)
+        builder.and(board.isCompleted.isTrue());
+
         // 최대 인원수 필터
         if (maxPerson != null) {
             builder.and(board.maxPerson.eq(maxPerson));
