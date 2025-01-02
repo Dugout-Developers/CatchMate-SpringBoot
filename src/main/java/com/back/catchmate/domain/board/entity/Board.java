@@ -51,7 +51,7 @@ public class Board extends BaseTimeEntity {
     @JoinColumn(name = "game_id", nullable = false)
     private Game game;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "club_id", nullable = false)
     private Club club;
 
