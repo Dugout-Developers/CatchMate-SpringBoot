@@ -105,7 +105,7 @@ public class BoardServiceImpl implements BoardService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
-        Board board = boardRepository.findByIdAndDeletedAtIsNull(boardId)
+        Board board = boardRepository.findByIdAndDeletedAtIsNullAndIsCompleted(boardId)
                 .orElseThrow(() -> new BaseException(ErrorCode.BOARD_NOT_FOUND));
 
         return boardConverter.toBoardInfo(board, board.getGame());
@@ -160,5 +160,28 @@ public class BoardServiceImpl implements BoardService {
         }
 
         return boardConverter.toBoardDeleteInfo(boardId);
+    }
+
+    @Override
+    @Transactional
+    public BoardInfo updateLiftUpDate(Long userId, Long boardId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+
+        Board board = boardRepository.findByIdAndDeletedAtIsNullAndIsCompleted(boardId)
+                .orElseThrow(() -> new BaseException(ErrorCode.BOARD_NOT_FOUND));
+
+        if (user.isDifferentUserFrom(board.getUser())) {
+            throw new BaseException(ErrorCode.BOARD_BAD_REQUEST);
+        }
+
+        // note: 3일 간격으로 수정할 수 있음.
+        if (board.getLiftUpDate().plusDays(3).isBefore(LocalDateTime.now())) {
+            board.setLiftUpDate(LocalDateTime.now());
+        } else {
+            throw new BaseException(ErrorCode.BOARD_NOT_ALLOWED_UPDATE_LIFTUPDATE);
+        }
+
+        return boardConverter.toBoardInfo(board, board.getGame());
     }
 }

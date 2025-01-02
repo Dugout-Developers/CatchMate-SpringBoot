@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,7 +52,7 @@ public class Board extends BaseTimeEntity {
     @JoinColumn(name = "game_id", nullable = false)
     private Game game;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "club_id", nullable = false)
     private Club club;
 
@@ -73,6 +74,9 @@ public class Board extends BaseTimeEntity {
 
     @Column(nullable = false)
     private Boolean isCompleted = false;
+
+    @Column(name = "lift_up_date", nullable = false)
+    private LocalDateTime liftUpDate;
 
     public boolean isWriterSameAsLoginUser(User user) {
         return this.user.getId().equals(user.getId());

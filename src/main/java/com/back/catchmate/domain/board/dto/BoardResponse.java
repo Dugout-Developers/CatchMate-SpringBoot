@@ -24,6 +24,7 @@ public abstract class BoardResponse {
         private String preferredGender;
         private String preferredAgeRange;
         private GameInfo gameInfo;
+        private LocalDateTime liftUpDate;
     }
 
     @Getter
