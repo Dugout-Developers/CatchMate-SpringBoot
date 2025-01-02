@@ -13,6 +13,7 @@ import com.back.catchmate.domain.user.dto.UserResponse;
 import com.back.catchmate.domain.user.dto.UserResponse.UserInfo;
 import com.back.catchmate.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cglib.core.Local;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Component;
@@ -36,6 +37,7 @@ public class BoardConverter {
                 .preferredGender(boardRequest.getPreferredGender())
                 .preferredAgeRange(String.join(",", boardRequest.getPreferredAgeRange()))
                 .isCompleted(boardRequest.getIsCompleted())
+                .liftUpDate(LocalDateTime.now())
                 .build();
     }
 
@@ -66,6 +68,7 @@ public class BoardConverter {
                 .preferredGender(board.getPreferredGender())
                 .preferredAgeRange(board.getPreferredAgeRange())
                 .gameInfo(gameInfo)
+                .liftUpDate(board.getLiftUpDate())
                 .userInfo(userInfo)
                 .build();
     }

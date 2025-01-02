@@ -5,6 +5,7 @@ import com.back.catchmate.domain.board.dto.BoardResponse.BoardDeleteInfo;
 import com.back.catchmate.domain.board.dto.BoardResponse.BoardInfo;
 import com.back.catchmate.domain.board.dto.BoardResponse.PagedBoardInfo;
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 
@@ -22,4 +23,6 @@ public interface BoardService {
     BoardInfo getTempBoard(Long userId, Long boardId);
 
     BoardDeleteInfo deleteBoard(Long userId, Long boardId);
+
+    BoardInfo updateLiftUpDate(Long userId, Long boardId);
 }
