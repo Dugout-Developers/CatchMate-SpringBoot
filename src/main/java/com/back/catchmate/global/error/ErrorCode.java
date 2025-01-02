@@ -32,6 +32,7 @@ public enum ErrorCode {
     TEMP_BOARD_BAD_REQUEST(HttpStatus.NOT_FOUND, "임시 저장된 글을 불러올 권한이 없습니다."),
     BOARD_DELETED(HttpStatus.NOT_FOUND, "삭제된 게시글이거나 잘못된 접근입니다."),
     BOARD_BAD_REQUEST(HttpStatus.BAD_REQUEST, "자신의 게시글만 수정할 수 있습니다."),
+    BOARD_NOT_ALLOWED_UPDATE_LIFTUPDATE(HttpStatus.BAD_REQUEST, "마지막으로 끌어올리기 한 지 3일이 지나야 업데이트 가능합니다."),
     INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 액세스 토큰입니다."),
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 리프레시 토큰입니다."),
     ALREADY_BOOKMARK(HttpStatus.BAD_REQUEST, "이미 찜한 게시글입니다."),

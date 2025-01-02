@@ -55,7 +55,7 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
                 .leftJoin(board.club, club).fetchJoin()
                 .leftJoin(board.game, game).fetchJoin()
                 .where(builder)
-                .orderBy(board.createdAt.desc());
+                .orderBy(board.liftUpDate.desc());
 
         // 페이징 처리
         long total = query.fetchCount();

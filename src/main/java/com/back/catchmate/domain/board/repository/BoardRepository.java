@@ -16,6 +16,8 @@ public interface BoardRepository extends JpaRepository<Board, Long>, BoardReposi
     int softDeleteByUserIdAndBoardId(@Param("userId") Long userId, @Param("boardId") Long boardId);
 
     @Query("SELECT b FROM Board b WHERE b.id = :boardId AND b.deletedAt IS NULL AND b.isCompleted = true")
+    Optional<Board> findByIdAndDeletedAtIsNullAndIsCompleted(Long boardId);
+
     Optional<Board> findByIdAndDeletedAtIsNull(Long boardId);
 
     Page<Board> findAllByUserIdAndDeletedAtIsNullAndIsCompletedIsTrue(Long userId, Pageable pageable);

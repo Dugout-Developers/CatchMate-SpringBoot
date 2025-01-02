@@ -55,7 +55,7 @@ public class BoardController {
                                        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate gameStartDate,
                                        @RequestParam(required = false) Integer maxPerson,
                                        @RequestParam(required = false) Long preferredTeamId,
-                                       @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
+                                       @PageableDefault(sort = "liftUpDate", direction = Sort.Direction.DESC)
                                        @Parameter(hidden = true) Pageable pageable) {
         return boardService.getBoardList(userId, gameStartDate, maxPerson, preferredTeamId, pageable);
     }
@@ -111,5 +111,12 @@ public class BoardController {
     public BoardDeleteInfo deleteBoard(@JwtValidation Long userId,
                                        @PathVariable Long boardId) {
         return boardService.deleteBoard(userId, boardId);
+    }
+
+    @PatchMapping("/{boardId}/lift-up")
+    @Operation(summary = "게시글 끌어올리기 API", description = "게시글을 끌어올립니다.")
+    public BoardInfo updateLiftUpDate(@JwtValidation Long userId,
+                                      @PathVariable Long boardId){
+        return boardService.updateLiftUpDate(userId, boardId);
     }
 }
