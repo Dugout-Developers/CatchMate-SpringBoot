@@ -8,6 +8,9 @@ import com.back.catchmate.domain.club.entity.Club;
 import com.back.catchmate.domain.game.converter.GameConverter;
 import com.back.catchmate.domain.game.dto.GameResponse.GameInfo;
 import com.back.catchmate.domain.game.entity.Game;
+import com.back.catchmate.domain.user.converter.UserConverter;
+import com.back.catchmate.domain.user.dto.UserResponse;
+import com.back.catchmate.domain.user.dto.UserResponse.UserInfo;
 import com.back.catchmate.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cglib.core.Local;
@@ -22,6 +25,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BoardConverter {
     private final GameConverter gameConverter;
+    private final UserConverter userConverter;
 
     public Board toEntity(User user, Game game, Club cheerClub, CreateOrUpdateBoardRequest boardRequest) {
         return Board.builder()
@@ -53,6 +57,7 @@ public class BoardConverter {
 
     public BoardInfo toBoardInfo(Board board, Game game) {
         GameInfo gameInfo = gameConverter.toGameInfo(game);
+        UserInfo userInfo = userConverter.toUserInfo(board.getUser());
 
         return BoardInfo.builder()
                 .boardId(board.getId())
@@ -64,6 +69,7 @@ public class BoardConverter {
                 .preferredAgeRange(board.getPreferredAgeRange())
                 .gameInfo(gameInfo)
                 .liftUpDate(board.getLiftUpDate())
+                .userInfo(userInfo)
                 .build();
     }
 
