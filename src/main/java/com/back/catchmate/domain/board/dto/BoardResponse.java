@@ -1,7 +1,6 @@
 package com.back.catchmate.domain.board.dto;
 
 import com.back.catchmate.domain.game.dto.GameResponse.GameInfo;
-import com.back.catchmate.domain.user.dto.UserResponse;
 import com.back.catchmate.domain.user.dto.UserResponse.UserInfo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

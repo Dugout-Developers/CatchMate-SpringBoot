@@ -1,13 +1,11 @@
 package com.back.catchmate.domain.club.converter;
 
-import com.back.catchmate.domain.club.dto.ClubResponse;
 import com.back.catchmate.domain.club.dto.ClubResponse.ClubInfo;
 import com.back.catchmate.domain.club.dto.ClubResponse.ClubInfoList;
 import com.back.catchmate.domain.club.entity.Club;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class ClubConverter {

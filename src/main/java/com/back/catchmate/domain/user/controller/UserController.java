@@ -1,6 +1,9 @@
 package com.back.catchmate.domain.user.controller;
 
 import com.back.catchmate.domain.user.dto.UserRequest;
+import com.back.catchmate.domain.user.dto.UserResponse.LoginInfo;
+import com.back.catchmate.domain.user.dto.UserResponse.UpdateAlarmInfo;
+import com.back.catchmate.domain.user.dto.UserResponse.UserInfo;
 import com.back.catchmate.domain.user.entity.AlarmType;
 import com.back.catchmate.domain.user.service.UserService;
 import com.back.catchmate.global.dto.StateResponse;
@@ -21,8 +24,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-
-import static com.back.catchmate.domain.user.dto.UserResponse.*;
 
 @Tag(name = "사용자 관련 API")
 @RestController
@@ -61,8 +62,8 @@ public class UserController {
     @Operation(summary = "알림 설정", description = "유저의 알람 수신 여부를 변경하는 API 입니다.")
     @PatchMapping("/alarm")
     public UpdateAlarmInfo updateAlarm(@JwtValidation Long userId,
-                                       @RequestParam("alarmType") AlarmType alarmType,
-                                       @RequestParam("isEnabled") char isEnabled) {
+                                                    @RequestParam("alarmType") AlarmType alarmType,
+                                                    @RequestParam("isEnabled") char isEnabled) {
         return userService.updateAlarm(userId, alarmType, isEnabled);
     }
 }

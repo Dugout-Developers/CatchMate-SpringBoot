@@ -26,15 +26,6 @@ public abstract class NotificationResponse {
 
     @Getter
     @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class CreateNotificationInfo {
-        private Long notificationId;
-        private LocalDateTime createdAt;
-    }
-
-    @Getter
-    @Builder
     @AllArgsConstructor
     @NoArgsConstructor
     public static class PagedNotificationInfo {

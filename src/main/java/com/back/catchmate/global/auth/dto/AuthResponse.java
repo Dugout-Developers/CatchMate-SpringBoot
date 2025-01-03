@@ -1,4 +1,4 @@
-package com.back.catchmate.global.auth.dto.response;
+package com.back.catchmate.global.auth.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,7 +10,7 @@ public abstract class AuthResponse {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class LoginInfo {
+    public static class AuthInfo {
         private String accessToken;
         private String refreshToken;
         private Boolean isFirstLogin;
