@@ -1,11 +1,9 @@
 package com.back.catchmate.domain.board.service;
 
-import com.back.catchmate.domain.board.dto.BoardRequest;
 import com.back.catchmate.domain.board.dto.BoardResponse.BoardDeleteInfo;
 import com.back.catchmate.domain.board.dto.BoardResponse.BoardInfo;
 import com.back.catchmate.domain.board.dto.BoardResponse.PagedBoardInfo;
 import org.springframework.data.domain.Pageable;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 
