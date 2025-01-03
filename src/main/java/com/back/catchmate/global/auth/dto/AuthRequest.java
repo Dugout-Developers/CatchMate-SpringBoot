@@ -1,4 +1,4 @@
-package com.back.catchmate.global.auth.dto.request;
+package com.back.catchmate.global.auth.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;

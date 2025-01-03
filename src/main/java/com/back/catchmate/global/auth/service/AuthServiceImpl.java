@@ -3,10 +3,10 @@ package com.back.catchmate.global.auth.service;
 import com.back.catchmate.domain.user.entity.User;
 import com.back.catchmate.domain.user.repository.UserRepository;
 import com.back.catchmate.global.auth.converter.AuthConverter;
-import com.back.catchmate.global.auth.dto.request.AuthRequest;
-import com.back.catchmate.global.auth.dto.response.AuthResponse.LoginInfo;
-import com.back.catchmate.global.auth.dto.response.AuthResponse.NicknameCheckInfo;
-import com.back.catchmate.global.auth.dto.response.AuthResponse.ReissueInfo;
+import com.back.catchmate.global.auth.dto.AuthRequest;
+import com.back.catchmate.global.auth.dto.AuthResponse.AuthInfo;
+import com.back.catchmate.global.auth.dto.AuthResponse.NicknameCheckInfo;
+import com.back.catchmate.global.auth.dto.AuthResponse.ReissueInfo;
 import com.back.catchmate.global.auth.entity.RefreshToken;
 import com.back.catchmate.global.auth.repository.RefreshTokenRepository;
 import com.back.catchmate.global.dto.StateResponse;
@@ -21,7 +21,6 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class AuthServiceImpl implements AuthService {
     private final JwtService jwtService;
     private final UserRepository userRepository;
@@ -34,19 +33,19 @@ public class AuthServiceImpl implements AuthService {
     // 로그인 메서드
     @Override
     @Transactional
-    public LoginInfo login(AuthRequest.LoginRequest loginRequest) {
+    public AuthInfo login(AuthRequest.LoginRequest loginRequest) {
         // Provider ID와 Provider를 결합한 문자열 생성
         String providerIdWithProvider = loginRequest.getProviderId() + PROVIDER_ID_SEPARATOR + loginRequest.getProvider();
 
         // 결합한 문자열로 사용자 조회
         Optional<User> findUserOptional = userRepository.findByProviderId(providerIdWithProvider);
         boolean isFirstLogin = false;
-        LoginInfo loginInfo;
+        AuthInfo authInfo;
 
         if (findUserOptional.isEmpty()) {
             // 사용자가 없으면 최초 회원가입 여부를 true 반환
             isFirstLogin = true;
-            loginInfo = authConverter.toLoginInfo(null, null, isFirstLogin);
+            authInfo = authConverter.toLoginInfo(null, null, isFirstLogin);
         } else {
             // 회원가입된 사용자가 있으면 AccessToken과 RefreshToken 반환
             User user = findUserOptional.get();
@@ -61,10 +60,10 @@ public class AuthServiceImpl implements AuthService {
 
             // RefreshToken을 Redis에 저장
             refreshTokenRepository.save(RefreshToken.of(refreshToken, userId));
-            loginInfo = authConverter.toLoginInfo(accessToken, refreshToken, isFirstLogin);
+            authInfo = authConverter.toLoginInfo(accessToken, refreshToken, isFirstLogin);
         }
 
-        return loginInfo;
+        return authInfo;
     }
 
     private void checkFcmToken(AuthRequest.LoginRequest loginRequest, User user) {
@@ -74,6 +73,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     // 닉네임 중복여부를 확인하는 메서드
+    @Override
     @Transactional(readOnly = true)
     public NicknameCheckInfo checkNickname(String nickName) {
         boolean isAvailable = !userRepository.existsByNickName(nickName);
@@ -81,6 +81,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     // 토큰 재발급 메서드
+    @Override
     @Transactional
     public ReissueInfo reissue(String refreshToken) {
         // RefreshToken을 파싱하여 사용자 ID를 가져옴
@@ -95,6 +96,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     // 로그아웃 메서드
+    @Override
     @Transactional
     public StateResponse logout(String refreshToken) {
         // RefreshToken을 파싱하여 사용자 ID를 가져옴

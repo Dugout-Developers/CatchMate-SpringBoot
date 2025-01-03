@@ -1,9 +1,9 @@
 package com.back.catchmate.global.auth.controller;
 
-import com.back.catchmate.global.auth.dto.request.AuthRequest;
-import com.back.catchmate.global.auth.dto.response.AuthResponse.LoginInfo;
-import com.back.catchmate.global.auth.dto.response.AuthResponse.NicknameCheckInfo;
-import com.back.catchmate.global.auth.dto.response.AuthResponse.ReissueInfo;
+import com.back.catchmate.global.auth.dto.AuthRequest.LoginRequest;
+import com.back.catchmate.global.auth.dto.AuthResponse.AuthInfo;
+import com.back.catchmate.global.auth.dto.AuthResponse.NicknameCheckInfo;
+import com.back.catchmate.global.auth.dto.AuthResponse.ReissueInfo;
 import com.back.catchmate.global.auth.service.AuthServiceImpl;
 import com.back.catchmate.global.dto.StateResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,7 +28,7 @@ public class AuthController {
 
     @PostMapping("/login")
     @Operation(summary = "로그인 & 회원가입 API", description = "회원가입/로그인을 통해 토큰을 발급하는 API 입니다.")
-    public LoginInfo login(@Valid @RequestBody AuthRequest.LoginRequest loginRequest) {
+    public AuthInfo login(@Valid @RequestBody LoginRequest loginRequest) {
         return authService.login(loginRequest);
     }
 
