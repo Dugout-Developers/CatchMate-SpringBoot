@@ -44,6 +44,9 @@ public enum ErrorCode {
     // 알림
     NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 알림입니다."),
 
+    // 채팅방
+    CHATROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 알림입니다."),
+
     // 파일
     FILE_UPLOAD_FAILED(HttpStatus.BAD_REQUEST, "파일 업로드를 실패했습니다."),
 

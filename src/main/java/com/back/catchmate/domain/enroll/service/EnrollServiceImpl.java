@@ -2,6 +2,11 @@ package com.back.catchmate.domain.enroll.service;
 
 import com.back.catchmate.domain.board.entity.Board;
 import com.back.catchmate.domain.board.repository.BoardRepository;
+import com.back.catchmate.domain.chat.converter.UserChatRoomConverter;
+import com.back.catchmate.domain.chat.entity.ChatRoom;
+import com.back.catchmate.domain.chat.entity.UserChatRoom;
+import com.back.catchmate.domain.chat.repository.ChatRoomRepository;
+import com.back.catchmate.domain.chat.repository.UserChatRoomRepository;
 import com.back.catchmate.domain.enroll.converter.EnrollConverter;
 import com.back.catchmate.domain.enroll.dto.EnrollRequest.CreateEnrollRequest;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.CancelEnrollInfo;
@@ -36,9 +41,12 @@ public class EnrollServiceImpl implements EnrollService {
     private final EnrollRepository enrollRepository;
     private final UserRepository userRepository;
     private final BoardRepository boardRepository;
+    private final ChatRoomRepository chatRoomRepository;
     private final FCMService fcmService;
     private final NotificationService notificationService;
     private final EnrollConverter enrollConverter;
+    private final UserChatRoomRepository userChatRoomRepository;
+    private final UserChatRoomConverter userChatRoomConverter;
 
     @Override
     @Transactional
@@ -171,6 +179,14 @@ public class EnrollServiceImpl implements EnrollService {
         // 데이터베이스에 저장
         notificationService.createNotification(title, body, boardWriter.getProfileImageUrl(), enroll.getBoard().getId(), enrollApplicant.getId());
 
+        // 채팅방에 입장
+        Long chatRoomId = enroll.getBoard().getChatRoom().getId();
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+                .orElseThrow(() -> new BaseException(ErrorCode.CHATROOM_NOT_FOUND));
+        chatRoom.incrementParticipantCount();
+
+        UserChatRoom userChatRoom = userChatRoomConverter.toEntity(enrollApplicant, chatRoom);
+        userChatRoomRepository.save(userChatRoom);
 
         enroll.respondToEnroll(AcceptStatus.ACCEPTED);
         return enrollConverter.toUpdateEnrollInfo(enroll, AcceptStatus.ACCEPTED);

@@ -7,6 +7,12 @@ import com.back.catchmate.domain.board.dto.BoardResponse.BoardInfo;
 import com.back.catchmate.domain.board.dto.BoardResponse.PagedBoardInfo;
 import com.back.catchmate.domain.board.entity.Board;
 import com.back.catchmate.domain.board.repository.BoardRepository;
+import com.back.catchmate.domain.chat.converter.ChatRoomConverter;
+import com.back.catchmate.domain.chat.converter.UserChatRoomConverter;
+import com.back.catchmate.domain.chat.entity.ChatRoom;
+import com.back.catchmate.domain.chat.entity.UserChatRoom;
+import com.back.catchmate.domain.chat.repository.ChatRoomRepository;
+import com.back.catchmate.domain.chat.repository.UserChatRoomRepository;
 import com.back.catchmate.domain.club.entity.Club;
 import com.back.catchmate.domain.club.repository.ClubRepository;
 import com.back.catchmate.domain.game.converter.GameConverter;
@@ -34,8 +40,12 @@ public class BoardServiceImpl implements BoardService {
     private final GameRepository gameRepository;
     private final ClubRepository clubRepository;
     private final UserRepository userRepository;
+    private final ChatRoomRepository chatRoomRepository;
     private final BoardConverter boardConverter;
     private final GameConverter gameConverter;
+    private final ChatRoomConverter chatRoomConverter;
+    private final UserChatRoomConverter userChatRoomConverter;
+    private final UserChatRoomRepository userChatRoomRepository;
 
     @Override
     @Transactional
@@ -77,6 +87,14 @@ public class BoardServiceImpl implements BoardService {
             // 새로운 Board 생성
             board = boardConverter.toEntity(user, game, cheerClub, request);
             boardRepository.save(board);
+
+            // 새로운 채팅방 생성
+            ChatRoom chatRoom = chatRoomConverter.toEntity(board);
+            chatRoomRepository.save(chatRoom);
+
+            // 채팅방에 속한 사용자에 추가
+            UserChatRoom userChatRoom = userChatRoomConverter.toEntity(user, chatRoom);
+            userChatRoomRepository.save(userChatRoom);
         }
 
         return boardConverter.toBoardInfo(board, game);
