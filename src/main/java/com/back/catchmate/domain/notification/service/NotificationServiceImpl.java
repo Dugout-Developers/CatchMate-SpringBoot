@@ -32,7 +32,7 @@ public class NotificationServiceImpl implements NotificationService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
-        Board board = boardRepository.findById(boardId)
+        Board board = boardRepository.findByIdAndDeletedAtIsNullAndIsCompleted(boardId)
                 .orElseThrow(() -> new BaseException(ErrorCode.BOARD_NOT_FOUND));
 
         Notification notification = notificationConverter.toEntity(user, board, senderProfileImageUrl, title, body);
@@ -45,7 +45,7 @@ public class NotificationServiceImpl implements NotificationService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
-        Page<Notification> notificationList = notificationRepository.findByUserId(user.getId(), pageable);
+        Page<Notification> notificationList = notificationRepository.findByUserIdAndDeletedAtIsNull(user.getId(), pageable);
         return notificationConverter.toPagedNotificationInfo(notificationList);
     }
 
@@ -55,7 +55,7 @@ public class NotificationServiceImpl implements NotificationService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
-        Notification notification = notificationRepository.findByIdAndUserId(notificationId, user.getId())
+        Notification notification = notificationRepository.findByIdAndUserIdAndDeletedAtIsNull(notificationId, user.getId())
                 .orElseThrow(() -> new BaseException(ErrorCode.NOTIFICATION_NOT_FOUND));
 
         // 읽지 않은 알림일 경우, 읽음으로 표시
@@ -72,10 +72,10 @@ public class NotificationServiceImpl implements NotificationService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
-        Notification notification = notificationRepository.findByIdAndUserId(notificationId, user.getId())
+        Notification notification = notificationRepository.findByIdAndUserIdAndDeletedAtIsNull(notificationId, user.getId())
                 .orElseThrow(() -> new BaseException(ErrorCode.NOTIFICATION_NOT_FOUND));
 
-        notificationRepository.delete(notification);
+        notification.delete();
         return new StateResponse(true);
     }
 }
