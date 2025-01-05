@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class AuthConverter {
 
-    public AuthInfo toLoginInfo(String accessToken, String refreshToken, Boolean isFirstLogin) {
+    public AuthInfo toAuthInfo(String accessToken, String refreshToken, Boolean isFirstLogin) {
         return AuthInfo.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)

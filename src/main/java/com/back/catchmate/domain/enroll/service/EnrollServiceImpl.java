@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.util.List;
 
 import static com.back.catchmate.domain.notification.message.NotificationMessages.*;
 
@@ -46,13 +47,13 @@ public class EnrollServiceImpl implements EnrollService {
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
         // 존재하는 게시글인지, 자신의 게시글인지 확인
-        Board board = boardRepository.findById(boardId)
+        Board board = boardRepository.findByIdAndDeletedAtIsNullAndIsCompleted(boardId)
                 .orElseThrow(() -> new BaseException(ErrorCode.BOARD_NOT_FOUND));
         if (board.isWriterSameAsLoginUser(user)) {
             throw new BaseException(ErrorCode.ENROLL_BAD_REQUEST);
         }
 
-        enrollRepository.findByUserIdAndBoardId(user.getId(), board.getId())
+        enrollRepository.findByUserIdAndBoardIdAndDeletedAtIsNull(user.getId(), board.getId())
                 .ifPresent(enroll -> {
                     throw new BaseException(ErrorCode.ENROLL_ALREADY_EXIST);
                 });
@@ -80,7 +81,7 @@ public class EnrollServiceImpl implements EnrollService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
-        Enroll enroll = enrollRepository.findById(enrollId)
+        Enroll enroll = enrollRepository.findByIdAndDeletedAtIsNull(enrollId)
                 .orElseThrow(() -> new BaseException(ErrorCode.ENROLL_NOT_FOUND));
 
         // 직관 신청한 사용자와 로그인한 사용자가 일치하는지 확인
@@ -88,7 +89,7 @@ public class EnrollServiceImpl implements EnrollService {
             throw new BaseException(ErrorCode.ENROLL_CANCEL_INVALID);
         }
 
-        enrollRepository.delete(enroll);
+        enroll.delete();
         return enrollConverter.toCancelEnrollInfo(enroll);
     }
 
@@ -98,12 +99,12 @@ public class EnrollServiceImpl implements EnrollService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
-        Page<Enroll> enrollList = enrollRepository.findByUserId(user.getId(), pageable);
+        Page<Enroll> enrollList = enrollRepository.findByUserIdAndDeletedAtIsNull(user.getId(), pageable);
         return enrollConverter.toPagedEnrollRequestInfo(enrollList);
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public PagedEnrollReceiveInfo getReceiveEnrollList(Long userId, Pageable pageable) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
@@ -113,12 +114,12 @@ public class EnrollServiceImpl implements EnrollService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public PagedEnrollReceiveInfo getReceiveEnrollListByBoardId(Long userId, Long boardId, Pageable pageable) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
-        Board board = boardRepository.findById(boardId)
+        Board board = boardRepository.findByIdAndDeletedAtIsNullAndIsCompleted(boardId)
                 .orElseThrow(() -> new BaseException(ErrorCode.BOARD_NOT_FOUND));
 
         // 게시글 작성자가 맞는지 확인
@@ -127,7 +128,13 @@ public class EnrollServiceImpl implements EnrollService {
         }
 
         // 게시글에 신청된 목록 조회
-        Page<Enroll> enrollList = enrollRepository.findByBoardId(boardId, pageable);
+        Page<Enroll> enrollList = enrollRepository.findByBoardIdAndDeletedAtIsNull(boardId, pageable);
+
+        if (enrollList.hasContent()) {
+            List<Enroll> enrollsToUpdate = enrollList.getContent();
+            enrollsToUpdate.forEach(enroll -> enroll.updateIsNew(false)); // 읽음 상태로 변경
+        }
+
         return enrollConverter.toPagedEnrollReceiveInfo(enrollList);
     }
 

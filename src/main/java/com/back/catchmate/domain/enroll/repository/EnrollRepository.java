@@ -10,15 +10,17 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface EnrollRepository extends JpaRepository<Enroll, Long> {
-    Optional<Enroll> findByUserIdAndBoardId(Long userId, Long boardId);
+    Optional<Enroll> findByIdAndDeletedAtIsNull(Long enrollId);
 
-    Page<Enroll> findByUserId(Long userId, Pageable pageable);
+    Optional<Enroll> findByUserIdAndBoardIdAndDeletedAtIsNull(Long userId, Long boardId);
 
-    @Query("SELECT e FROM Enroll e WHERE e.board.user.id = :userId")
+    Page<Enroll> findByUserIdAndDeletedAtIsNull(Long userId, Pageable pageable);
+
+    @Query("SELECT e FROM Enroll e WHERE e.board.user.id = :userId AND e.deletedAt IS NULL")
     Page<Enroll> findEnrollListByBoardWriter(@Param("userId") Long userId, Pageable pageable);
 
-    Page<Enroll> findByBoardId(Long boardId, Pageable pageable);
+    Page<Enroll> findByBoardIdAndDeletedAtIsNull(Long boardId, Pageable pageable);
 
-    @Query("SELECT COUNT(e) FROM Enroll e JOIN e.board b WHERE e.isNew = true AND b.user.id = :userId")
+    @Query("SELECT COUNT(e) FROM Enroll e JOIN e.board b WHERE e.isNew = true AND b.user.id = :userId AND e.deletedAt IS NULL")
     int countNewEnrollListByUserId(@Param("userId") Long userId);
 }

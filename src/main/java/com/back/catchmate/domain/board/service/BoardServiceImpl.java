@@ -68,7 +68,7 @@ public class BoardServiceImpl implements BoardService {
 
             // 작성자가 동일하지 않은 경우 예외 처리
             if (user.isDifferentUserFrom(board.getUser())) {
-                throw new BaseException(ErrorCode.BOARD_BAD_REQUEST);
+                throw new BaseException(ErrorCode.BOARD_UPDATE_BAD_REQUEST);
             }
 
             // Board 업데이트
@@ -153,12 +153,18 @@ public class BoardServiceImpl implements BoardService {
     @Override
     @Transactional
     public BoardDeleteInfo deleteBoard(Long userId, Long boardId) {
-        int updatedRows = boardRepository.softDeleteByUserIdAndBoardId(userId, boardId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
-        if (updatedRows == 0) {
-            throw new BaseException(ErrorCode.BOARD_NOT_FOUND);
+        Board board = boardRepository.findByIdAndDeletedAtIsNullAndIsCompleted(boardId)
+                .orElseThrow(() -> new BaseException(ErrorCode.BOARD_NOT_FOUND));
+
+
+        if (user.isDifferentUserFrom(board.getUser())) {
+            throw new BaseException(ErrorCode.BOARD_DELETE_BAD_REQUEST);
         }
 
+        board.deleteBoard();
         return boardConverter.toBoardDeleteInfo(boardId);
     }
 
@@ -172,14 +178,14 @@ public class BoardServiceImpl implements BoardService {
                 .orElseThrow(() -> new BaseException(ErrorCode.BOARD_NOT_FOUND));
 
         if (user.isDifferentUserFrom(board.getUser())) {
-            throw new BaseException(ErrorCode.BOARD_BAD_REQUEST);
+            throw new BaseException(ErrorCode.BOARD_LIFT_UP_BAD_REQUEST);
         }
 
         // note: 3일 간격으로 수정할 수 있음.
         if (board.getLiftUpDate().plusDays(3).isBefore(LocalDateTime.now())) {
             board.setLiftUpDate(LocalDateTime.now());
         } else {
-            throw new BaseException(ErrorCode.BOARD_NOT_ALLOWED_UPDATE_LIFTUPDATE);
+            throw new BaseException(ErrorCode.BOARD_NOT_ALLOWED_UPDATE_LIFT_UPDATE);
         }
 
         return boardConverter.toBoardInfo(board, board.getGame());
