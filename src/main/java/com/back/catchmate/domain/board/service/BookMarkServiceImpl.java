@@ -41,7 +41,7 @@ public class BookMarkServiceImpl implements BookMarkService {
             throw new BaseException(ErrorCode.ALREADY_BOOKMARK);
         }
 
-        if (bookMarkRepository.existsByUserAndBoard(user, board)) {
+        if (bookMarkRepository.existsByUserAndBoardAndDeletedAtIsNull(user, board)) {
             throw new BaseException(ErrorCode.ALREADY_BOOKMARK);
         }
 
