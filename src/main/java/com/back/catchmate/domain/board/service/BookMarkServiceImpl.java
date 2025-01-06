@@ -69,7 +69,7 @@ public class BookMarkServiceImpl implements BookMarkService {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new BaseException(ErrorCode.BOARD_NOT_FOUND));
 
-        BookMark bookMark = bookMarkRepository.findByUserIdAndBoardId(user.getId(), board.getId())
+        BookMark bookMark = bookMarkRepository.findByUserIdAndBoardIdAndDeletedAtIsNull(user.getId(), board.getId())
                 .orElseThrow(() -> new BaseException(ErrorCode.BOOKMARK_NOT_FOUND));
 
         bookMark.delete();
