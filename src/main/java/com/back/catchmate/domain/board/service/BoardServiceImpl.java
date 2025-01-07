@@ -136,11 +136,11 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     @Transactional
-    public BoardInfo getTempBoard(Long userId, Long boardId) {
+    public BoardInfo getTempBoard(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
-        Board tempBoard = boardRepository.findByIdAndUserIdAndIsCompletedIsFalse(boardId, user.getId())
+        Board tempBoard = boardRepository.findTopByUserIdAndIsCompletedIsFalseOrderByCreatedAtDesc(user.getId())
                 .orElseThrow(() -> new BaseException(ErrorCode.TEMP_BOARD_NOT_FOUND));
 
         if (user.isDifferentUserFrom(tempBoard.getUser())) {

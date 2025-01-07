@@ -158,6 +158,11 @@ public class EnrollServiceImpl implements EnrollService {
         User enrollApplicant = userRepository.findById(enroll.getUser().getId())
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
+        Board board = enroll.getBoard();
+        if (board.canIncrementCurrentPerson()) {
+            board.incrementCurrentPerson();
+        }
+
         // 게시글 작성자와 로그인한 사용자가 다를 경우 예외 발생
         if (loginUser.isDifferentUserFrom(boardWriter)) {
             throw new BaseException(ErrorCode.ENROLL_ACCEPT_INVALID);
@@ -170,7 +175,6 @@ public class EnrollServiceImpl implements EnrollService {
         fcmService.sendMessage(enrollApplicant.getFcmToken(), title, body, enroll.getBoard().getId());
         // 데이터베이스에 저장
         notificationService.createNotification(title, body, boardWriter.getProfileImageUrl(), enroll.getBoard().getId(), enrollApplicant.getId());
-
 
         enroll.respondToEnroll(AcceptStatus.ACCEPTED);
         return enrollConverter.toUpdateEnrollInfo(enroll, AcceptStatus.ACCEPTED);

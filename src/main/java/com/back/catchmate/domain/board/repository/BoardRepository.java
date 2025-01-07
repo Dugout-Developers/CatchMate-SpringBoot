@@ -22,5 +22,5 @@ public interface BoardRepository extends JpaRepository<Board, Long>, BoardReposi
 
     Page<Board> findAllByUserIdAndDeletedAtIsNullAndIsCompletedIsTrue(Long userId, Pageable pageable);
 
-    Optional<Board> findByIdAndUserIdAndIsCompletedIsFalse(Long boardId, Long userId);
+    Optional<Board> findTopByUserIdAndIsCompletedIsFalseOrderByCreatedAtDesc(Long userId);
 }
