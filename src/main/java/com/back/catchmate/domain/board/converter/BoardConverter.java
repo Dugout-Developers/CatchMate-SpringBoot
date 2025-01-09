@@ -29,6 +29,8 @@ public class BoardConverter {
         return Board.builder()
                 .title(boardRequest.getTitle())
                 .content(boardRequest.getContent())
+                .maxPerson(boardRequest.getMaxPerson())
+                .currentPerson(0)
                 .user(user)
                 .club(cheerClub)
                 .game(game)

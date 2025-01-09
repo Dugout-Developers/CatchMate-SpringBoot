@@ -10,9 +10,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface BookMarkRepository extends JpaRepository<BookMark, Long> {
-    boolean existsByUserAndBoard(User user, Board board);
+    boolean existsByUserAndBoardAndDeletedAtIsNull(User user, Board board);
 
-    Optional<BookMark> findByUserIdAndBoardId(Long userId, Long boardId);
+    Optional<BookMark> findByUserIdAndBoardIdAndDeletedAtIsNull(Long userId, Long boardId);
 
     Page<BookMark> findAllByUserIdAndDeletedAtIsNull(Long userId, Pageable pageable);
 }

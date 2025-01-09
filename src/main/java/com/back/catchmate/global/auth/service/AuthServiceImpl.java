@@ -45,7 +45,7 @@ public class AuthServiceImpl implements AuthService {
         if (findUserOptional.isEmpty()) {
             // 사용자가 없으면 최초 회원가입 여부를 true 반환
             isFirstLogin = true;
-            authInfo = authConverter.toLoginInfo(null, null, isFirstLogin);
+            authInfo = authConverter.toAuthInfo(null, null, isFirstLogin);
         } else {
             // 회원가입된 사용자가 있으면 AccessToken과 RefreshToken 반환
             User user = findUserOptional.get();
@@ -60,7 +60,7 @@ public class AuthServiceImpl implements AuthService {
 
             // RefreshToken을 Redis에 저장
             refreshTokenRepository.save(RefreshToken.of(refreshToken, userId));
-            authInfo = authConverter.toLoginInfo(accessToken, refreshToken, isFirstLogin);
+            authInfo = authConverter.toAuthInfo(accessToken, refreshToken, isFirstLogin);
         }
 
         return authInfo;

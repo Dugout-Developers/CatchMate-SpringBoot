@@ -41,7 +41,7 @@ public class BookMarkServiceImpl implements BookMarkService {
             throw new BaseException(ErrorCode.ALREADY_BOOKMARK);
         }
 
-        if (bookMarkRepository.existsByUserAndBoard(user, board)) {
+        if (bookMarkRepository.existsByUserAndBoardAndDeletedAtIsNull(user, board)) {
             throw new BaseException(ErrorCode.ALREADY_BOOKMARK);
         }
 
@@ -69,7 +69,7 @@ public class BookMarkServiceImpl implements BookMarkService {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new BaseException(ErrorCode.BOARD_NOT_FOUND));
 
-        BookMark bookMark = bookMarkRepository.findByUserIdAndBoardId(user.getId(), board.getId())
+        BookMark bookMark = bookMarkRepository.findByUserIdAndBoardIdAndDeletedAtIsNull(user.getId(), board.getId())
                 .orElseThrow(() -> new BaseException(ErrorCode.BOOKMARK_NOT_FOUND));
 
         bookMark.delete();

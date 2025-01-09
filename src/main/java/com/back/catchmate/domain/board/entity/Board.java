@@ -40,6 +40,9 @@ public class Board extends BaseTimeEntity {
     private String content;
 
     @Column(nullable = false)
+    private int currentPerson;
+
+    @Column(nullable = false)
     private int maxPerson;
 
     @Column(nullable = false)
@@ -91,5 +94,36 @@ public class Board extends BaseTimeEntity {
         this.isCompleted = boardRequest.getIsCompleted();
         this.club = cheerClub;
         this.game = game;
+    }
+
+    public void deleteBoard() {
+        // Enroll 리스트 삭제
+        for (Enroll enroll : enrollList) {
+            enroll.delete();
+        }
+        enrollList.clear();
+
+        // Notification 리스트 삭제
+        for (Notification notification : notificationList) {
+            notification.delete();
+        }
+        notificationList.clear();
+
+        // BookMark 리스트 삭제
+        for (BookMark bookMark : bookMarkList) {
+            bookMark.delete();
+        }
+        bookMarkList.clear();
+
+        // 삭제 시간 기록
+        super.delete();
+    }
+
+    public boolean canIncrementCurrentPerson() {
+        return currentPerson < maxPerson;
+    }
+
+    public void incrementCurrentPerson() {
+        this.currentPerson++;
     }
 }

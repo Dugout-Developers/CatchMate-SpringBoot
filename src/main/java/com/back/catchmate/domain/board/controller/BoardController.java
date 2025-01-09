@@ -37,8 +37,8 @@ public class BoardController {
 
     @PostMapping
     @Operation(summary = "게시글 등록 API", description = "게시글을 등록합니다.")
-    public BoardInfo createBoard(@JwtValidation Long userId,
-                                 @Valid @RequestBody CreateOrUpdateBoardRequest request) {
+    public BoardInfo createOrUpdateBoard(@JwtValidation Long userId,
+                                         @Valid @RequestBody CreateOrUpdateBoardRequest request) {
         return boardService.createOrUpdateBoard(userId, null, request);
     }
 
@@ -69,11 +69,10 @@ public class BoardController {
         return boardService.getBoardListByUserId(loginUserId, userId, pageable);
     }
 
-    @GetMapping("/temp/{boardId}")
+    @GetMapping("/temp")
     @Operation(summary = "임시저장된 게시글 단일 조회 API", description = "임시저장된 게시글 단일 조회하는 API 구현.")
-    public BoardInfo getBoardListByUserId(@JwtValidation Long userId,
-                                               @PathVariable Long boardId) {
-        return boardService.getTempBoard(userId, boardId);
+    public BoardInfo getBoardListByUserId(@JwtValidation Long userId) {
+        return boardService.getTempBoard(userId);
     }
 
     @PostMapping("/bookmark/{boardId}")
@@ -116,7 +115,7 @@ public class BoardController {
     @PatchMapping("/{boardId}/lift-up")
     @Operation(summary = "게시글 끌어올리기 API", description = "게시글을 끌어올립니다.")
     public BoardInfo updateLiftUpDate(@JwtValidation Long userId,
-                                      @PathVariable Long boardId){
+                                      @PathVariable Long boardId) {
         return boardService.updateLiftUpDate(userId, boardId);
     }
 }

@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
-    Page<Notification> findByUserId(Long userId, Pageable pageable);
+    Page<Notification> findByUserIdAndDeletedAtIsNull(Long userId, Pageable pageable);
 
-    Optional<Notification> findByIdAndUserId(Long notificationId, Long userId);
+    Optional<Notification> findByIdAndUserIdAndDeletedAtIsNull(Long notificationId, Long userId);
 }

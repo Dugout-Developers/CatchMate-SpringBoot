@@ -57,4 +57,8 @@ public class Enroll extends BaseTimeEntity {
     public void respondToEnroll(AcceptStatus acceptStatus) {
         this.acceptStatus = acceptStatus;
     }
+
+    public void updateIsNew(boolean isNew) {
+        this.isNew = isNew;
+    }
 }
