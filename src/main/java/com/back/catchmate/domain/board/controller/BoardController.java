@@ -37,8 +37,8 @@ public class BoardController {
 
     @PostMapping
     @Operation(summary = "게시글 등록 API", description = "게시글을 등록합니다.")
-    public BoardInfo createBoard(@JwtValidation Long userId,
-                                 @Valid @RequestBody CreateOrUpdateBoardRequest request) {
+    public BoardInfo createOrUpdateBoard(@JwtValidation Long userId,
+                                         @Valid @RequestBody CreateOrUpdateBoardRequest request) {
         return boardService.createOrUpdateBoard(userId, null, request);
     }
 
