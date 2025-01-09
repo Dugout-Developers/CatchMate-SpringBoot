@@ -30,6 +30,8 @@ import java.time.format.DateTimeFormatter;
 @Service
 @RequiredArgsConstructor
 public class BoardServiceImpl implements BoardService {
+    private static final Long DEFAULT_CLUB_ID = 0L;
+    private static final Long DEFAULT_GAME_ID = 0L;
     private final BoardRepository boardRepository;
     private final GameRepository gameRepository;
     private final ClubRepository clubRepository;
@@ -45,33 +47,38 @@ public class BoardServiceImpl implements BoardService {
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
         // Cheer Club 조회
-        Club cheerClub = clubRepository.findById(request.getCheerClubId())
-                .orElseThrow(() -> new BaseException(ErrorCode.CLUB_NOT_FOUND));
+        Club cheerClub = (request.getCheerClubId() != 0)
+                ? clubRepository.findById(request.getCheerClubId())
+                .orElseThrow(() -> new BaseException(ErrorCode.CLUB_NOT_FOUND))
+                : getDefaultClub();
 
         // Home Club 및 Away Club 조회
-        Club homeClub = clubRepository.findById(request.getGameRequest().getHomeClubId())
-                .orElseThrow(() -> new BaseException(ErrorCode.CLUB_NOT_FOUND));
+        Club homeClub = (request.getGameRequest().getHomeClubId() != 0)
+                ? clubRepository.findById(request.getGameRequest().getHomeClubId())
+                .orElseThrow(() -> new BaseException(ErrorCode.CLUB_NOT_FOUND))
+                : getDefaultClub();
 
-        Club awayClub = clubRepository.findById(request.getGameRequest().getAwayClubId())
-                .orElseThrow(() -> new BaseException(ErrorCode.CLUB_NOT_FOUND));
+        Club awayClub = (request.getGameRequest().getAwayClubId() != 0)
+                ? clubRepository.findById(request.getGameRequest().getAwayClubId())
+                .orElseThrow(() -> new BaseException(ErrorCode.CLUB_NOT_FOUND))
+                : getDefaultClub();
 
         // Game 조회 또는 생성
-        Game game = findOrCreateGame(homeClub, awayClub, request.getGameRequest());
+        Game game = (homeClub.getId() != 0 && awayClub.getId() != 0)
+                ? findOrCreateGame(homeClub, awayClub, request.getGameRequest())
+                : getDefaultGame();
 
         Board board;
 
-        // note: 최초 임시저장은 create, 이후의 임시저장은 update endpoint를 호출하도록 한다.
         if (boardId != null) {
             // 기존 Board 업데이트
             board = boardRepository.findByIdAndDeletedAtIsNull(boardId)
                     .orElseThrow(() -> new BaseException(ErrorCode.BOARD_NOT_FOUND));
 
-            // 작성자가 동일하지 않은 경우 예외 처리
             if (user.isDifferentUserFrom(board.getUser())) {
                 throw new BaseException(ErrorCode.BOARD_UPDATE_BAD_REQUEST);
             }
 
-            // Board 업데이트
             board.updateBoard(cheerClub, game, request);
         } else {
             // 새로운 Board 생성
@@ -80,6 +87,16 @@ public class BoardServiceImpl implements BoardService {
         }
 
         return boardConverter.toBoardInfo(board, game);
+    }
+
+    private Club getDefaultClub() {
+        return clubRepository.findById(DEFAULT_CLUB_ID)
+                .orElseThrow(() -> new BaseException(ErrorCode.CLUB_NOT_FOUND));
+    }
+
+    private Game getDefaultGame() {
+        return gameRepository.findById(DEFAULT_GAME_ID)
+                .orElseThrow(() -> new BaseException(ErrorCode.GAME_NOT_FOUND));
     }
 
     private Game findOrCreateGame(Club homeClub, Club awayClub, CreateGameRequest createGameRequest) {
