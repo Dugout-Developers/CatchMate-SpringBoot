@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Tag(name = "게시글 관련 API")
 @RestController
@@ -54,10 +55,10 @@ public class BoardController {
     public PagedBoardInfo getBoardList(@JwtValidation Long userId,
                                        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate gameStartDate,
                                        @RequestParam(required = false) Integer maxPerson,
-                                       @RequestParam(required = false) Long preferredTeamId,
+                                       @RequestParam(required = false) List<Long> preferredTeamIdList,
                                        @PageableDefault(sort = "liftUpDate", direction = Sort.Direction.DESC)
                                        @Parameter(hidden = true) Pageable pageable) {
-        return boardService.getBoardList(userId, gameStartDate, maxPerson, preferredTeamId, pageable);
+        return boardService.getBoardList(userId, gameStartDate, maxPerson, preferredTeamIdList, pageable);
     }
 
     @GetMapping("/list/{userId}")

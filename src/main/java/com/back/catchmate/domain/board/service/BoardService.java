@@ -6,6 +6,7 @@ import com.back.catchmate.domain.board.dto.BoardResponse.PagedBoardInfo;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import static com.back.catchmate.domain.board.dto.BoardRequest.*;
 
@@ -14,7 +15,7 @@ public interface BoardService {
 
     BoardInfo getBoard(Long userId, Long boardId);
 
-    PagedBoardInfo getBoardList(Long userId, LocalDate localDate, Integer maxPerson, Long preferredTeamId, Pageable pageable);
+    PagedBoardInfo getBoardList(Long userId, LocalDate localDate, Integer maxPerson, List<Long> preferredTeamIdList, Pageable pageable);
 
     PagedBoardInfo getBoardListByUserId(Long loginUserId, Long userId, Pageable pageable);
 
