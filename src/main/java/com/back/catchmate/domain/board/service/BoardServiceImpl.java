@@ -65,10 +65,7 @@ public class BoardServiceImpl implements BoardService {
                 : getDefaultClub();
 
         // Game 조회 또는 생성
-        Game game = (homeClub.getId() != 0 && awayClub.getId() != 0)
-                ? findOrCreateGame(homeClub, awayClub, request.getGameRequest())
-                : getDefaultGame();
-
+        Game game = findOrCreateGame(homeClub, awayClub, request.getGameRequest());
         Board board;
 
         if (boardId != null) {

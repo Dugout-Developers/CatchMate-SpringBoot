@@ -96,6 +96,8 @@ public class EnrollConverter {
                 .enrollInfoList(enrollRequestInfoList)
                 .totalPages(enrollList.getTotalPages())
                 .totalElements(enrollList.getTotalElements())
+                .isFirst(enrollList.isFirst())
+                .isLast(enrollList.isLast())
                 .build();
     }
 
