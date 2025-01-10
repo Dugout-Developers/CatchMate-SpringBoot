@@ -98,16 +98,29 @@ public class BoardServiceImpl implements BoardService {
     }
 
     private Game findOrCreateGame(Club homeClub, Club awayClub, CreateGameRequest createGameRequest) {
+        LocalDateTime gameStartDate = null;
+
+        // gameStartDate가 null이 아니면 파싱하고, null이면 null로 설정
+        if (createGameRequest.getGameStartDate() != null) {
+            gameStartDate = LocalDateTime.parse(createGameRequest.getGameStartDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        }
+
+        // gameStartDate가 null이면 그대로 null로 설정하고, 아니면 파싱된 값을 사용
         Game game = gameRepository.findByHomeClubAndAwayClubAndGameStartDate(
-                homeClub, awayClub, LocalDateTime.parse(createGameRequest.getGameStartDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+                homeClub, awayClub, gameStartDate
         );
 
         if (game != null) {
-            game.setGameStartDate(LocalDateTime.parse(createGameRequest.getGameStartDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            // gameStartDate가 null이면 null로 설정
+            if (createGameRequest.getGameStartDate() != null) {
+                game.setGameStartDate(LocalDateTime.parse(createGameRequest.getGameStartDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            } else {
+                game.setGameStartDate(null);
+            }
             game.setHomeClub(homeClub);
             game.setAwayClub(awayClub);
         } else {
-            game = this.gameConverter.toEntity(homeClub, awayClub, createGameRequest);
+            game = gameConverter.toEntity(homeClub, awayClub, createGameRequest);
             gameRepository.save(game);
         }
 
