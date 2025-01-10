@@ -2,6 +2,7 @@ package com.back.catchmate.domain.notification.service;
 
 import com.back.catchmate.domain.board.entity.Board;
 import com.back.catchmate.domain.board.repository.BoardRepository;
+import com.back.catchmate.domain.enroll.entity.AcceptStatus;
 import com.back.catchmate.domain.notification.converter.NotificationConverter;
 import com.back.catchmate.domain.notification.dto.NotificationResponse.NotificationInfo;
 import com.back.catchmate.domain.notification.dto.NotificationResponse.PagedNotificationInfo;
@@ -28,14 +29,14 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     @Transactional
-    public void createNotification(String title, String body, String senderProfileImageUrl, Long boardId, Long userId) {
+    public void createNotification(String title, String body, String senderProfileImageUrl, Long boardId, Long userId, AcceptStatus acceptStatus) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
         Board board = boardRepository.findByIdAndDeletedAtIsNullAndIsCompleted(boardId)
                 .orElseThrow(() -> new BaseException(ErrorCode.BOARD_NOT_FOUND));
 
-        Notification notification = notificationConverter.toEntity(user, board, senderProfileImageUrl, title, body);
+        Notification notification = notificationConverter.toEntity(user, board, senderProfileImageUrl, title, body, acceptStatus);
         notificationRepository.save(notification);
     }
 

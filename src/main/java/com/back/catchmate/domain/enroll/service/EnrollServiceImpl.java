@@ -71,7 +71,7 @@ public class EnrollServiceImpl implements EnrollService {
         fcmService.sendMessage(boardWriter.getFcmToken(), title, body, boardId);
 
         // 데이터베이스에 저장
-        notificationService.createNotification(title, body, enroll.getUser().getProfileImageUrl(), boardId, boardWriter.getId());
+        notificationService.createNotification(title, body, enroll.getUser().getProfileImageUrl(), boardId, boardWriter.getId(), AcceptStatus.PENDING);
         return enrollConverter.toCreateEnrollInfo(enroll);
     }
 
@@ -174,7 +174,7 @@ public class EnrollServiceImpl implements EnrollService {
         // 직관 신청자에게 수락 푸시 알림 메세지 전송
         fcmService.sendMessage(enrollApplicant.getFcmToken(), title, body, enroll.getBoard().getId());
         // 데이터베이스에 저장
-        notificationService.createNotification(title, body, boardWriter.getProfileImageUrl(), enroll.getBoard().getId(), enrollApplicant.getId());
+        notificationService.createNotification(title, body, boardWriter.getProfileImageUrl(), enroll.getBoard().getId(), enrollApplicant.getId(), AcceptStatus.ACCEPTED);
 
         enroll.respondToEnroll(AcceptStatus.ACCEPTED);
         return enrollConverter.toUpdateEnrollInfo(enroll, AcceptStatus.ACCEPTED);
@@ -204,7 +204,7 @@ public class EnrollServiceImpl implements EnrollService {
         // 직관 신청자에게 거절 푸시 알림 메세지 전송
         fcmService.sendMessage(enrollApplicant.getFcmToken(), title, body, enroll.getBoard().getId());
         // 데이터베이스에 저장
-        notificationService.createNotification(title, body, boardWriter.getProfileImageUrl(), enroll.getBoard().getId(), enrollApplicant.getId());
+        notificationService.createNotification(title, body, boardWriter.getProfileImageUrl(), enroll.getBoard().getId(), enrollApplicant.getId(), AcceptStatus.REJECTED);
 
         enroll.respondToEnroll(AcceptStatus.REJECTED);
         return enrollConverter.toUpdateEnrollInfo(enroll, AcceptStatus.REJECTED);

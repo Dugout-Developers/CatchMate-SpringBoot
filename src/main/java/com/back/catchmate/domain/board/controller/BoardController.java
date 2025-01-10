@@ -64,7 +64,7 @@ public class BoardController {
     @Operation(summary = "상대방이 작성한 게시글 조회 API", description = "상대방이 작성한 게시글을 조회하는 API 입니다.")
     public PagedBoardInfo getBoardListByUserId(@JwtValidation Long loginUserId,
                                                @PathVariable Long userId,
-                                               @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
+                                               @PageableDefault(sort = "liftUpDate", direction = Sort.Direction.DESC)
                                                @Parameter(hidden = true) Pageable pageable) {
         return boardService.getBoardListByUserId(loginUserId, userId, pageable);
     }
