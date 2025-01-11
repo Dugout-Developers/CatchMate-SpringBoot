@@ -6,6 +6,7 @@ import com.back.catchmate.domain.board.dto.BoardResponse.BoardDeleteInfo;
 import com.back.catchmate.domain.board.dto.BoardResponse.BoardInfo;
 import com.back.catchmate.domain.board.dto.BoardResponse.LiftUpStatusInfo;
 import com.back.catchmate.domain.board.dto.BoardResponse.PagedBoardInfo;
+import com.back.catchmate.domain.board.dto.BoardResponse.TempBoardInfo;
 import com.back.catchmate.domain.board.service.BoardService;
 import com.back.catchmate.domain.board.service.BookMarkService;
 import com.back.catchmate.global.dto.StateResponse;
@@ -74,7 +75,7 @@ public class BoardController {
 
     @GetMapping("/temp")
     @Operation(summary = "임시저장된 게시글 단일 조회 API", description = "임시저장된 게시글 단일 조회하는 API 구현.")
-    public BoardInfo getBoardListByUserId(@JwtValidation Long userId) {
+    public TempBoardInfo getBoardListByUserId(@JwtValidation Long userId) {
         return boardService.getTempBoard(userId);
     }
 

@@ -67,6 +67,43 @@ public class BoardConverter {
                 .cheerClubId(board.getClub().getId())
                 .preferredGender(board.getPreferredGender())
                 .preferredAgeRange(board.getPreferredAgeRange())
+                .liftUpDate(board.getLiftUpDate())
+                .gameInfo(gameInfo)
+                .userInfo(userInfo)
+                .build();
+    }
+
+    public BoardInfo toBoardInfo(Board board, Game game, boolean isBookMarked) {
+        GameInfo gameInfo = gameConverter.toGameInfo(game);
+        UserInfo userInfo = userConverter.toUserInfo(board.getUser());
+
+        return BoardInfo.builder()
+                .boardId(board.getId())
+                .title(board.getTitle())
+                .content(board.getContent())
+                .maxPerson(board.getMaxPerson())
+                .cheerClubId(board.getClub().getId())
+                .preferredGender(board.getPreferredGender())
+                .preferredAgeRange(board.getPreferredAgeRange())
+                .liftUpDate(board.getLiftUpDate())
+                .isBookMarked(isBookMarked)
+                .gameInfo(gameInfo)
+                .userInfo(userInfo)
+                .build();
+    }
+
+    public TempBoardInfo toTempBoardInfo(Board board, Game game) {
+        GameInfo gameInfo = gameConverter.toGameInfo(game);
+        UserInfo userInfo = userConverter.toUserInfo(board.getUser());
+
+        return TempBoardInfo.builder()
+                .boardId(board.getId())
+                .title(board.getTitle())
+                .content(board.getContent())
+                .maxPerson(board.getMaxPerson())
+                .cheerClubId(board.getClub().getId())
+                .preferredGender(board.getPreferredGender())
+                .preferredAgeRange(board.getPreferredAgeRange())
                 .gameInfo(gameInfo)
                 .liftUpDate(board.getLiftUpDate())
                 .userInfo(userInfo)

@@ -7,8 +7,10 @@ import com.back.catchmate.domain.board.dto.BoardResponse.BoardDeleteInfo;
 import com.back.catchmate.domain.board.dto.BoardResponse.BoardInfo;
 import com.back.catchmate.domain.board.dto.BoardResponse.LiftUpStatusInfo;
 import com.back.catchmate.domain.board.dto.BoardResponse.PagedBoardInfo;
+import com.back.catchmate.domain.board.dto.BoardResponse.TempBoardInfo;
 import com.back.catchmate.domain.board.entity.Board;
 import com.back.catchmate.domain.board.repository.BoardRepository;
+import com.back.catchmate.domain.board.repository.BookMarkRepository;
 import com.back.catchmate.domain.club.entity.Club;
 import com.back.catchmate.domain.club.repository.ClubRepository;
 import com.back.catchmate.domain.game.converter.GameConverter;
@@ -42,6 +44,7 @@ public class BoardServiceImpl implements BoardService {
     private final UserRepository userRepository;
     private final BoardConverter boardConverter;
     private final GameConverter gameConverter;
+    private final BookMarkRepository bookMarkRepository;
 
     @Override
     @Transactional
@@ -133,7 +136,8 @@ public class BoardServiceImpl implements BoardService {
         Board board = boardRepository.findByIdAndDeletedAtIsNullAndIsCompleted(boardId)
                 .orElseThrow(() -> new BaseException(ErrorCode.BOARD_NOT_FOUND));
 
-        return boardConverter.toBoardInfo(board, board.getGame());
+        boolean isBookMarked = bookMarkRepository.existsByUserIdAndBoardId(user.getId(), board.getId());
+        return boardConverter.toBoardInfo(board, board.getGame(), isBookMarked);
     }
 
     @Override
@@ -161,7 +165,7 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     @Transactional
-    public BoardInfo getTempBoard(Long userId) {
+    public TempBoardInfo getTempBoard(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
@@ -172,7 +176,7 @@ public class BoardServiceImpl implements BoardService {
             throw new BaseException(ErrorCode.TEMP_BOARD_BAD_REQUEST);
         }
 
-        return boardConverter.toBoardInfo(tempBoard, tempBoard.getGame());
+        return boardConverter.toTempBoardInfo(tempBoard, tempBoard.getGame());
     }
 
     @Override

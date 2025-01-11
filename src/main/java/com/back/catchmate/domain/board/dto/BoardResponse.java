@@ -27,6 +27,25 @@ public abstract class BoardResponse {
         private LocalDateTime liftUpDate;
         private GameInfo gameInfo;
         private UserInfo userInfo;
+        private boolean isBookMarked;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class TempBoardInfo {
+        private Long boardId;
+        private String title;
+        private String content;
+        private Long cheerClubId;
+        private int currentPerson;
+        private int maxPerson;
+        private String preferredGender;
+        private String preferredAgeRange;
+        private LocalDateTime liftUpDate;
+        private GameInfo gameInfo;
+        private UserInfo userInfo;
     }
 
     @Getter
