@@ -24,8 +24,8 @@ public abstract class BoardResponse {
         private int maxPerson;
         private String preferredGender;
         private String preferredAgeRange;
-        private GameInfo gameInfo;
         private LocalDateTime liftUpDate;
+        private GameInfo gameInfo;
         private UserInfo userInfo;
     }
 
@@ -48,5 +48,14 @@ public abstract class BoardResponse {
     public static class BoardDeleteInfo {
         Long boardId;
         LocalDateTime deletedAt;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class LiftUpStatusInfo {
+        private boolean state;
+        private String remainTime;
     }
 }

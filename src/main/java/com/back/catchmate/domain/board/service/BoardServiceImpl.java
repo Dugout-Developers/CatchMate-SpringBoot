@@ -2,8 +2,10 @@ package com.back.catchmate.domain.board.service;
 
 import com.back.catchmate.domain.board.converter.BoardConverter;
 import com.back.catchmate.domain.board.dto.BoardRequest.CreateOrUpdateBoardRequest;
+import com.back.catchmate.domain.board.dto.BoardResponse;
 import com.back.catchmate.domain.board.dto.BoardResponse.BoardDeleteInfo;
 import com.back.catchmate.domain.board.dto.BoardResponse.BoardInfo;
+import com.back.catchmate.domain.board.dto.BoardResponse.LiftUpStatusInfo;
 import com.back.catchmate.domain.board.dto.BoardResponse.PagedBoardInfo;
 import com.back.catchmate.domain.board.entity.Board;
 import com.back.catchmate.domain.board.repository.BoardRepository;
@@ -23,6 +25,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -92,11 +95,6 @@ public class BoardServiceImpl implements BoardService {
                 .orElseThrow(() -> new BaseException(ErrorCode.CLUB_NOT_FOUND));
     }
 
-    private Game getDefaultGame() {
-        return gameRepository.findById(DEFAULT_GAME_ID)
-                .orElseThrow(() -> new BaseException(ErrorCode.GAME_NOT_FOUND));
-    }
-
     private Game findOrCreateGame(Club homeClub, Club awayClub, CreateGameRequest createGameRequest) {
         LocalDateTime gameStartDate = null;
 
@@ -111,7 +109,6 @@ public class BoardServiceImpl implements BoardService {
         );
 
         if (game != null) {
-            // gameStartDate가 null이면 null로 설정
             if (createGameRequest.getGameStartDate() != null) {
                 game.setGameStartDate(LocalDateTime.parse(createGameRequest.getGameStartDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
             } else {
@@ -198,7 +195,7 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     @Transactional
-    public BoardInfo updateLiftUpDate(Long userId, Long boardId) {
+    public LiftUpStatusInfo updateLiftUpDate(Long userId, Long boardId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
@@ -210,12 +207,24 @@ public class BoardServiceImpl implements BoardService {
         }
 
         // note: 3일 간격으로 수정할 수 있음.
-        if (board.getLiftUpDate().plusDays(3).isBefore(LocalDateTime.now())) {
-            board.setLiftUpDate(LocalDateTime.now());
-        } else {
-            throw new BaseException(ErrorCode.BOARD_NOT_ALLOWED_UPDATE_LIFT_UPDATE);
-        }
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime nextLiftUpAllowed = board.getLiftUpDate().plusDays(3);
 
-        return boardConverter.toBoardInfo(board, board.getGame());
+        if (nextLiftUpAllowed.isBefore(now)) {
+            board.setLiftUpDate(now);
+            return boardConverter.toLiftUpStatusInfo(true, null);
+        } else {
+            // 남은 시간 계산
+            long remainingMinutes = Duration.between(now, nextLiftUpAllowed).toMinutes();
+            return new LiftUpStatusInfo(false, formatRemainingTime(remainingMinutes));  // 실패 시 200 응답, 상태와 남은 시간 포함
+        }
+    }
+
+    private String formatRemainingTime(long remainingMinutes) {
+        long days = remainingMinutes / (24 * 60);  // 1일은 1440분
+        long hours = (remainingMinutes % (24 * 60)) / 60;  // 나머지 분에서 시간 계산
+        long minutes = remainingMinutes % 60;  // 나머지 분 계산
+
+        return String.format("%d일 %02d시간 %02d분", days, hours, minutes);
     }
 }

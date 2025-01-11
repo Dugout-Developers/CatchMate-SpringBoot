@@ -88,4 +88,11 @@ public class BoardConverter {
         Page<Board> boardPage = new PageImpl<>(boards, bookMarkList.getPageable(), bookMarkList.getTotalElements());
         return toPagedBoardInfoFromBoardList(boardPage);
     }
+
+    public LiftUpStatusInfo toLiftUpStatusInfo(boolean state, String remainingTime) {
+        return LiftUpStatusInfo.builder()
+                .state(state)
+                .remainTime(remainingTime)
+                .build();
+    }
 }
