@@ -24,8 +24,8 @@ public abstract class BoardResponse {
         private int maxPerson;
         private String preferredGender;
         private String preferredAgeRange;
-        private GameInfo gameInfo;
         private LocalDateTime liftUpDate;
+        private GameInfo gameInfo;
         private UserInfo userInfo;
     }
 
