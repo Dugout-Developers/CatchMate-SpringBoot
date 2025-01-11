@@ -49,4 +49,13 @@ public abstract class BoardResponse {
         Long boardId;
         LocalDateTime deletedAt;
     }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class LiftUpStatusInfo {
+        private boolean state;
+        private String remainTime;
+    }
 }

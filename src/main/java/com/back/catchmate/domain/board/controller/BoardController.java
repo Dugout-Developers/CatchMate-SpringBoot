@@ -1,8 +1,10 @@
 package com.back.catchmate.domain.board.controller;
 
 import com.back.catchmate.domain.board.dto.BoardRequest.CreateOrUpdateBoardRequest;
+import com.back.catchmate.domain.board.dto.BoardResponse;
 import com.back.catchmate.domain.board.dto.BoardResponse.BoardDeleteInfo;
 import com.back.catchmate.domain.board.dto.BoardResponse.BoardInfo;
+import com.back.catchmate.domain.board.dto.BoardResponse.LiftUpStatusInfo;
 import com.back.catchmate.domain.board.dto.BoardResponse.PagedBoardInfo;
 import com.back.catchmate.domain.board.service.BoardService;
 import com.back.catchmate.domain.board.service.BookMarkService;
@@ -115,8 +117,8 @@ public class BoardController {
 
     @PatchMapping("/{boardId}/lift-up")
     @Operation(summary = "게시글 끌어올리기 API", description = "게시글을 끌어올립니다.")
-    public BoardInfo updateLiftUpDate(@JwtValidation Long userId,
-                                      @PathVariable Long boardId) {
+    public LiftUpStatusInfo updateLiftUpDate(@JwtValidation Long userId,
+                                                           @PathVariable Long boardId) {
         return boardService.updateLiftUpDate(userId, boardId);
     }
 }
