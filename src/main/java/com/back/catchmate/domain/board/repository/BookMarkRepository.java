@@ -15,4 +15,6 @@ public interface BookMarkRepository extends JpaRepository<BookMark, Long> {
     Optional<BookMark> findByUserIdAndBoardIdAndDeletedAtIsNull(Long userId, Long boardId);
 
     Page<BookMark> findAllByUserIdAndDeletedAtIsNull(Long userId, Pageable pageable);
+
+    boolean existsByUserIdAndBoardId(Long userId, Long boardId);
 }

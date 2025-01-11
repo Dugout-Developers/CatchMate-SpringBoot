@@ -5,6 +5,7 @@ import com.back.catchmate.domain.board.dto.BoardResponse.BoardDeleteInfo;
 import com.back.catchmate.domain.board.dto.BoardResponse.BoardInfo;
 import com.back.catchmate.domain.board.dto.BoardResponse.LiftUpStatusInfo;
 import com.back.catchmate.domain.board.dto.BoardResponse.PagedBoardInfo;
+import com.back.catchmate.domain.board.dto.BoardResponse.TempBoardInfo;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
@@ -21,7 +22,7 @@ public interface BoardService {
 
     PagedBoardInfo getBoardListByUserId(Long loginUserId, Long userId, Pageable pageable);
 
-    BoardInfo getTempBoard(Long userId);
+    TempBoardInfo getTempBoard(Long userId);
 
     BoardDeleteInfo deleteBoard(Long userId, Long boardId);
 
