@@ -17,7 +17,6 @@ import com.back.catchmate.domain.game.converter.GameConverter;
 import com.back.catchmate.domain.game.dto.GameRequest.CreateGameRequest;
 import com.back.catchmate.domain.game.entity.Game;
 import com.back.catchmate.domain.game.repository.GameRepository;
-import com.back.catchmate.domain.notification.repository.NotificationRepository;
 import com.back.catchmate.domain.user.entity.User;
 import com.back.catchmate.domain.user.repository.UserRepository;
 import com.back.catchmate.global.error.ErrorCode;
@@ -33,6 +32,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -43,10 +43,9 @@ public class BoardServiceImpl implements BoardService {
     private final ClubRepository clubRepository;
     private final UserRepository userRepository;
     private final BookMarkRepository bookMarkRepository;
-    private final NotificationRepository notificationRepository;
+    private final EnrollRepository enrollRepository;
     private final BoardConverter boardConverter;
     private final GameConverter gameConverter;
-    private final EnrollRepository enrollRepository;
 
     @Override
     @Transactional
@@ -54,6 +53,12 @@ public class BoardServiceImpl implements BoardService {
         // 유저 정보 조회
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+
+        // 기존 임시 저장 데이터 조회
+        Optional<Board> existingTempBoard = boardRepository.findTopByUserIdAndIsCompletedIsFalseAndDeletedAtIsNullOrderByCreatedAtDesc(user.getId());
+
+        // 기존 임시 저장 데이터가 존재하면 삭제 처리
+        existingTempBoard.ifPresent(Board::deleteTempBoard);
 
         // 응원 구단 조회
         Club cheerClub = findOrDefaultClub(request.getCheerClubId());
@@ -191,7 +196,7 @@ public class BoardServiceImpl implements BoardService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
-        Board tempBoard = boardRepository.findTopByUserIdAndIsCompletedIsFalseOrderByCreatedAtDesc(user.getId())
+        Board tempBoard = boardRepository.findTopByUserIdAndIsCompletedIsFalseAndDeletedAtIsNullOrderByCreatedAtDesc(user.getId())
                 .orElseThrow(() -> new BaseException(ErrorCode.TEMP_BOARD_NOT_FOUND));
 
         if (user.isDifferentUserFrom(tempBoard.getUser())) {

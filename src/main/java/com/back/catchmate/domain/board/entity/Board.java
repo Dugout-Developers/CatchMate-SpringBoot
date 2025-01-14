@@ -119,6 +119,10 @@ public class Board extends BaseTimeEntity {
         super.delete();
     }
 
+    public void deleteTempBoard() {
+        super.delete();
+    }
+
     public boolean canIncrementCurrentPerson() {
         return currentPerson < maxPerson;
     }
