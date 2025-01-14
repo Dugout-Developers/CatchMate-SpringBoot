@@ -12,10 +12,12 @@ import com.back.catchmate.domain.board.repository.BoardRepository;
 import com.back.catchmate.domain.board.repository.BookMarkRepository;
 import com.back.catchmate.domain.club.entity.Club;
 import com.back.catchmate.domain.club.repository.ClubRepository;
+import com.back.catchmate.domain.enroll.repository.EnrollRepository;
 import com.back.catchmate.domain.game.converter.GameConverter;
 import com.back.catchmate.domain.game.dto.GameRequest.CreateGameRequest;
 import com.back.catchmate.domain.game.entity.Game;
 import com.back.catchmate.domain.game.repository.GameRepository;
+import com.back.catchmate.domain.notification.repository.NotificationRepository;
 import com.back.catchmate.domain.user.entity.User;
 import com.back.catchmate.domain.user.repository.UserRepository;
 import com.back.catchmate.global.error.ErrorCode;
@@ -40,9 +42,11 @@ public class BoardServiceImpl implements BoardService {
     private final GameRepository gameRepository;
     private final ClubRepository clubRepository;
     private final UserRepository userRepository;
+    private final BookMarkRepository bookMarkRepository;
+    private final NotificationRepository notificationRepository;
     private final BoardConverter boardConverter;
     private final GameConverter gameConverter;
-    private final BookMarkRepository bookMarkRepository;
+    private final EnrollRepository enrollRepository;
 
     @Override
     @Transactional
@@ -136,7 +140,26 @@ public class BoardServiceImpl implements BoardService {
                 .orElseThrow(() -> new BaseException(ErrorCode.BOARD_NOT_FOUND));
 
         boolean isBookMarked = bookMarkRepository.existsByUserIdAndBoardId(user.getId(), board.getId());
-        return boardConverter.toBoardInfo(board, board.getGame(), isBookMarked);
+
+        // 타 유저 게시물 여부 확인
+        boolean isOwnBoard = board.isWriterSameAsLoginUser(user);
+
+        // 신청 여부 확인 (타 유저 게시물일 경우)
+        boolean isApplied = enrollRepository.existsByUserIdAndBoardId(user.getId(), board.getId());
+
+        // 버튼 상태 판단
+        String buttonStatus;
+        if (isOwnBoard) {
+            buttonStatus = "VIEW CHAT"; // 본인 게시물
+        } else {
+            if (isApplied) {
+                buttonStatus = "APPLIED"; // 타 유저 게시물, 신청 후
+            } else {
+                buttonStatus = "APPLY"; // 타 유저 게시물, 신청 전
+            }
+        }
+
+        return boardConverter.toBoardInfo(board, board.getGame(), isBookMarked, buttonStatus);
     }
 
     @Override
