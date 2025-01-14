@@ -21,7 +21,7 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<Board> findFilteredBoards(LocalDate gameDate, Integer maxPerson, Long preferredTeamId, Pageable pageable) {
+    public Page<Board> findFilteredBoards(LocalDate gameDate, Integer maxPerson, List<Long> preferredTeamIdList, Pageable pageable) {
         QBoard board = QBoard.board;
         QGame game = QGame.game;
         QClub club = QClub.club;
@@ -39,9 +39,9 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
             builder.and(board.maxPerson.eq(maxPerson));
         }
 
-        // 응원팀 필터
-        if (preferredTeamId != null) {
-            builder.and(board.club.id.eq(preferredTeamId));
+        // 응원팀 필터 (여러 팀 ID)
+        if (preferredTeamIdList != null && !preferredTeamIdList.isEmpty()) {
+            builder.and(board.club.id.in(preferredTeamIdList));
         }
 
         if (gameDate != null) {

@@ -5,7 +5,6 @@ import org.springframework.http.HttpStatus;
 
 @Data
 public class ErrorResponse {
-
     private final Integer statusCode;
     private final String message;
 

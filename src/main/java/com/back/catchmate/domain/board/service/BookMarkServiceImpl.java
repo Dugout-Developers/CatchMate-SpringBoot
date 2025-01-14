@@ -37,8 +37,8 @@ public class BookMarkServiceImpl implements BookMarkService {
                 .orElseThrow(() -> new BaseException(ErrorCode.BOARD_NOT_FOUND));
 
         // 본인의 게시글인지 확인
-        if (user.isDifferentUserFrom(board.getUser())) {
-            throw new BaseException(ErrorCode.ALREADY_BOOKMARK);
+        if (!user.isDifferentUserFrom(board.getUser())) {
+            throw new BaseException(ErrorCode.BOOKMARK_BAD_REQUEST);
         }
 
         if (bookMarkRepository.existsByUserAndBoardAndDeletedAtIsNull(user, board)) {

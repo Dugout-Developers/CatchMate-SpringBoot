@@ -1,6 +1,5 @@
 package com.back.catchmate.domain.user.service;
 
-import com.back.catchmate.domain.club.converter.ClubConverter;
 import com.back.catchmate.domain.club.entity.Club;
 import com.back.catchmate.domain.club.repository.ClubRepository;
 import com.back.catchmate.domain.user.converter.UserConverter;

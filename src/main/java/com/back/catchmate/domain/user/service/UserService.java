@@ -3,13 +3,13 @@ package com.back.catchmate.domain.user.service;
 import com.back.catchmate.domain.user.dto.UserRequest;
 import com.back.catchmate.domain.user.dto.UserRequest.UserProfileUpdateRequest;
 import com.back.catchmate.domain.user.dto.UserResponse.LoginInfo;
+import com.back.catchmate.domain.user.dto.UserResponse.UpdateAlarmInfo;
+import com.back.catchmate.domain.user.dto.UserResponse.UserInfo;
 import com.back.catchmate.domain.user.entity.AlarmType;
 import com.back.catchmate.global.dto.StateResponse;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-
-import static com.back.catchmate.domain.user.dto.UserResponse.*;
 
 public interface UserService {
     LoginInfo joinUser(UserRequest.UserJoinRequest request);
