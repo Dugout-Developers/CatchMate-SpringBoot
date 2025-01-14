@@ -15,7 +15,9 @@ public class GameConverter {
         return Game.builder()
                 .homeClub(homeClub)
                 .awayClub(awayClub)
-                .gameStartDate(LocalDateTime.parse(createGameRequest.getGameStartDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                .gameStartDate(createGameRequest.getGameStartDate() != null
+                        ? LocalDateTime.parse(createGameRequest.getGameStartDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+                        : null)
                 .location(createGameRequest.getLocation())
                 .build();
     }

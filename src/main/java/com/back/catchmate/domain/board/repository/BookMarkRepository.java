@@ -12,7 +12,9 @@ import java.util.Optional;
 public interface BookMarkRepository extends JpaRepository<BookMark, Long> {
     boolean existsByUserAndBoardAndDeletedAtIsNull(User user, Board board);
 
-    Optional<BookMark> findByUserIdAndBoardId(Long userId, Long boardId);
+    Optional<BookMark> findByUserIdAndBoardIdAndDeletedAtIsNull(Long userId, Long boardId);
 
     Page<BookMark> findAllByUserIdAndDeletedAtIsNull(Long userId, Pageable pageable);
+
+    boolean existsByUserIdAndBoardId(Long userId, Long boardId);
 }

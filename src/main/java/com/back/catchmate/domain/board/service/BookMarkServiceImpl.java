@@ -37,8 +37,8 @@ public class BookMarkServiceImpl implements BookMarkService {
                 .orElseThrow(() -> new BaseException(ErrorCode.BOARD_NOT_FOUND));
 
         // 본인의 게시글인지 확인
-        if (user.isDifferentUserFrom(board.getUser())) {
-            throw new BaseException(ErrorCode.ALREADY_BOOKMARK);
+        if (!user.isDifferentUserFrom(board.getUser())) {
+            throw new BaseException(ErrorCode.BOOKMARK_BAD_REQUEST);
         }
 
         if (bookMarkRepository.existsByUserAndBoardAndDeletedAtIsNull(user, board)) {
@@ -69,7 +69,7 @@ public class BookMarkServiceImpl implements BookMarkService {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new BaseException(ErrorCode.BOARD_NOT_FOUND));
 
-        BookMark bookMark = bookMarkRepository.findByUserIdAndBoardId(user.getId(), board.getId())
+        BookMark bookMark = bookMarkRepository.findByUserIdAndBoardIdAndDeletedAtIsNull(user.getId(), board.getId())
                 .orElseThrow(() -> new BaseException(ErrorCode.BOOKMARK_NOT_FOUND));
 
         bookMark.delete();

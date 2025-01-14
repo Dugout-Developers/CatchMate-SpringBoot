@@ -21,7 +21,7 @@ public abstract class BoardRequest {
         @NotNull
         private String content;
         @NotNull
-        @Range(min = 1, max = 8)
+        @Range(min = 0, max = 8)
         private int maxPerson;
         @NotNull
         private Long cheerClubId;

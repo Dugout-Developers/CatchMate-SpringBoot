@@ -1,6 +1,7 @@
 package com.back.catchmate.domain.notification.dto;
 
 import com.back.catchmate.domain.board.dto.BoardResponse.BoardInfo;
+import com.back.catchmate.domain.enroll.entity.AcceptStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,6 +23,7 @@ public abstract class NotificationResponse {
         private String body;
         private LocalDateTime createdAt;
         private boolean isRead;
+        private AcceptStatus acceptStatus;
     }
 
     @Getter

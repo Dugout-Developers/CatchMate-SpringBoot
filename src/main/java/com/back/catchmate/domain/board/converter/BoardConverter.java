@@ -1,7 +1,11 @@
 package com.back.catchmate.domain.board.converter;
 
-import com.back.catchmate.domain.board.dto.BoardRequest.*;
-import com.back.catchmate.domain.board.dto.BoardResponse.*;
+import com.back.catchmate.domain.board.dto.BoardRequest.CreateOrUpdateBoardRequest;
+import com.back.catchmate.domain.board.dto.BoardResponse.BoardInfo;
+import com.back.catchmate.domain.board.dto.BoardResponse.TempBoardInfo;
+import com.back.catchmate.domain.board.dto.BoardResponse.PagedBoardInfo;
+import com.back.catchmate.domain.board.dto.BoardResponse.LiftUpStatusInfo;
+import com.back.catchmate.domain.board.dto.BoardResponse.BoardDeleteInfo;
 import com.back.catchmate.domain.board.entity.Board;
 import com.back.catchmate.domain.board.entity.BookMark;
 import com.back.catchmate.domain.club.entity.Club;
@@ -30,6 +34,7 @@ public class BoardConverter {
                 .title(boardRequest.getTitle())
                 .content(boardRequest.getContent())
                 .maxPerson(boardRequest.getMaxPerson())
+                .currentPerson(0)
                 .user(user)
                 .club(cheerClub)
                 .game(game)
@@ -66,6 +71,44 @@ public class BoardConverter {
                 .cheerClubId(board.getClub().getId())
                 .preferredGender(board.getPreferredGender())
                 .preferredAgeRange(board.getPreferredAgeRange())
+                .liftUpDate(board.getLiftUpDate())
+                .gameInfo(gameInfo)
+                .userInfo(userInfo)
+                .build();
+    }
+
+    public BoardInfo toBoardInfo(Board board, Game game, boolean isBookMarked, String buttonStatus) {
+        GameInfo gameInfo = gameConverter.toGameInfo(game);
+        UserInfo userInfo = userConverter.toUserInfo(board.getUser());
+
+        return BoardInfo.builder()
+                .boardId(board.getId())
+                .title(board.getTitle())
+                .content(board.getContent())
+                .maxPerson(board.getMaxPerson())
+                .cheerClubId(board.getClub().getId())
+                .preferredGender(board.getPreferredGender())
+                .preferredAgeRange(board.getPreferredAgeRange())
+                .liftUpDate(board.getLiftUpDate())
+                .isBookMarked(isBookMarked)
+                .buttonStatus(buttonStatus)
+                .gameInfo(gameInfo)
+                .userInfo(userInfo)
+                .build();
+    }
+
+    public TempBoardInfo toTempBoardInfo(Board board, Game game) {
+        GameInfo gameInfo = gameConverter.toGameInfo(game);
+        UserInfo userInfo = userConverter.toUserInfo(board.getUser());
+
+        return TempBoardInfo.builder()
+                .boardId(board.getId())
+                .title(board.getTitle())
+                .content(board.getContent())
+                .maxPerson(board.getMaxPerson())
+                .cheerClubId(board.getClub().getId())
+                .preferredGender(board.getPreferredGender())
+                .preferredAgeRange(board.getPreferredAgeRange())
                 .gameInfo(gameInfo)
                 .liftUpDate(board.getLiftUpDate())
                 .userInfo(userInfo)
@@ -86,5 +129,12 @@ public class BoardConverter {
 
         Page<Board> boardPage = new PageImpl<>(boards, bookMarkList.getPageable(), bookMarkList.getTotalElements());
         return toPagedBoardInfoFromBoardList(boardPage);
+    }
+
+    public LiftUpStatusInfo toLiftUpStatusInfo(boolean state, String remainingTime) {
+        return LiftUpStatusInfo.builder()
+                .state(state)
+                .remainTime(remainingTime)
+                .build();
     }
 }

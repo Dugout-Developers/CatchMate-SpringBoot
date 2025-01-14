@@ -55,4 +55,10 @@ public class Game extends BaseTimeEntity {
     @Builder.Default
     @OneToMany(mappedBy = "game")
     private List<Board> boardList = new ArrayList<>();
+
+    public void updateGame(Club homeClub, Club awayClub, LocalDateTime gameStartDate) {
+        this.homeClub = homeClub;
+        this.awayClub = awayClub;
+        this.gameStartDate = gameStartDate;
+    }
 }

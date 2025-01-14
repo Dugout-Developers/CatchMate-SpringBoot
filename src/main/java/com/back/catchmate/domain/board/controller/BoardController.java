@@ -3,7 +3,9 @@ package com.back.catchmate.domain.board.controller;
 import com.back.catchmate.domain.board.dto.BoardRequest.CreateOrUpdateBoardRequest;
 import com.back.catchmate.domain.board.dto.BoardResponse.BoardDeleteInfo;
 import com.back.catchmate.domain.board.dto.BoardResponse.BoardInfo;
+import com.back.catchmate.domain.board.dto.BoardResponse.LiftUpStatusInfo;
 import com.back.catchmate.domain.board.dto.BoardResponse.PagedBoardInfo;
+import com.back.catchmate.domain.board.dto.BoardResponse.TempBoardInfo;
 import com.back.catchmate.domain.board.service.BoardService;
 import com.back.catchmate.domain.board.service.BookMarkService;
 import com.back.catchmate.global.dto.StateResponse;
@@ -17,28 +19,31 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Tag(name = "게시글 관련 API")
 @RestController
-@RequestMapping("/board")
+@RequestMapping("/boards")
 @RequiredArgsConstructor
 public class BoardController {
     private final BoardService boardService;
     private final BookMarkService bookMarkService;
 
     @PostMapping
-    @Operation(summary = "게시글 등록 API", description = "게시글을 등록합니다.")
-    public BoardInfo createBoard(@JwtValidation Long userId,
-                                 @Valid @RequestBody CreateOrUpdateBoardRequest request) {
+    @Operation(summary = "게시글 등록 API & 게시글 임시 등록 API", description = "게시글을 등록합니다.")
+    public BoardInfo createOrUpdateBoard(@JwtValidation Long userId,
+                                         @Valid @RequestBody CreateOrUpdateBoardRequest request) {
         return boardService.createOrUpdateBoard(userId, null, request);
     }
 
@@ -54,26 +59,25 @@ public class BoardController {
     public PagedBoardInfo getBoardList(@JwtValidation Long userId,
                                        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate gameStartDate,
                                        @RequestParam(required = false) Integer maxPerson,
-                                       @RequestParam(required = false) Long preferredTeamId,
+                                       @RequestParam(required = false) List<Long> preferredTeamIdList,
                                        @PageableDefault(sort = "liftUpDate", direction = Sort.Direction.DESC)
                                        @Parameter(hidden = true) Pageable pageable) {
-        return boardService.getBoardList(userId, gameStartDate, maxPerson, preferredTeamId, pageable);
+        return boardService.getBoardList(userId, gameStartDate, maxPerson, preferredTeamIdList, pageable);
     }
 
     @GetMapping("/list/{userId}")
     @Operation(summary = "상대방이 작성한 게시글 조회 API", description = "상대방이 작성한 게시글을 조회하는 API 입니다.")
     public PagedBoardInfo getBoardListByUserId(@JwtValidation Long loginUserId,
                                                @PathVariable Long userId,
-                                               @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
+                                               @PageableDefault(sort = "liftUpDate", direction = Sort.Direction.DESC)
                                                @Parameter(hidden = true) Pageable pageable) {
         return boardService.getBoardListByUserId(loginUserId, userId, pageable);
     }
 
-    @GetMapping("/temp/{boardId}")
+    @GetMapping("/temp")
     @Operation(summary = "임시저장된 게시글 단일 조회 API", description = "임시저장된 게시글 단일 조회하는 API 구현.")
-    public BoardInfo getBoardListByUserId(@JwtValidation Long userId,
-                                               @PathVariable Long boardId) {
-        return boardService.getTempBoard(userId, boardId);
+    public TempBoardInfo getBoardListByUserId(@JwtValidation Long userId) {
+        return boardService.getTempBoard(userId);
     }
 
     @PostMapping("/bookmark/{boardId}")
@@ -115,8 +119,8 @@ public class BoardController {
 
     @PatchMapping("/{boardId}/lift-up")
     @Operation(summary = "게시글 끌어올리기 API", description = "게시글을 끌어올립니다.")
-    public BoardInfo updateLiftUpDate(@JwtValidation Long userId,
-                                      @PathVariable Long boardId){
+    public LiftUpStatusInfo updateLiftUpDate(@JwtValidation Long userId,
+                                             @PathVariable Long boardId) {
         return boardService.updateLiftUpDate(userId, boardId);
     }
 }

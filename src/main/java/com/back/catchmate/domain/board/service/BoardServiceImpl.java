@@ -4,17 +4,15 @@ import com.back.catchmate.domain.board.converter.BoardConverter;
 import com.back.catchmate.domain.board.dto.BoardRequest.CreateOrUpdateBoardRequest;
 import com.back.catchmate.domain.board.dto.BoardResponse.BoardDeleteInfo;
 import com.back.catchmate.domain.board.dto.BoardResponse.BoardInfo;
+import com.back.catchmate.domain.board.dto.BoardResponse.LiftUpStatusInfo;
 import com.back.catchmate.domain.board.dto.BoardResponse.PagedBoardInfo;
+import com.back.catchmate.domain.board.dto.BoardResponse.TempBoardInfo;
 import com.back.catchmate.domain.board.entity.Board;
 import com.back.catchmate.domain.board.repository.BoardRepository;
-import com.back.catchmate.domain.chat.converter.ChatRoomConverter;
-import com.back.catchmate.domain.chat.converter.UserChatRoomConverter;
-import com.back.catchmate.domain.chat.entity.ChatRoom;
-import com.back.catchmate.domain.chat.entity.UserChatRoom;
-import com.back.catchmate.domain.chat.repository.ChatRoomRepository;
-import com.back.catchmate.domain.chat.repository.UserChatRoomRepository;
+import com.back.catchmate.domain.board.repository.BookMarkRepository;
 import com.back.catchmate.domain.club.entity.Club;
 import com.back.catchmate.domain.club.repository.ClubRepository;
+import com.back.catchmate.domain.enroll.repository.EnrollRepository;
 import com.back.catchmate.domain.game.converter.GameConverter;
 import com.back.catchmate.domain.game.dto.GameRequest.CreateGameRequest;
 import com.back.catchmate.domain.game.entity.Game;
@@ -29,23 +27,25 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class BoardServiceImpl implements BoardService {
+    private static final Long DEFAULT_CLUB_ID = 0L;
     private final BoardRepository boardRepository;
     private final GameRepository gameRepository;
     private final ClubRepository clubRepository;
     private final UserRepository userRepository;
-    private final ChatRoomRepository chatRoomRepository;
+    private final BookMarkRepository bookMarkRepository;
+    private final EnrollRepository enrollRepository;
     private final BoardConverter boardConverter;
     private final GameConverter gameConverter;
-    private final ChatRoomConverter chatRoomConverter;
-    private final UserChatRoomConverter userChatRoomConverter;
-    private final UserChatRoomRepository userChatRoomRepository;
 
     @Override
     @Transactional
@@ -54,66 +54,84 @@ public class BoardServiceImpl implements BoardService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
-        // Cheer Club 조회
-        Club cheerClub = clubRepository.findById(request.getCheerClubId())
-                .orElseThrow(() -> new BaseException(ErrorCode.CLUB_NOT_FOUND));
+        // 기존 임시 저장 데이터 조회
+        Optional<Board> existingTempBoard = boardRepository.findTopByUserIdAndIsCompletedIsFalseAndDeletedAtIsNullOrderByCreatedAtDesc(user.getId());
 
-        // Home Club 및 Away Club 조회
-        Club homeClub = clubRepository.findById(request.getGameRequest().getHomeClubId())
-                .orElseThrow(() -> new BaseException(ErrorCode.CLUB_NOT_FOUND));
+        // 기존 임시 저장 데이터가 존재하면 삭제 처리
+        existingTempBoard.ifPresent(Board::deleteTempBoard);
 
-        Club awayClub = clubRepository.findById(request.getGameRequest().getAwayClubId())
-                .orElseThrow(() -> new BaseException(ErrorCode.CLUB_NOT_FOUND));
+        // 응원 구단 조회
+        Club cheerClub = findOrDefaultClub(request.getCheerClubId());
+
+        // 홈 구단 및 원정 구단 조회
+        Club homeClub = findOrDefaultClub(request.getGameRequest().getHomeClubId());
+        Club awayClub = findOrDefaultClub(request.getGameRequest().getAwayClubId());
 
         // Game 조회 또는 생성
         Game game = findOrCreateGame(homeClub, awayClub, request.getGameRequest());
 
-        Board board;
-
-        // note: 최초 임시저장은 create, 이후의 임시저장은 update endpoint를 호출하도록 한다.
-        if (boardId != null) {
-            // 기존 Board 업데이트
-            board = boardRepository.findByIdAndDeletedAtIsNull(boardId)
-                    .orElseThrow(() -> new BaseException(ErrorCode.BOARD_NOT_FOUND));
-
-            // 작성자가 동일하지 않은 경우 예외 처리
-            if (user.isDifferentUserFrom(board.getUser())) {
-                throw new BaseException(ErrorCode.BOARD_UPDATE_BAD_REQUEST);
-            }
-
-            // Board 업데이트
-            board.updateBoard(cheerClub, game, request);
-        } else {
-            // 새로운 Board 생성
-            board = boardConverter.toEntity(user, game, cheerClub, request);
-            boardRepository.save(board);
-
-            // 새로운 채팅방 생성
-            ChatRoom chatRoom = chatRoomConverter.toEntity(board);
-            chatRoomRepository.save(chatRoom);
-
-            // 채팅방에 속한 사용자에 추가
-            UserChatRoom userChatRoom = userChatRoomConverter.toEntity(user, chatRoom);
-            userChatRoomRepository.save(userChatRoom);
-        }
+        Board board = (boardId != null)
+                ? updateExistingBoard(user, boardId, cheerClub, game, request)
+                : createNewBoard(user, cheerClub, game, request);
 
         return boardConverter.toBoardInfo(board, game);
     }
 
-    private Game findOrCreateGame(Club homeClub, Club awayClub, CreateGameRequest createGameRequest) {
-        Game game = gameRepository.findByHomeClubAndAwayClubAndGameStartDate(
-                homeClub, awayClub, LocalDateTime.parse(createGameRequest.getGameStartDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-        );
+    private Board updateExistingBoard(User user, Long boardId, Club cheerClub, Game game, CreateOrUpdateBoardRequest request) {
+        Board board = boardRepository.findByIdAndDeletedAtIsNull(boardId)
+                .orElseThrow(() -> new BaseException(ErrorCode.BOARD_NOT_FOUND));
 
-        if (game != null) {
-            game.setGameStartDate(LocalDateTime.parse(createGameRequest.getGameStartDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-            game.setHomeClub(homeClub);
-            game.setAwayClub(awayClub);
-        } else {
-            game = this.gameConverter.toEntity(homeClub, awayClub, createGameRequest);
-            gameRepository.save(game);
+        if (user.isDifferentUserFrom(board.getUser())) {
+            throw new BaseException(ErrorCode.BOARD_UPDATE_BAD_REQUEST);
         }
 
+        board.updateBoard(cheerClub, game, request);
+        return board;
+    }
+
+    private Board createNewBoard(User user, Club cheerClub, Game game, CreateOrUpdateBoardRequest request) {
+        Board board = boardConverter.toEntity(user, game, cheerClub, request);
+        boardRepository.save(board);
+        return board;
+    }
+
+    private Club findOrDefaultClub(Long clubId) {
+        return (clubId != 0)
+                ? clubRepository.findById(clubId).orElseThrow(() -> new BaseException(ErrorCode.CLUB_NOT_FOUND))
+                : getDefaultClub();
+    }
+
+    private Club getDefaultClub() {
+        return clubRepository.findById(DEFAULT_CLUB_ID)
+                .orElseThrow(() -> new BaseException(ErrorCode.CLUB_NOT_FOUND));
+    }
+
+    private Game findOrCreateGame(Club homeClub, Club awayClub, CreateGameRequest createGameRequest) {
+        LocalDateTime gameStartDate = parseGameStartDate(createGameRequest.getGameStartDate());
+
+        Game existingGame = gameRepository.findByHomeClubAndAwayClubAndGameStartDate(homeClub, awayClub, gameStartDate);
+
+        if (existingGame != null) {
+            return updateExistingGame(existingGame, homeClub, awayClub, gameStartDate);
+        } else {
+            return createNewGame(homeClub, awayClub, createGameRequest);
+        }
+    }
+
+    private LocalDateTime parseGameStartDate(String gameStartDate) {
+        return (gameStartDate != null)
+                ? LocalDateTime.parse(gameStartDate, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+                : null;
+    }
+
+    private Game updateExistingGame(Game game, Club homeClub, Club awayClub, LocalDateTime gameStartDate) {
+        game.updateGame(homeClub, awayClub, gameStartDate);
+        return game;
+    }
+
+    private Game createNewGame(Club homeClub, Club awayClub, CreateGameRequest createGameRequest) {
+        Game game = gameConverter.toEntity(homeClub, awayClub, createGameRequest);
+        gameRepository.save(game);
         return game;
     }
 
@@ -126,16 +144,36 @@ public class BoardServiceImpl implements BoardService {
         Board board = boardRepository.findByIdAndDeletedAtIsNullAndIsCompleted(boardId)
                 .orElseThrow(() -> new BaseException(ErrorCode.BOARD_NOT_FOUND));
 
-        return boardConverter.toBoardInfo(board, board.getGame());
+        boolean isBookMarked = bookMarkRepository.existsByUserIdAndBoardId(user.getId(), board.getId());
+
+        // 타 유저 게시물 여부 확인
+        boolean isOwnBoard = board.isWriterSameAsLoginUser(user);
+
+        // 신청 여부 확인 (타 유저 게시물일 경우)
+        boolean isApplied = enrollRepository.existsByUserIdAndBoardId(user.getId(), board.getId());
+
+        // 버튼 상태 판단
+        String buttonStatus;
+        if (isOwnBoard) {
+            buttonStatus = "VIEW CHAT"; // 본인 게시물
+        } else {
+            if (isApplied) {
+                buttonStatus = "APPLIED"; // 타 유저 게시물, 신청 후
+            } else {
+                buttonStatus = "APPLY"; // 타 유저 게시물, 신청 전
+            }
+        }
+
+        return boardConverter.toBoardInfo(board, board.getGame(), isBookMarked, buttonStatus);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public PagedBoardInfo getBoardList(Long userId, LocalDate gameStartDate, Integer maxPerson, Long preferredTeamId, Pageable pageable) {
+    public PagedBoardInfo getBoardList(Long userId, LocalDate gameStartDate, Integer maxPerson, List<Long> preferredTeamIdList, Pageable pageable) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
-        Page<Board> boardList = boardRepository.findFilteredBoards(gameStartDate, maxPerson, preferredTeamId, pageable);
+        Page<Board> boardList = boardRepository.findFilteredBoards(gameStartDate, maxPerson, preferredTeamIdList, pageable);
         return boardConverter.toPagedBoardInfoFromBoardList(boardList);
     }
 
@@ -153,19 +191,19 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
-    @Transactional
-    public BoardInfo getTempBoard(Long userId, Long boardId) {
+    @Transactional(readOnly = true)
+    public TempBoardInfo getTempBoard(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
-        Board tempBoard = boardRepository.findByIdAndUserIdAndIsCompletedIsFalse(boardId, user.getId())
+        Board tempBoard = boardRepository.findTopByUserIdAndIsCompletedIsFalseAndDeletedAtIsNullOrderByCreatedAtDesc(user.getId())
                 .orElseThrow(() -> new BaseException(ErrorCode.TEMP_BOARD_NOT_FOUND));
 
         if (user.isDifferentUserFrom(tempBoard.getUser())) {
             throw new BaseException(ErrorCode.TEMP_BOARD_BAD_REQUEST);
         }
 
-        return boardConverter.toBoardInfo(tempBoard, tempBoard.getGame());
+        return boardConverter.toTempBoardInfo(tempBoard, tempBoard.getGame());
     }
 
     @Override
@@ -188,7 +226,7 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     @Transactional
-    public BoardInfo updateLiftUpDate(Long userId, Long boardId) {
+    public LiftUpStatusInfo updateLiftUpDate(Long userId, Long boardId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
@@ -200,12 +238,24 @@ public class BoardServiceImpl implements BoardService {
         }
 
         // note: 3일 간격으로 수정할 수 있음.
-        if (board.getLiftUpDate().plusDays(3).isBefore(LocalDateTime.now())) {
-            board.setLiftUpDate(LocalDateTime.now());
-        } else {
-            throw new BaseException(ErrorCode.BOARD_NOT_ALLOWED_UPDATE_LIFT_UPDATE);
-        }
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime nextLiftUpAllowed = board.getLiftUpDate().plusDays(3);
 
-        return boardConverter.toBoardInfo(board, board.getGame());
+        if (nextLiftUpAllowed.isBefore(now)) {
+            board.setLiftUpDate(now);
+            return boardConverter.toLiftUpStatusInfo(true, null);
+        } else {
+            // 남은 시간 계산
+            long remainingMinutes = Duration.between(now, nextLiftUpAllowed).toMinutes();
+            return new LiftUpStatusInfo(false, formatRemainingTime(remainingMinutes));  // 실패 시 200 응답, 상태와 남은 시간 포함
+        }
+    }
+
+    private String formatRemainingTime(long remainingMinutes) {
+        long days = remainingMinutes / (24 * 60);  // 1일은 1440분
+        long hours = (remainingMinutes % (24 * 60)) / 60;  // 나머지 분에서 시간 계산
+        long minutes = remainingMinutes % 60;  // 나머지 분 계산
+
+        return String.format("%d일 %02d시간 %02d분", days, hours, minutes);
     }
 }

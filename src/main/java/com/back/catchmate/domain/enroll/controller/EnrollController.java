@@ -31,7 +31,7 @@ import java.io.IOException;
 
 @Tag(name = "직관 신청 관련 API")
 @RestController
-@RequestMapping("/enroll")
+@RequestMapping("/enrolls")
 @RequiredArgsConstructor
 public class EnrollController {
     private final EnrollService enrollService;

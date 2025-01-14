@@ -21,7 +21,7 @@ public class SecurityConfig {
     private final JwtService jwtService;
     private final UserRepository userRepository;
 
-    private static final String[] whiteList = {"/auth/**", "/user/additional-info", "/actuator/**", "/swagger-ui/**", "/swagger-resources/**", "/swagger/**", "/v3/api-docs/**", "/error/**", "/club/**"};
+    private static final String[] whiteList = {"/auth/**", "/users/additional-info", "/actuator/**", "/swagger-ui/**", "/swagger-resources/**", "/swagger/**", "/v3/api-docs/**", "/error/**", "/clubs/**"};
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {

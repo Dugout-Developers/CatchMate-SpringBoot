@@ -41,6 +41,9 @@ public class Board extends BaseTimeEntity {
     private String content;
 
     @Column(nullable = false)
+    private int currentPerson;
+
+    @Column(nullable = false)
     private int maxPerson;
 
     @Column(nullable = false)
@@ -118,5 +121,17 @@ public class Board extends BaseTimeEntity {
 
         // 삭제 시간 기록
         super.delete();
+    }
+
+    public void deleteTempBoard() {
+        super.delete();
+    }
+
+    public boolean canIncrementCurrentPerson() {
+        return currentPerson < maxPerson;
+    }
+
+    public void incrementCurrentPerson() {
+        this.currentPerson++;
     }
 }
