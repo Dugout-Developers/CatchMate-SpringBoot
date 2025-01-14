@@ -1,7 +1,11 @@
 package com.back.catchmate.domain.board.converter;
 
-import com.back.catchmate.domain.board.dto.BoardRequest.*;
-import com.back.catchmate.domain.board.dto.BoardResponse.*;
+import com.back.catchmate.domain.board.dto.BoardRequest.CreateOrUpdateBoardRequest;
+import com.back.catchmate.domain.board.dto.BoardResponse.BoardInfo;
+import com.back.catchmate.domain.board.dto.BoardResponse.TempBoardInfo;
+import com.back.catchmate.domain.board.dto.BoardResponse.PagedBoardInfo;
+import com.back.catchmate.domain.board.dto.BoardResponse.LiftUpStatusInfo;
+import com.back.catchmate.domain.board.dto.BoardResponse.BoardDeleteInfo;
 import com.back.catchmate.domain.board.entity.Board;
 import com.back.catchmate.domain.board.entity.BookMark;
 import com.back.catchmate.domain.club.entity.Club;

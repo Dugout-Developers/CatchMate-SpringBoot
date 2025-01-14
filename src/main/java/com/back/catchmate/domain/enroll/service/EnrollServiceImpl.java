@@ -104,7 +104,7 @@ public class EnrollServiceImpl implements EnrollService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public PagedEnrollReceiveInfo getReceiveEnrollList(Long userId, Pageable pageable) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
