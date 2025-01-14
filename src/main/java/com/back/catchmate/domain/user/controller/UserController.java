@@ -27,7 +27,7 @@ import java.io.IOException;
 
 @Tag(name = "사용자 관련 API")
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/users")
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
@@ -62,8 +62,8 @@ public class UserController {
     @Operation(summary = "알림 설정", description = "유저의 알람 수신 여부를 변경하는 API 입니다.")
     @PatchMapping("/alarm")
     public UpdateAlarmInfo updateAlarm(@JwtValidation Long userId,
-                                                    @RequestParam("alarmType") AlarmType alarmType,
-                                                    @RequestParam("isEnabled") char isEnabled) {
+                                       @RequestParam("alarmType") AlarmType alarmType,
+                                       @RequestParam("isEnabled") char isEnabled) {
         return userService.updateAlarm(userId, alarmType, isEnabled);
     }
 }

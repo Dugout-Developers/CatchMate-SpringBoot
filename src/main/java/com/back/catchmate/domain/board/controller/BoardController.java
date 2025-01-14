@@ -1,7 +1,6 @@
 package com.back.catchmate.domain.board.controller;
 
 import com.back.catchmate.domain.board.dto.BoardRequest.CreateOrUpdateBoardRequest;
-import com.back.catchmate.domain.board.dto.BoardResponse;
 import com.back.catchmate.domain.board.dto.BoardResponse.BoardDeleteInfo;
 import com.back.catchmate.domain.board.dto.BoardResponse.BoardInfo;
 import com.back.catchmate.domain.board.dto.BoardResponse.LiftUpStatusInfo;
@@ -20,27 +19,29 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
 
 @Tag(name = "게시글 관련 API")
 @RestController
-@RequestMapping("/board")
+@RequestMapping("/boards")
 @RequiredArgsConstructor
 public class BoardController {
     private final BoardService boardService;
     private final BookMarkService bookMarkService;
 
     @PostMapping
-    @Operation(summary = "게시글 등록 API", description = "게시글을 등록합니다.")
+    @Operation(summary = "게시글 등록 API & 게시글 임시 등록 API", description = "게시글을 등록합니다.")
     public BoardInfo createOrUpdateBoard(@JwtValidation Long userId,
                                          @Valid @RequestBody CreateOrUpdateBoardRequest request) {
         return boardService.createOrUpdateBoard(userId, null, request);
@@ -119,7 +120,7 @@ public class BoardController {
     @PatchMapping("/{boardId}/lift-up")
     @Operation(summary = "게시글 끌어올리기 API", description = "게시글을 끌어올립니다.")
     public LiftUpStatusInfo updateLiftUpDate(@JwtValidation Long userId,
-                                                           @PathVariable Long boardId) {
+                                             @PathVariable Long boardId) {
         return boardService.updateLiftUpDate(userId, boardId);
     }
 }

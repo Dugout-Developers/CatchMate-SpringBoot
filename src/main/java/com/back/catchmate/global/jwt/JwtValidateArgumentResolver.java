@@ -15,10 +15,9 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 @Component
 @AllArgsConstructor
 public class JwtValidateArgumentResolver implements HandlerMethodArgumentResolver {
+    private final JwtService jwtService;
 
     private static final String ACCESS_TOKEN_HEADER = "AccessToken";
-
-    private final JwtService jwtService;
 
     // 메서드 파라미터가 @JwtValidation 어노테이션을 가지고 있고, 타입이 Long일 경우 true를 반환
     @Override

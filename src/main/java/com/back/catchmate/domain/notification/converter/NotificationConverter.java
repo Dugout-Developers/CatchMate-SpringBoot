@@ -58,7 +58,6 @@ public class NotificationConverter {
                 .acceptStatus(notification.getAcceptStatus())
                 .boardInfo(boardInfo)
                 .createdAt(notification.getCreatedAt())
-                .acceptStatus(notification.getAcceptStatus())
                 .build();
     }
 }

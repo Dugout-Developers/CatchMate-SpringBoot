@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "구단 관련 API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/club")
+@RequestMapping("/clubs")
 public class ClubController {
     private final ClubService clubService;
 

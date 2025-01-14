@@ -2,7 +2,6 @@ package com.back.catchmate.domain.board.service;
 
 import com.back.catchmate.domain.board.converter.BoardConverter;
 import com.back.catchmate.domain.board.dto.BoardRequest.CreateOrUpdateBoardRequest;
-import com.back.catchmate.domain.board.dto.BoardResponse;
 import com.back.catchmate.domain.board.dto.BoardResponse.BoardDeleteInfo;
 import com.back.catchmate.domain.board.dto.BoardResponse.BoardInfo;
 import com.back.catchmate.domain.board.dto.BoardResponse.LiftUpStatusInfo;
@@ -37,7 +36,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BoardServiceImpl implements BoardService {
     private static final Long DEFAULT_CLUB_ID = 0L;
-    private static final Long DEFAULT_GAME_ID = 0L;
     private final BoardRepository boardRepository;
     private final GameRepository gameRepository;
     private final ClubRepository clubRepository;
@@ -53,44 +51,45 @@ public class BoardServiceImpl implements BoardService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
-        // Cheer Club 조회
-        Club cheerClub = (request.getCheerClubId() != 0)
-                ? clubRepository.findById(request.getCheerClubId())
-                .orElseThrow(() -> new BaseException(ErrorCode.CLUB_NOT_FOUND))
-                : getDefaultClub();
+        // 응원 구단 조회
+        Club cheerClub = findOrDefaultClub(request.getCheerClubId());
 
-        // Home Club 및 Away Club 조회
-        Club homeClub = (request.getGameRequest().getHomeClubId() != 0)
-                ? clubRepository.findById(request.getGameRequest().getHomeClubId())
-                .orElseThrow(() -> new BaseException(ErrorCode.CLUB_NOT_FOUND))
-                : getDefaultClub();
-
-        Club awayClub = (request.getGameRequest().getAwayClubId() != 0)
-                ? clubRepository.findById(request.getGameRequest().getAwayClubId())
-                .orElseThrow(() -> new BaseException(ErrorCode.CLUB_NOT_FOUND))
-                : getDefaultClub();
+        // 홈 구단 및 원정 구단 조회
+        Club homeClub = findOrDefaultClub(request.getGameRequest().getHomeClubId());
+        Club awayClub = findOrDefaultClub(request.getGameRequest().getAwayClubId());
 
         // Game 조회 또는 생성
         Game game = findOrCreateGame(homeClub, awayClub, request.getGameRequest());
-        Board board;
 
-        if (boardId != null) {
-            // 기존 Board 업데이트
-            board = boardRepository.findByIdAndDeletedAtIsNull(boardId)
-                    .orElseThrow(() -> new BaseException(ErrorCode.BOARD_NOT_FOUND));
-
-            if (user.isDifferentUserFrom(board.getUser())) {
-                throw new BaseException(ErrorCode.BOARD_UPDATE_BAD_REQUEST);
-            }
-
-            board.updateBoard(cheerClub, game, request);
-        } else {
-            // 새로운 Board 생성
-            board = boardConverter.toEntity(user, game, cheerClub, request);
-            boardRepository.save(board);
-        }
+        Board board = (boardId != null)
+                ? updateExistingBoard(user, boardId, cheerClub, game, request)
+                : createNewBoard(user, cheerClub, game, request);
 
         return boardConverter.toBoardInfo(board, game);
+    }
+
+    private Board updateExistingBoard(User user, Long boardId, Club cheerClub, Game game, CreateOrUpdateBoardRequest request) {
+        Board board = boardRepository.findByIdAndDeletedAtIsNull(boardId)
+                .orElseThrow(() -> new BaseException(ErrorCode.BOARD_NOT_FOUND));
+
+        if (user.isDifferentUserFrom(board.getUser())) {
+            throw new BaseException(ErrorCode.BOARD_UPDATE_BAD_REQUEST);
+        }
+
+        board.updateBoard(cheerClub, game, request);
+        return board;
+    }
+
+    private Board createNewBoard(User user, Club cheerClub, Game game, CreateOrUpdateBoardRequest request) {
+        Board board = boardConverter.toEntity(user, game, cheerClub, request);
+        boardRepository.save(board);
+        return board;
+    }
+
+    private Club findOrDefaultClub(Long clubId) {
+        return (clubId != 0)
+                ? clubRepository.findById(clubId).orElseThrow(() -> new BaseException(ErrorCode.CLUB_NOT_FOUND))
+                : getDefaultClub();
     }
 
     private Club getDefaultClub() {
@@ -99,31 +98,31 @@ public class BoardServiceImpl implements BoardService {
     }
 
     private Game findOrCreateGame(Club homeClub, Club awayClub, CreateGameRequest createGameRequest) {
-        LocalDateTime gameStartDate = null;
+        LocalDateTime gameStartDate = parseGameStartDate(createGameRequest.getGameStartDate());
 
-        // gameStartDate가 null이 아니면 파싱하고, null이면 null로 설정
-        if (createGameRequest.getGameStartDate() != null) {
-            gameStartDate = LocalDateTime.parse(createGameRequest.getGameStartDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        }
+        Game existingGame = gameRepository.findByHomeClubAndAwayClubAndGameStartDate(homeClub, awayClub, gameStartDate);
 
-        // gameStartDate가 null이면 그대로 null로 설정하고, 아니면 파싱된 값을 사용
-        Game game = gameRepository.findByHomeClubAndAwayClubAndGameStartDate(
-                homeClub, awayClub, gameStartDate
-        );
-
-        if (game != null) {
-            if (createGameRequest.getGameStartDate() != null) {
-                game.setGameStartDate(LocalDateTime.parse(createGameRequest.getGameStartDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-            } else {
-                game.setGameStartDate(null);
-            }
-            game.setHomeClub(homeClub);
-            game.setAwayClub(awayClub);
+        if (existingGame != null) {
+            return updateExistingGame(existingGame, homeClub, awayClub, gameStartDate);
         } else {
-            game = gameConverter.toEntity(homeClub, awayClub, createGameRequest);
-            gameRepository.save(game);
+            return createNewGame(homeClub, awayClub, createGameRequest);
         }
+    }
 
+    private LocalDateTime parseGameStartDate(String gameStartDate) {
+        return (gameStartDate != null)
+                ? LocalDateTime.parse(gameStartDate, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+                : null;
+    }
+
+    private Game updateExistingGame(Game game, Club homeClub, Club awayClub, LocalDateTime gameStartDate) {
+        game.updateGame(homeClub, awayClub, gameStartDate);
+        return game;
+    }
+
+    private Game createNewGame(Club homeClub, Club awayClub, CreateGameRequest createGameRequest) {
+        Game game = gameConverter.toEntity(homeClub, awayClub, createGameRequest);
+        gameRepository.save(game);
         return game;
     }
 
