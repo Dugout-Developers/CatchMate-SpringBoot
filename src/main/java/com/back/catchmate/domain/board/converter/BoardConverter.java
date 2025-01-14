@@ -77,7 +77,7 @@ public class BoardConverter {
                 .build();
     }
 
-    public BoardInfo toBoardInfo(Board board, Game game, boolean isBookMarked) {
+    public BoardInfo toBoardInfo(Board board, Game game, boolean isBookMarked, String buttonStatus) {
         GameInfo gameInfo = gameConverter.toGameInfo(game);
         UserInfo userInfo = userConverter.toUserInfo(board.getUser());
 
@@ -91,6 +91,7 @@ public class BoardConverter {
                 .preferredAgeRange(board.getPreferredAgeRange())
                 .liftUpDate(board.getLiftUpDate())
                 .isBookMarked(isBookMarked)
+                .buttonStatus(buttonStatus)
                 .gameInfo(gameInfo)
                 .userInfo(userInfo)
                 .build();

@@ -28,6 +28,7 @@ public abstract class BoardResponse {
         private GameInfo gameInfo;
         private UserInfo userInfo;
         private boolean isBookMarked;
+        private String buttonStatus;
     }
 
     @Getter

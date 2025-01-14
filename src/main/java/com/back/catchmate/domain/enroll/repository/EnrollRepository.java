@@ -24,4 +24,6 @@ public interface EnrollRepository extends JpaRepository<Enroll, Long> {
 
     @Query("SELECT COUNT(e) FROM Enroll e JOIN e.board b WHERE e.isNew = true AND b.user.id = :userId AND e.deletedAt IS NULL")
     int countNewEnrollListByUserId(@Param("userId") Long userId);
+
+    boolean existsByUserIdAndBoardId(Long userId, Long boardId);
 }
