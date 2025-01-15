@@ -65,7 +65,7 @@ public class User extends BaseTimeEntity {
     @Column(nullable = false)
     private LocalDate birthDate;
 
-    @Column(nullable = false)
+    @Column
     private String watchStyle;
 
     @Column(nullable = false)
