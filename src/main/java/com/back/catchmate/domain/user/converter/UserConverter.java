@@ -21,6 +21,10 @@ public class UserConverter {
     private final ClubConverter clubConverter;
 
     public User toEntity(UserRequest.UserJoinRequest request, Club favoriteClub, String providerIdWithProvider) {
+        String watchStyle = request.getWatchStyle().isEmpty()
+                ? null // 기본값 설정
+                : request.getWatchStyle();
+
         return User.builder()
                 .email(request.getEmail())
                 .provider(Provider.of(request.getProvider()))
@@ -29,7 +33,7 @@ public class UserConverter {
                 .nickName(request.getNickName())
                 .birthDate(request.getBirthDate())
                 .club(favoriteClub)
-                .watchStyle(request.getWatchStyle())
+                .watchStyle(watchStyle)
                 .profileImageUrl(request.getProfileImageUrl())
                 .allAlarm('N')
                 .chatAlarm('N')
