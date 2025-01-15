@@ -1,5 +1,6 @@
 package com.back.catchmate.domain.notification.service;
 
+import com.back.catchmate.domain.enroll.entity.AcceptStatus;
 import com.back.catchmate.domain.notification.dto.FCMMessageRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -43,7 +44,7 @@ public class FCMService {
     }
 
     // 알림 파라미터들을 요구하는 body 형태로 가공
-    public String makeMessage(String targetToken, String title, String body, Long boardId) throws JsonProcessingException {
+    public String makeMessage(String targetToken, String title, String body, Long boardId, AcceptStatus acceptStatus) throws JsonProcessingException {
         FCMMessageRequest fcmMessage = FCMMessageRequest.builder()
                 .message(
                         FCMMessageRequest.Message.builder()
@@ -52,6 +53,7 @@ public class FCMService {
                                         FCMMessageRequest.Notification.builder()
                                                 .title(title)
                                                 .body(body)
+                                                .acceptStatus(acceptStatus)
                                                 .build()
                                 )
                                 .data(
@@ -69,8 +71,8 @@ public class FCMService {
 
     // 알림 푸쉬를 보내는 역할을 하는 메서드
     @Async("asyncTask")
-    public void sendMessage(String targetToken, String title, String body, Long boardId) throws IOException {
-        String message = makeMessage(targetToken, title, body, boardId);
+    public void sendMessage(String targetToken, String title, String body, Long boardId, AcceptStatus acceptStatus) throws IOException {
+        String message = makeMessage(targetToken, title, body, boardId, acceptStatus);
 
         OkHttpClient client = new OkHttpClient();
         RequestBody requestBody = RequestBody.create(message, MediaType.get("application/json; charset=utf-8"));

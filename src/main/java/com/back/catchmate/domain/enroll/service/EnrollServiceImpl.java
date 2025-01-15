@@ -68,7 +68,7 @@ public class EnrollServiceImpl implements EnrollService {
         User boardWriter = userRepository.findById(board.getUser().getId())
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
         // 게시글 작성자에게 푸시 알림 메세지 전송
-        fcmService.sendMessage(boardWriter.getFcmToken(), title, body, boardId);
+        fcmService.sendMessage(boardWriter.getFcmToken(), title, body, boardId, AcceptStatus.PENDING);
 
         // 데이터베이스에 저장
         notificationService.createNotification(title, body, enroll.getUser().getProfileImageUrl(), boardId, boardWriter.getId(), AcceptStatus.PENDING);
@@ -172,7 +172,7 @@ public class EnrollServiceImpl implements EnrollService {
         String body = ENROLLMENT_ACCEPT_BODY;
 
         // 직관 신청자에게 수락 푸시 알림 메세지 전송
-        fcmService.sendMessage(enrollApplicant.getFcmToken(), title, body, enroll.getBoard().getId());
+        fcmService.sendMessage(enrollApplicant.getFcmToken(), title, body, enroll.getBoard().getId(), AcceptStatus.ACCEPTED);
         // 데이터베이스에 저장
         notificationService.createNotification(title, body, boardWriter.getProfileImageUrl(), enroll.getBoard().getId(), enrollApplicant.getId(), AcceptStatus.ACCEPTED);
 
@@ -202,7 +202,7 @@ public class EnrollServiceImpl implements EnrollService {
         String body = ENROLLMENT_REJECT_BODY;
 
         // 직관 신청자에게 거절 푸시 알림 메세지 전송
-        fcmService.sendMessage(enrollApplicant.getFcmToken(), title, body, enroll.getBoard().getId());
+        fcmService.sendMessage(enrollApplicant.getFcmToken(), title, body, enroll.getBoard().getId(), AcceptStatus.REJECTED);
         // 데이터베이스에 저장
         notificationService.createNotification(title, body, boardWriter.getProfileImageUrl(), enroll.getBoard().getId(), enrollApplicant.getId(), AcceptStatus.REJECTED);
 
