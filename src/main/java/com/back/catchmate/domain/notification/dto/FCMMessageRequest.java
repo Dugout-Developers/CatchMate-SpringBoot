@@ -1,5 +1,6 @@
 package com.back.catchmate.domain.notification.dto;
 
+import com.back.catchmate.domain.enroll.entity.AcceptStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,6 +27,7 @@ public class FCMMessageRequest {
     public static class Notification {
         private String title;
         private String body;
+        private AcceptStatus acceptStatus;
     }
 
     @Getter

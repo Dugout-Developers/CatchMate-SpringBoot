@@ -48,7 +48,6 @@ public abstract class UserRequest {
         private LocalDate birthDate;
         @NotNull
         private Long favoriteClubId;
-        @NotNull
         private String watchStyle;
     }
 }
