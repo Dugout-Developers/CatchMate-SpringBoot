@@ -53,12 +53,12 @@ public class FCMService {
                                         FCMMessageRequest.Notification.builder()
                                                 .title(title)
                                                 .body(body)
-                                                .acceptStatus(acceptStatus)
                                                 .build()
                                 )
                                 .data(
                                         FCMMessageRequest.Data.builder()
                                                 .boardId(String.valueOf(boardId))
+                                                .acceptStatus(acceptStatus)
                                                 .build()
                                 )
                                 .build()
