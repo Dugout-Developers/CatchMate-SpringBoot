@@ -119,6 +119,7 @@ public class Board extends BaseTimeEntity {
         }
         bookMarkList.clear();
 
+        chatRoom.delete();
         // 삭제 시간 기록
         super.delete();
     }

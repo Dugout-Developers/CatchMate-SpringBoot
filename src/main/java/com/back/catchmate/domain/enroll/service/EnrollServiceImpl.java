@@ -2,6 +2,11 @@ package com.back.catchmate.domain.enroll.service;
 
 import com.back.catchmate.domain.board.entity.Board;
 import com.back.catchmate.domain.board.repository.BoardRepository;
+import com.back.catchmate.domain.chat.converter.UserChatRoomConverter;
+import com.back.catchmate.domain.chat.entity.ChatRoom;
+import com.back.catchmate.domain.chat.entity.UserChatRoom;
+import com.back.catchmate.domain.chat.repository.ChatRoomRepository;
+import com.back.catchmate.domain.chat.repository.UserChatRoomRepository;
 import com.back.catchmate.domain.enroll.converter.EnrollConverter;
 import com.back.catchmate.domain.enroll.dto.EnrollRequest.CreateEnrollRequest;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.CancelEnrollInfo;
@@ -33,12 +38,15 @@ import static com.back.catchmate.domain.notification.message.NotificationMessage
 @Service
 @RequiredArgsConstructor
 public class EnrollServiceImpl implements EnrollService {
+    private final FCMService fcmService;
+    private final NotificationService notificationService;
     private final EnrollRepository enrollRepository;
     private final UserRepository userRepository;
     private final BoardRepository boardRepository;
-    private final FCMService fcmService;
-    private final NotificationService notificationService;
+    private final ChatRoomRepository chatRoomRepository;
+    private final UserChatRoomRepository userChatRoomRepository;
     private final EnrollConverter enrollConverter;
+    private final UserChatRoomConverter userChatRoomConverter;
 
     @Override
     @Transactional
@@ -168,6 +176,8 @@ public class EnrollServiceImpl implements EnrollService {
             throw new BaseException(ErrorCode.ENROLL_ACCEPT_INVALID);
         }
 
+        enterChatRoom(loginUser, board);
+
         String title = ENROLLMENT_ACCEPT_TITLE;
         String body = ENROLLMENT_ACCEPT_BODY;
 
@@ -178,6 +188,14 @@ public class EnrollServiceImpl implements EnrollService {
 
         enroll.respondToEnroll(AcceptStatus.ACCEPTED);
         return enrollConverter.toUpdateEnrollInfo(enroll, AcceptStatus.ACCEPTED);
+    }
+
+    private void enterChatRoom(User loginUser, Board board) {
+        ChatRoom chatRoom = chatRoomRepository.findByBoardId(board.getId())
+                .orElseThrow(() -> new BaseException(ErrorCode.CHATROOM_NOT_FOUND));
+
+        UserChatRoom userChatRoom = userChatRoomConverter.toEntity(loginUser, chatRoom);
+        userChatRoomRepository.save(userChatRoom);
     }
 
     @Override

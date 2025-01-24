@@ -1,6 +1,7 @@
 package com.back.catchmate.domain.chat.entity;
 
 import com.back.catchmate.domain.user.entity.User;
+import com.back.catchmate.global.entity.BaseTimeEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -23,7 +24,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Table(name = "user_chat_rooms")
-public class UserChatRoom {
+public class UserChatRoom extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_chat_room_id")

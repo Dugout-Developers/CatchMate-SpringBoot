@@ -10,6 +10,12 @@ import com.back.catchmate.domain.board.dto.BoardResponse.TempBoardInfo;
 import com.back.catchmate.domain.board.entity.Board;
 import com.back.catchmate.domain.board.repository.BoardRepository;
 import com.back.catchmate.domain.board.repository.BookMarkRepository;
+import com.back.catchmate.domain.chat.converter.ChatRoomConverter;
+import com.back.catchmate.domain.chat.converter.UserChatRoomConverter;
+import com.back.catchmate.domain.chat.entity.ChatRoom;
+import com.back.catchmate.domain.chat.entity.UserChatRoom;
+import com.back.catchmate.domain.chat.repository.ChatRoomRepository;
+import com.back.catchmate.domain.chat.repository.UserChatRoomRepository;
 import com.back.catchmate.domain.club.entity.Club;
 import com.back.catchmate.domain.club.repository.ClubRepository;
 import com.back.catchmate.domain.enroll.repository.EnrollRepository;
@@ -44,8 +50,12 @@ public class BoardServiceImpl implements BoardService {
     private final UserRepository userRepository;
     private final BookMarkRepository bookMarkRepository;
     private final EnrollRepository enrollRepository;
+    private final ChatRoomRepository chatRoomRepository;
+    private final UserChatRoomRepository userChatRoomRepository;
     private final BoardConverter boardConverter;
     private final GameConverter gameConverter;
+    private final ChatRoomConverter chatRoomConverter;
+    private final UserChatRoomConverter userChatRoomConverter;
 
     @Override
     @Transactional
@@ -53,13 +63,6 @@ public class BoardServiceImpl implements BoardService {
         // 유저 정보 조회
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
-
-        // 기존 임시 저장 데이터 조회
-        Optional<Board> existingTempBoard = boardRepository.findTopByUserIdAndIsCompletedIsFalseAndDeletedAtIsNullOrderByCreatedAtDesc(user.getId());
-
-        // 기존 임시 저장 데이터가 존재하면 삭제 처리
-        existingTempBoard.ifPresent(Board::deleteTempBoard);
-
         // 응원 구단 조회
         Club cheerClub = findOrDefaultClub(request.getCheerClubId());
 
@@ -72,7 +75,8 @@ public class BoardServiceImpl implements BoardService {
 
         Board board = (boardId != null)
                 ? updateExistingBoard(user, boardId, cheerClub, game, request)
-                : createNewBoard(user, cheerClub, game, request);
+                : createNewBoardWithChatRoom(user, cheerClub, game, request);
+
 
         return boardConverter.toBoardInfo(board, game);
     }
@@ -85,14 +89,39 @@ public class BoardServiceImpl implements BoardService {
             throw new BaseException(ErrorCode.BOARD_UPDATE_BAD_REQUEST);
         }
 
+        boolean existsByBoardId = chatRoomRepository.existsByBoardId(board.getId());
+        if (request.getIsCompleted() && !existsByBoardId) {
+            createChatRoom(board, user);
+        }
+
         board.updateBoard(cheerClub, game, request);
         return board;
     }
 
-    private Board createNewBoard(User user, Club cheerClub, Game game, CreateOrUpdateBoardRequest request) {
+    private Board createNewBoardWithChatRoom(User user, Club cheerClub, Game game, CreateOrUpdateBoardRequest request) {
+        // 기존 임시 저장 데이터 조회
+        Optional<Board> existingTempBoard = boardRepository.findTopByUserIdAndIsCompletedIsFalseAndDeletedAtIsNullOrderByCreatedAtDesc(user.getId());
+
+        // 기존 임시 저장 데이터가 존재하면 삭제 처리
+        existingTempBoard.ifPresent(Board::deleteTempBoard);
+
         Board board = boardConverter.toEntity(user, game, cheerClub, request);
         boardRepository.save(board);
+
+        if (request.getIsCompleted()) {
+            createChatRoom(board, user);
+        }
         return board;
+    }
+
+    private void createChatRoom(Board board, User loginUser) {
+        // 채팅방 생성
+        ChatRoom chatRoom = chatRoomConverter.toEntity(board);
+        chatRoomRepository.save(chatRoom);
+
+        // 채팅방 입장
+        UserChatRoom userChatRoom = userChatRoomConverter.toEntity(loginUser, chatRoom);
+        userChatRoomRepository.save(userChatRoom);
     }
 
     private Club findOrDefaultClub(Long clubId) {
