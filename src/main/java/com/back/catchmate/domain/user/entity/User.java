@@ -2,6 +2,7 @@ package com.back.catchmate.domain.user.entity;
 
 import com.back.catchmate.domain.board.entity.Board;
 import com.back.catchmate.domain.board.entity.BookMark;
+import com.back.catchmate.domain.chat.entity.UserChatRoom;
 import com.back.catchmate.domain.club.entity.Club;
 import com.back.catchmate.domain.enroll.entity.Enroll;
 import com.back.catchmate.domain.user.dto.UserRequest.UserProfileUpdateRequest;
@@ -43,9 +44,9 @@ public class User extends BaseTimeEntity {
     @JoinColumn(name = "club_id", nullable = false)
     private Club club;
 
-    @Builder.Default
-    @OneToMany(mappedBy = "user")
-    private List<BookMark> bookMarkList = new ArrayList<>();
+//    @Builder.Default
+//    @OneToMany(mappedBy = "user")
+//    private List<BookMark> bookMarkList = new ArrayList<>();
 
     @Column(nullable = false)
     private String email;
@@ -85,6 +86,9 @@ public class User extends BaseTimeEntity {
 
     @Column(nullable = false)
     private String fcmToken;
+
+    @OneToMany(mappedBy = "user")
+    private List<UserChatRoom> userChatRoomList;
 
     // 프로필 정보 수정 메서드
     public void updateProfile(UserProfileUpdateRequest request, Club favoriteClub) {

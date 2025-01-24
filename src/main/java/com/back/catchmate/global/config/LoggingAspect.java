@@ -9,6 +9,8 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
@@ -48,21 +50,21 @@ public class LoggingAspect {
             }
         }
 
-        // 헤더에서 AccessToken과 RefreshToken 값 추출 및 로그 출력
-        String accessToken = request.getHeader("AccessToken");
-        String refreshToken = request.getHeader("RefreshToken");
-
-        if (accessToken != null) {
-            log.info("AccessToken = {}", accessToken);
-        } else {
-            log.info("No AccessToken found");
-        }
-
-        if (refreshToken != null) {
-            log.info("RefreshToken = {}", refreshToken);
-        } else {
-            log.info("No RefreshToken found");
-        }
+//        // 헤더에서 AccessToken과 RefreshToken 값 추출 및 로그 출력
+//        String accessToken = request.getHeader("AccessToken");
+//        String refreshToken = request.getHeader("RefreshToken");
+//
+//        if (accessToken != null) {
+//            log.info("AccessToken = {}", accessToken);
+//        } else {
+//            log.info("No AccessToken found");
+//        }
+//
+//        if (refreshToken != null) {
+//            log.info("RefreshToken = {}", refreshToken);
+//        } else {
+//            log.info("No RefreshToken found");
+//        }
     }
 
     // Poincut에 의해 필터링된 경로로 들어오는 경우 메서드 리턴 후에 적용
