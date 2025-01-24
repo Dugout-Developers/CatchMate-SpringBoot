@@ -176,7 +176,7 @@ public class EnrollServiceImpl implements EnrollService {
             throw new BaseException(ErrorCode.ENROLL_ACCEPT_INVALID);
         }
 
-        enterChatRoom(loginUser, board);
+        enterChatRoom(enrollApplicant, board);
 
         String title = ENROLLMENT_ACCEPT_TITLE;
         String body = ENROLLMENT_ACCEPT_BODY;
@@ -190,11 +190,11 @@ public class EnrollServiceImpl implements EnrollService {
         return enrollConverter.toUpdateEnrollInfo(enroll, AcceptStatus.ACCEPTED);
     }
 
-    private void enterChatRoom(User loginUser, Board board) {
+    private void enterChatRoom(User user, Board board) {
         ChatRoom chatRoom = chatRoomRepository.findByBoardId(board.getId())
                 .orElseThrow(() -> new BaseException(ErrorCode.CHATROOM_NOT_FOUND));
 
-        UserChatRoom userChatRoom = userChatRoomConverter.toEntity(loginUser, chatRoom);
+        UserChatRoom userChatRoom = userChatRoomConverter.toEntity(user, chatRoom);
         userChatRoomRepository.save(userChatRoom);
     }
 
