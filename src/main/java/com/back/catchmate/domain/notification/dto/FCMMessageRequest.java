@@ -27,7 +27,6 @@ public class FCMMessageRequest {
     public static class Notification {
         private String title;
         private String body;
-        private AcceptStatus acceptStatus;
     }
 
     @Getter
@@ -35,5 +34,6 @@ public class FCMMessageRequest {
     @AllArgsConstructor
     public static class Data {
         private String boardId;
+        private AcceptStatus acceptStatus;
     }
 }
