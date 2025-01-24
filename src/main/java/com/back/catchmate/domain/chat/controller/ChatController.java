@@ -1,11 +1,14 @@
 package com.back.catchmate.domain.chat.controller;
 
 import com.back.catchmate.domain.chat.dto.ChatRequest;
+import com.back.catchmate.domain.chat.dto.ChatRequest.ChatMessageRequest;
 import com.back.catchmate.domain.chat.dto.ChatResponse.MessageInfo;
 import com.back.catchmate.domain.chat.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,9 +22,10 @@ import java.util.List;
 public class ChatController {
     private final ChatService chatService;
 
-    @MessageMapping("/chat.sendMessage")
-    public void sendMessage(ChatRequest.ChatMessageRequest request) {
-        chatService.sendMessage(request);
+    @MessageMapping("/chat.{chatRoomId}")
+    @SendTo("/topic/chat.{chatRoomId}")
+    public void sendMessage(@DestinationVariable Long chatRoomId, ChatMessageRequest request) {
+        chatService.sendMessage(chatRoomId, request);
     }
 
     @GetMapping(value = "/chat/chatRoom/{roomId}")
