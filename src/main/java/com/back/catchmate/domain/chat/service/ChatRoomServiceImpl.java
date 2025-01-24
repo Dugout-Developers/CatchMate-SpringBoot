@@ -2,15 +2,14 @@ package com.back.catchmate.domain.chat.service;
 
 import com.back.catchmate.domain.chat.entity.ChatRoom;
 import com.back.catchmate.domain.chat.entity.UserChatRoom;
-import com.back.catchmate.domain.user.entity.User;
 import com.back.catchmate.domain.chat.repository.ChatRoomRepository;
 import com.back.catchmate.domain.chat.repository.UserChatRoomRepository;
+import com.back.catchmate.domain.user.entity.User;
 import com.back.catchmate.domain.user.repository.UserRepository;
 import com.back.catchmate.global.dto.StateResponse;
 import com.back.catchmate.global.error.ErrorCode;
 import com.back.catchmate.global.error.exception.BaseException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
