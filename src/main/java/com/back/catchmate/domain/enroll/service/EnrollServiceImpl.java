@@ -194,6 +194,8 @@ public class EnrollServiceImpl implements EnrollService {
         ChatRoom chatRoom = chatRoomRepository.findByBoardId(board.getId())
                 .orElseThrow(() -> new BaseException(ErrorCode.CHATROOM_NOT_FOUND));
 
+        chatRoom.incrementParticipantCount();
+
         UserChatRoom userChatRoom = userChatRoomConverter.toEntity(user, chatRoom);
         userChatRoomRepository.save(userChatRoom);
     }
