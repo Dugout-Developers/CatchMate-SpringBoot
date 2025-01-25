@@ -135,4 +135,8 @@ public class Board extends BaseTimeEntity {
     public void incrementCurrentPerson() {
         this.currentPerson++;
     }
+
+    public void decrementCurrentPerson() {
+        this.currentPerson--;
+    }
 }
