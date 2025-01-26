@@ -179,7 +179,7 @@ public class BoardServiceImpl implements BoardService {
         boolean isOwnBoard = board.isWriterSameAsLoginUser(user);
 
         // 신청 여부 확인 (타 유저 게시물일 경우)
-        boolean isApplied = enrollRepository.existsByUserIdAndBoardId(user.getId(), board.getId());
+        boolean isApplied = enrollRepository.existsByUserIdAndBoardIdAndDeletedAtIsNull(user.getId(), board.getId());
 
         // 버튼 상태 판단
         String buttonStatus;
