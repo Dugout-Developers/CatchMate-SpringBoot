@@ -30,7 +30,7 @@ public class ChatController {
     }
 
     @Deprecated
-    @GetMapping(value = "/chat/chatRoom/{roomId}")
+    @GetMapping(value = "/{roomId}")
     public Mono<List<MessageInfo>> findChatMessageList(@PathVariable("roomId") Long roomId) {
         return chatService.findChatMessageList(roomId).collectList();
     }
