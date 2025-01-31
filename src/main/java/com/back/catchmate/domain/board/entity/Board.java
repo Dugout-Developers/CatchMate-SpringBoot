@@ -1,6 +1,7 @@
 package com.back.catchmate.domain.board.entity;
 
 import com.back.catchmate.domain.board.dto.BoardRequest.CreateOrUpdateBoardRequest;
+import com.back.catchmate.domain.chat.entity.ChatRoom;
 import com.back.catchmate.domain.club.entity.Club;
 import com.back.catchmate.domain.enroll.entity.Enroll;
 import com.back.catchmate.domain.game.entity.Game;
@@ -81,6 +82,9 @@ public class Board extends BaseTimeEntity {
     @Column(name = "lift_up_date", nullable = false)
     private LocalDateTime liftUpDate;
 
+    @OneToOne(mappedBy = "board", fetch = FetchType.LAZY)
+    private ChatRoom chatRoom;
+
     public boolean isWriterSameAsLoginUser(User user) {
         return this.user.getId().equals(user.getId());
     }
@@ -115,6 +119,7 @@ public class Board extends BaseTimeEntity {
         }
         bookMarkList.clear();
 
+        chatRoom.delete();
         // 삭제 시간 기록
         super.delete();
     }
@@ -129,5 +134,9 @@ public class Board extends BaseTimeEntity {
 
     public void incrementCurrentPerson() {
         this.currentPerson++;
+    }
+
+    public void decrementCurrentPerson() {
+        this.currentPerson--;
     }
 }
