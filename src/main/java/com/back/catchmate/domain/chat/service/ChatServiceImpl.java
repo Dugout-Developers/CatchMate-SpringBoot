@@ -1,12 +1,10 @@
 package com.back.catchmate.domain.chat.service;
 
-import com.back.catchmate.domain.chat.converter.ChatRoomConverter;
 import com.back.catchmate.domain.chat.dto.ChatRequest.ChatMessageRequest;
 import com.back.catchmate.domain.chat.dto.ChatResponse;
 import com.back.catchmate.domain.chat.dto.ChatResponse.MessageInfo;
 import com.back.catchmate.domain.chat.entity.ChatMessage;
 import com.back.catchmate.domain.chat.repository.ChatMessageRepository;
-import com.back.catchmate.domain.chat.repository.UserChatRoomRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -22,8 +20,6 @@ import static com.back.catchmate.domain.chat.dto.ChatRequest.ChatMessageRequest.
 public class ChatServiceImpl implements ChatService {
     private final SimpMessagingTemplate messagingTemplate;
     private final ChatMessageRepository chatMessageRepository;
-    private final UserChatRoomRepository userChatRoomRepository;
-    private final ChatRoomConverter chatRoomConverter;
 
     // 메시지를 특정 채팅방으로 전송
     @Override
@@ -31,7 +27,7 @@ public class ChatServiceImpl implements ChatService {
     public void sendMessage(Long chatRoomId, ChatMessageRequest request) {
         if (request.getMessageType() == MessageType.TALK) {
             ChatMessage chatMessage = new ChatMessage(
-                    chatRoomId, request.getContent(), request.getSender()
+                    chatRoomId, request.getContent(), request.getSenderId()
             );
 
             // DB에 메시지 저장
@@ -51,10 +47,10 @@ public class ChatServiceImpl implements ChatService {
     public Flux<MessageInfo> findChatMessageList(Long roomId) {
         return chatMessageRepository.findAllByRoomId(roomId)
                 .map(chatMessage -> ChatResponse.MessageInfo.builder()
-                        .id(chatMessage.getId()) // MongoDB ObjectId
+                        .id(chatMessage.getId())
                         .roomId(chatMessage.getRoomId())
                         .content(chatMessage.getContent())
-                        .sender(chatMessage.getSender())
+                        .senderId(chatMessage.getSenderId())
                         .build()
                 );
     }

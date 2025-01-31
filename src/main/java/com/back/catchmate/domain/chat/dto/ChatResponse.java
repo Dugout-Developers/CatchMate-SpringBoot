@@ -19,7 +19,7 @@ public abstract class ChatResponse {
         ObjectId id;
         private Long roomId;
         private String content;
-        private String sender;
+        private Long senderId;
     }
 
     @Getter
