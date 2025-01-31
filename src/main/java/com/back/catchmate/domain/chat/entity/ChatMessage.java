@@ -18,11 +18,11 @@ public class ChatMessage {
     private ObjectId id;
     private Long roomId;
     private String content;
-    private String sender;
+    private Long senderId;
 
-    public ChatMessage(Long roomId, String content, String sender) {
+    public ChatMessage(Long roomId, String content, Long senderId) {
         this.roomId = roomId;
         this.content = content;
-        this.sender = sender;
+        this.senderId = senderId;
     }
 }

@@ -18,7 +18,7 @@ public abstract class ChatRequest {
         }
 
         private MessageType messageType;
-        private String sender;   // 보낸 사람
+        private Long senderId;   // 보낸 사람
         private String content;  // 메시지 내용
         private LocalDateTime sendTime;
     }
