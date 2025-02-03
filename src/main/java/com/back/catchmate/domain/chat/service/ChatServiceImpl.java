@@ -1,16 +1,21 @@
 package com.back.catchmate.domain.chat.service;
 
+import com.back.catchmate.domain.chat.converter.ChatMessageConverter;
 import com.back.catchmate.domain.chat.dto.ChatRequest.ChatMessageRequest;
-import com.back.catchmate.domain.chat.dto.ChatResponse;
-import com.back.catchmate.domain.chat.dto.ChatResponse.MessageInfo;
+import com.back.catchmate.domain.chat.dto.ChatResponse.PagedChatMessageInfo;
 import com.back.catchmate.domain.chat.entity.ChatMessage;
 import com.back.catchmate.domain.chat.repository.ChatMessageRepository;
+import com.back.catchmate.domain.chat.repository.UserChatRoomRepository;
+import com.back.catchmate.global.error.ErrorCode;
+import com.back.catchmate.global.error.exception.BaseException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import static com.back.catchmate.domain.chat.dto.ChatRequest.ChatMessageRequest.MessageType;
 
@@ -20,6 +25,8 @@ import static com.back.catchmate.domain.chat.dto.ChatRequest.ChatMessageRequest.
 public class ChatServiceImpl implements ChatService {
     private final SimpMessagingTemplate messagingTemplate;
     private final ChatMessageRepository chatMessageRepository;
+    private final ChatMessageConverter chatMessageConverter;
+    private final UserChatRoomRepository userChatRoomRepository;
 
     // 메시지를 특정 채팅방으로 전송
     @Override
@@ -42,16 +49,13 @@ public class ChatServiceImpl implements ChatService {
         messagingTemplate.convertAndSend(destination, request);
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public Flux<MessageInfo> findChatMessageList(Long roomId) {
-        return chatMessageRepository.findAllByRoomId(roomId)
-                .map(chatMessage -> ChatResponse.MessageInfo.builder()
-                        .id(chatMessage.getId())
-                        .roomId(chatMessage.getRoomId())
-                        .content(chatMessage.getContent())
-                        .senderId(chatMessage.getSenderId())
-                        .build()
-                );
+    public Mono<PagedChatMessageInfo> getChatMessageList(Long userId, Long chatRoomId, Pageable pageable) {
+        // 동기 방식으로 수정된 메서드 호출
+        if (!userChatRoomRepository.existsByUserIdAndChatRoomId(userId, chatRoomId)) {
+            throw new BaseException(ErrorCode.USER_CHATROOM_NOT_FOUND);
+        }
+
+        Flux<ChatMessage> chatMessageList = chatMessageRepository.findByRoomIdOrderByIdDesc(chatRoomId, pageable);
+        return chatMessageConverter.toPagedMessageInfo(chatMessageList, pageable);
     }
 }
