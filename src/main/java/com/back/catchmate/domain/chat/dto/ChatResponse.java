@@ -1,7 +1,6 @@
 package com.back.catchmate.domain.chat.dto;
 
 import com.back.catchmate.domain.board.dto.BoardResponse.BoardInfo;
-import com.back.catchmate.domain.notification.dto.NotificationResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

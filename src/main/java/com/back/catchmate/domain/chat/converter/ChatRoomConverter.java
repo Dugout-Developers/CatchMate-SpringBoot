@@ -1,10 +1,8 @@
 package com.back.catchmate.domain.chat.converter;
 
 import com.back.catchmate.domain.board.converter.BoardConverter;
-import com.back.catchmate.domain.board.dto.BoardResponse;
 import com.back.catchmate.domain.board.dto.BoardResponse.BoardInfo;
 import com.back.catchmate.domain.board.entity.Board;
-import com.back.catchmate.domain.chat.dto.ChatResponse;
 import com.back.catchmate.domain.chat.dto.ChatResponse.ChatRoomInfo;
 import com.back.catchmate.domain.chat.dto.ChatResponse.PagedChatRoomInfo;
 import com.back.catchmate.domain.chat.entity.ChatRoom;
