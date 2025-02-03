@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public abstract class UserResponse {
     @Getter
@@ -39,6 +40,14 @@ public abstract class UserResponse {
         private ClubInfo favoriteClub;
         private LocalDate birthDate;
         private String watchStyle;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UserInfoList {
+        private List<UserInfo> userInfoList;
     }
 
     @Getter
