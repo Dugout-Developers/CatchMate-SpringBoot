@@ -35,10 +35,10 @@ public class ChatController {
 
     @GetMapping("/{chatRoomId}")
     @Operation(summary = "특정 채팅방의 채팅 내역 조회 API", description = "특정 채팅방의 채팅 내역 조회 API 입니다.")
-    public Mono<PagedChatMessageInfo> findChatMessageList(@JwtValidation Long userId,
-                                                          @PathVariable Long chatRoomId,
-                                                          @RequestParam(defaultValue = "0") int page,
-                                                          @RequestParam(defaultValue = "20") int size) {
+    public PagedChatMessageInfo findChatMessageList(@JwtValidation Long userId,
+                                                    @PathVariable Long chatRoomId,
+                                                    @RequestParam(defaultValue = "0") int page,
+                                                    @RequestParam(defaultValue = "20") int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("id.timestamp")));
         return chatService.getChatMessageList(userId, chatRoomId, pageable);
     }
