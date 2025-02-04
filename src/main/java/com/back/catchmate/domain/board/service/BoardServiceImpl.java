@@ -173,7 +173,7 @@ public class BoardServiceImpl implements BoardService {
         Board board = boardRepository.findByIdAndDeletedAtIsNullAndIsCompleted(boardId)
                 .orElseThrow(() -> new BaseException(ErrorCode.BOARD_NOT_FOUND));
 
-        boolean isBookMarked = bookMarkRepository.existsByUserIdAndBoardId(user.getId(), board.getId());
+        boolean isBookMarked = bookMarkRepository.existsByUserIdAndBoardIdAndDeletedAtIsNull(user.getId(), board.getId());
 
         // 타 유저 게시물 여부 확인
         boolean isOwnBoard = board.isWriterSameAsLoginUser(user);
