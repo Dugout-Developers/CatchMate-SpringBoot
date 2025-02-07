@@ -22,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -86,26 +87,32 @@ public class EnrollConverter {
     }
 
     public PagedEnrollReceiveInfo toPagedEnrollReceiveInfo(Page<Enroll> enrollList) {
-        // Board 기준으로 그룹화 (Map<BoardInfo, List<EnrollReceiveInfo>>)
-        Map<BoardInfo, List<EnrollResponse.EnrollInfo>> groupedByBoard = enrollList.stream()
+        // boardId 기준으로 그룹화 (Map<BoardId, List<EnrollInfo>>)
+        Map<Long, List<EnrollResponse.EnrollInfo>> groupedByBoardId = enrollList.stream()
                 .collect(Collectors.groupingBy(
-                        enroll -> boardConverter.toBoardInfo(enroll.getBoard(), enroll.getBoard().getGame()), // Key: BoardInfo
-                        Collectors.mapping(enroll -> {
-                            UserInfo userInfo = userConverter.toUserInfo(enroll.getUser());
-                            return toEnrollInfo(enroll, userInfo);
-                        }, Collectors.toList()) // Value: EnrollReceiveInfo 리스트
+                        enroll -> enroll.getBoard().getId(), // Key: boardId
+                        Collectors.mapping(this::toEnrollInfo, Collectors.toList()) // Value: EnrollInfo 리스트
                 ));
 
-        // BoardInfo + 해당 Board에 대한 신청 리스트를 포함하는 구조로 변환
-        List<EnrollResponse.EnrollReceiveInfo> enrollReceiveInfoList = groupedByBoard.entrySet().stream()
-                .map(entry -> EnrollResponse.EnrollReceiveInfo.builder()
-                        .boardInfo(entry.getKey()) // BoardInfo 설정
-                        .enrollReceiveInfoList(entry.getValue()) // Board에 대한 신청 리스트 설정
-                        .build())
+        // 각 boardId에 대한 EnrollReceiveInfo 생성
+        List<EnrollReceiveInfo> enrollInfoList = groupedByBoardId.entrySet().stream()
+                .map(entry -> {
+                    List<EnrollResponse.EnrollInfo> sortedEnrollInfoList = entry.getValue().stream()
+                            .sorted(Comparator.comparing(EnrollResponse.EnrollInfo::getRequestDate).reversed())
+                            .limit(10)  // 최근 10개만 포함
+                            .collect(Collectors.toList());
+
+                    // boardId와 그에 해당하는 EnrollReceiveInfo 목록을 생성
+                    return EnrollReceiveInfo.builder()
+                            .boardInfo(boardConverter.toBoardInfo(entry.getKey())) // boardId에 해당하는 BoardInfo 객체 생성
+                            .enrollReceiveInfoList(sortedEnrollInfoList)
+                            .build();
+                })
                 .toList();
 
+        // PagedEnrollReceiveInfo 반환
         return PagedEnrollReceiveInfo.builder()
-                .enrollInfoList(enrollReceiveInfoList) // Board 단위로 그룹화된 신청 리스트
+                .enrollInfoList(enrollInfoList) // boardId 단위로 그룹화된 신청 리스트
                 .totalPages(enrollList.getTotalPages())
                 .totalElements(enrollList.getTotalElements())
                 .isFirst(enrollList.isFirst())
@@ -113,14 +120,14 @@ public class EnrollConverter {
                 .build();
     }
 
-    public EnrollResponse.EnrollInfo toEnrollInfo(Enroll enroll, UserInfo userInfo) {
+    public EnrollResponse.EnrollInfo toEnrollInfo(Enroll enroll) {
         return EnrollResponse.EnrollInfo.builder()
                 .enrollId(enroll.getId())
                 .acceptStatus(enroll.getAcceptStatus())
                 .description(enroll.getDescription())
                 .requestDate(enroll.getCreatedAt())
                 .isNew(enroll.isNew())
-                .userInfo(userInfo)
+                .userInfo(userConverter.toUserInfo(enroll.getUser()))
                 .build();
     }
 
