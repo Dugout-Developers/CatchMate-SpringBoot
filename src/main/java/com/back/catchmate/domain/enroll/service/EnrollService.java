@@ -1,8 +1,10 @@
 package com.back.catchmate.domain.enroll.service;
 
 import com.back.catchmate.domain.enroll.dto.EnrollRequest.CreateEnrollRequest;
+import com.back.catchmate.domain.enroll.dto.EnrollResponse;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.CancelEnrollInfo;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.CreateEnrollInfo;
+import com.back.catchmate.domain.enroll.dto.EnrollResponse.EnrollDescriptionInfo;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.NewEnrollCountInfo;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.PagedEnrollReceiveInfo;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.PagedEnrollRequestInfo;
@@ -27,4 +29,6 @@ public interface EnrollService {
     UpdateEnrollInfo acceptEnroll(Long enrollId, Long userId) throws IOException;
 
     UpdateEnrollInfo rejectEnroll(Long enrollId, Long userId) throws IOException;
+
+    EnrollDescriptionInfo getEnrollDescriptionById(Long enrollId, Long userId);
 }

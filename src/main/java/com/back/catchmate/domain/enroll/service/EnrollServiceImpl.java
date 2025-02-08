@@ -9,6 +9,7 @@ import com.back.catchmate.domain.chat.repository.ChatRoomRepository;
 import com.back.catchmate.domain.chat.repository.UserChatRoomRepository;
 import com.back.catchmate.domain.enroll.converter.EnrollConverter;
 import com.back.catchmate.domain.enroll.dto.EnrollRequest.CreateEnrollRequest;
+import com.back.catchmate.domain.enroll.dto.EnrollResponse;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.CancelEnrollInfo;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.CreateEnrollInfo;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.NewEnrollCountInfo;
@@ -228,5 +229,16 @@ public class EnrollServiceImpl implements EnrollService {
 
         enroll.respondToEnroll(AcceptStatus.REJECTED);
         return enrollConverter.toUpdateEnrollInfo(enroll, AcceptStatus.REJECTED);
+    }
+
+    @Override
+    public EnrollResponse.EnrollDescriptionInfo getEnrollDescriptionById(Long enrollId, Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+
+        Enroll enroll = enrollRepository.findById(enrollId)
+                .orElseThrow(() -> new BaseException(ErrorCode.ENROLL_NOT_FOUND));
+
+        return enrollConverter.toEnrollDescriptionInfo(enroll);
     }
 }

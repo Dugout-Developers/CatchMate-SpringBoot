@@ -1,8 +1,10 @@
 package com.back.catchmate.domain.enroll.controller;
 
 import com.back.catchmate.domain.enroll.dto.EnrollRequest.CreateEnrollRequest;
+import com.back.catchmate.domain.enroll.dto.EnrollResponse;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.CancelEnrollInfo;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.CreateEnrollInfo;
+import com.back.catchmate.domain.enroll.dto.EnrollResponse.EnrollDescriptionInfo;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.NewEnrollCountInfo;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.PagedEnrollReceiveInfo;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.PagedEnrollRequestInfo;
@@ -94,5 +96,12 @@ public class EnrollController {
     public UpdateEnrollInfo rejectEnroll(@PathVariable Long enrollId,
                                          @JwtValidation Long userId) throws IOException {
         return enrollService.rejectEnroll(enrollId, userId);
+    }
+
+    @GetMapping("/{enrollId}/description")
+    @Operation(summary = "보낸 신청 상세 조회 API", description = "보낸 신청의 상세 내용을 조회하는 API 입니다.")
+    public EnrollDescriptionInfo getEnrollDescriptionById(@PathVariable Long enrollId,
+                                                          @JwtValidation Long userId) {
+        return enrollService.getEnrollDescriptionById(enrollId, userId);
     }
 }

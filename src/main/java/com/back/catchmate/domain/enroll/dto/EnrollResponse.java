@@ -105,4 +105,12 @@ public abstract class EnrollResponse {
         private Long enrollId;
         private LocalDateTime deletedAt;
     }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class EnrollDescriptionInfo {
+        private String description;
+    }
 }
