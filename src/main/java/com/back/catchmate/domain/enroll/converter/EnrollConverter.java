@@ -7,6 +7,7 @@ import com.back.catchmate.domain.enroll.dto.EnrollRequest.CreateEnrollRequest;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.CancelEnrollInfo;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.CreateEnrollInfo;
+import com.back.catchmate.domain.enroll.dto.EnrollResponse.EnrollDescriptionInfo;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.EnrollReceiveInfo;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.EnrollRequestInfo;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.NewEnrollCountInfo;
@@ -141,6 +142,12 @@ public class EnrollConverter {
         return UpdateEnrollInfo.builder()
                 .enrollId(enroll.getId())
                 .acceptStatus(acceptStatus)
+                .build();
+    }
+
+    public EnrollDescriptionInfo toEnrollDescriptionInfo(Enroll enroll) {
+        return EnrollDescriptionInfo.builder()
+                .description(enroll.getDescription())
                 .build();
     }
 }
