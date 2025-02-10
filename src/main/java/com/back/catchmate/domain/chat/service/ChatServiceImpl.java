@@ -36,7 +36,7 @@ public class ChatServiceImpl implements ChatService {
     // 메시지를 특정 채팅방으로 전송
     @Override
     @Transactional
-    public void sendMessage(Long chatRoomId, ChatMessageRequest request) {
+    public void sendChatMessage(Long chatRoomId, ChatMessageRequest request) {
         String destination = "/topic/chat." + chatRoomId;
 
         if (request.getMessageType() == MessageType.TALK) {
@@ -62,7 +62,7 @@ public class ChatServiceImpl implements ChatService {
 
     private boolean isNewDateMessageNeeded(Long chatRoomId, LocalDateTime newMessageTime) {
         LocalDate newDate = newMessageTime.toLocalDate();
-        ChatMessage chatMessage = chatMessageRepository.findFirstByRoomIdOrderBySendTimeDesc(chatRoomId);
+        ChatMessage chatMessage = chatMessageRepository.findFirstByChatRoomIdOrderBySendTimeDesc(chatRoomId);
 
         if (chatMessage == null) {
             return true;
@@ -73,13 +73,24 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
+    @Transactional
+    public void sendEnterLeaveMessage(Long chatRoomId, String content, Long senderId, MessageType messageType) {
+        // 메시지를 DB에 저장
+        ChatMessage chatMessage = chatMessageConverter.toEnterLeaveMessage(chatRoomId, content, senderId, messageType);
+        chatMessageRepository.save(chatMessage);
+
+        // WebSocket을 통해 실시간 메시지 전송
+        messagingTemplate.convertAndSend("/topic/chat." + chatRoomId, chatMessage);
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public PagedChatMessageInfo getChatMessageList(Long userId, Long chatRoomId, Pageable pageable) {
         if (!userChatRoomRepository.existsByUserIdAndChatRoomId(userId, chatRoomId)) {
             throw new BaseException(ErrorCode.USER_CHATROOM_NOT_FOUND);
         }
 
-        Page<ChatMessage> chatMessageList = chatMessageRepository.findByRoomIdOrderByIdDesc(chatRoomId, pageable);
+        Page<ChatMessage> chatMessageList = chatMessageRepository.findByChatRoomIdOrderByIdDesc(chatRoomId, pageable);
         return chatMessageConverter.toPagedChatMessageInfo(chatMessageList);
     }
 }

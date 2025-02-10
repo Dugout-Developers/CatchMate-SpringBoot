@@ -29,7 +29,7 @@ public class ChatController {
     @MessageMapping("/chat.{chatRoomId}")
     @SendTo("/topic/chat.{chatRoomId}")
     public void sendMessage(@DestinationVariable Long chatRoomId, ChatMessageRequest request) {
-        chatService.sendMessage(chatRoomId, request);
+        chatService.sendChatMessage(chatRoomId, request);
     }
 
     @GetMapping("/{chatRoomId}")

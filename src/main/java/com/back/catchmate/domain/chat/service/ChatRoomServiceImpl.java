@@ -17,9 +17,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static com.back.catchmate.domain.chat.dto.ChatRequest.ChatMessageRequest.MessageType;
+
 @Service
 @RequiredArgsConstructor
 public class ChatRoomServiceImpl implements ChatRoomService {
+    private final ChatService chatService;
     private final UserRepository userRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final UserChatRoomRepository userChatRoomRepository;
@@ -53,6 +56,10 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         chatRoom.getBoard().decrementCurrentPerson();
         // 채팅방에서 참여자 수 감소
         chatRoom.decrementParticipantCount();
+
+        // 퇴장 메시지 보내기
+        String content = user.getNickName() + " 님이 채팅을 떠났어요";  // 퇴장 메시지 내용
+        chatService.sendEnterLeaveMessage(chatRoom.getId(), content, user.getId(), MessageType.LEAVE);
 
         return new StateResponse(true);
     }

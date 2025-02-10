@@ -7,6 +7,7 @@ import com.back.catchmate.domain.chat.entity.ChatRoom;
 import com.back.catchmate.domain.chat.entity.UserChatRoom;
 import com.back.catchmate.domain.chat.repository.ChatRoomRepository;
 import com.back.catchmate.domain.chat.repository.UserChatRoomRepository;
+import com.back.catchmate.domain.chat.service.ChatService;
 import com.back.catchmate.domain.enroll.converter.EnrollConverter;
 import com.back.catchmate.domain.enroll.dto.EnrollRequest.CreateEnrollRequest;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse;
@@ -34,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.util.List;
 
+import static com.back.catchmate.domain.chat.dto.ChatRequest.ChatMessageRequest.MessageType;
 import static com.back.catchmate.domain.notification.message.NotificationMessages.*;
 
 @Service
@@ -41,6 +43,7 @@ import static com.back.catchmate.domain.notification.message.NotificationMessage
 public class EnrollServiceImpl implements EnrollService {
     private final FCMService fcmService;
     private final NotificationService notificationService;
+    private final ChatService chatService;
     private final EnrollRepository enrollRepository;
     private final UserRepository userRepository;
     private final BoardRepository boardRepository;
@@ -199,6 +202,9 @@ public class EnrollServiceImpl implements EnrollService {
 
         UserChatRoom userChatRoom = userChatRoomConverter.toEntity(user, chatRoom);
         userChatRoomRepository.save(userChatRoom);
+
+        String content = user.getNickName() + " 님이 채팅에 참여했어요";
+        chatService.sendEnterLeaveMessage(chatRoom.getId(), content, user.getId(), MessageType.ENTER);
     }
 
     @Override
