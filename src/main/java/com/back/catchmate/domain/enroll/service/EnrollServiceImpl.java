@@ -232,11 +232,11 @@ public class EnrollServiceImpl implements EnrollService {
     }
 
     @Override
-    public EnrollResponse.EnrollDescriptionInfo getEnrollDescriptionById(Long enrollId, Long userId) {
+    public EnrollResponse.EnrollDescriptionInfo getEnrollDescriptionById(Long boardId, Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
-        Enroll enroll = enrollRepository.findById(enrollId)
+        Enroll enroll = enrollRepository.findByUserIdAndBoardIdAndDeletedAtIsNull(user.getId(), boardId)
                 .orElseThrow(() -> new BaseException(ErrorCode.ENROLL_NOT_FOUND));
 
         return enrollConverter.toEnrollDescriptionInfo(enroll);
