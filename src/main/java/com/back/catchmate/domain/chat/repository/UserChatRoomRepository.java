@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface UserChatRoomRepository extends JpaRepository<UserChatRoom, Long> {
@@ -18,4 +19,6 @@ public interface UserChatRoomRepository extends JpaRepository<UserChatRoom, Long
             "WHERE ucr.user.id = :userId " +
             "ORDER BY cr.lastMessageAt DESC")
     Page<UserChatRoom> findAllByUserId(Long userId, Pageable pageable);
+
+    List<UserChatRoom> findByChatRoomId(Long chatRoomId);
 }

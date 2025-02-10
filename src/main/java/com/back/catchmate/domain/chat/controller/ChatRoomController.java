@@ -1,7 +1,9 @@
 package com.back.catchmate.domain.chat.controller;
 
 import com.back.catchmate.domain.chat.dto.ChatResponse;
-import com.back.catchmate.domain.chat.service.ChatRoomServiceImpl;
+import com.back.catchmate.domain.chat.service.ChatRoomService;
+import com.back.catchmate.domain.chat.service.UserChatRoomService;
+import com.back.catchmate.domain.user.dto.UserResponse.UserInfoList;
 import com.back.catchmate.global.dto.StateResponse;
 import com.back.catchmate.global.jwt.JwtValidation;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,7 +24,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/chat-rooms")
 public class ChatRoomController {
-    private final ChatRoomServiceImpl chatRoomService;
+    private final ChatRoomService chatRoomService;
+    private final UserChatRoomService userChatRoomService;
 
     @GetMapping("/list")
     @Operation(summary = "내가 속한 채팅방 조회 API", description = "내가 속해있는 채팅방을 조회하는 API 입니다.")
@@ -37,5 +40,11 @@ public class ChatRoomController {
     public StateResponse leaveChatRoom(@JwtValidation Long userId,
                                        @PathVariable Long chatRoomId) {
         return chatRoomService.leaveChatRoom(userId, chatRoomId);
+    }
+
+    @GetMapping("/{chatRoomId}/user-list")
+    @Operation(summary = "채팅방에 참여한 유저 정보 리스트 반환 API", description = "채팅방에 참여한 유저 정보 리스트 반환 API 입니다.")
+    public UserInfoList getUsersInChatRoom(@PathVariable Long chatRoomId) {
+        return userChatRoomService.getUserInfoList(chatRoomId);
     }
 }

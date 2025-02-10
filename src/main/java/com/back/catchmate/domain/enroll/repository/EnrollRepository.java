@@ -16,7 +16,14 @@ public interface EnrollRepository extends JpaRepository<Enroll, Long> {
 
     Page<Enroll> findByUserIdAndDeletedAtIsNull(Long userId, Pageable pageable);
 
-    @Query("SELECT e FROM Enroll e WHERE e.board.user.id = :userId AND e.deletedAt IS NULL AND e.acceptStatus = 'PENDING'")
+    @Query("""
+            SELECT e FROM Enroll e
+            JOIN e.board b
+            WHERE b.user.id = :userId
+            AND e.deletedAt IS NULL
+            AND e.acceptStatus = 'PENDING'
+            ORDER BY b.id DESC, e.createdAt DESC
+            """)
     Page<Enroll> findEnrollListByBoardWriter(@Param("userId") Long userId, Pageable pageable);
 
     @Query("SELECT e FROM Enroll e WHERE e.board.id = :boardId AND e.deletedAt IS NULL AND e.acceptStatus = 'PENDING'")

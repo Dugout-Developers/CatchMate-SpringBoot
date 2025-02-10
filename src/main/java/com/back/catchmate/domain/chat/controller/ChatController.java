@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import reactor.core.publisher.Mono;
 
 @Tag(name = "채팅 관련 API")
 @RestController
@@ -30,15 +29,15 @@ public class ChatController {
     @MessageMapping("/chat.{chatRoomId}")
     @SendTo("/topic/chat.{chatRoomId}")
     public void sendMessage(@DestinationVariable Long chatRoomId, ChatMessageRequest request) {
-        chatService.sendMessage(chatRoomId, request);
+        chatService.sendChatMessage(chatRoomId, request);
     }
 
     @GetMapping("/{chatRoomId}")
     @Operation(summary = "특정 채팅방의 채팅 내역 조회 API", description = "특정 채팅방의 채팅 내역 조회 API 입니다.")
-    public Mono<PagedChatMessageInfo> findChatMessageList(@JwtValidation Long userId,
-                                                          @PathVariable Long chatRoomId,
-                                                          @RequestParam(defaultValue = "0") int page,
-                                                          @RequestParam(defaultValue = "20") int size) {
+    public PagedChatMessageInfo findChatMessageList(@JwtValidation Long userId,
+                                                    @PathVariable Long chatRoomId,
+                                                    @RequestParam(defaultValue = "0") int page,
+                                                    @RequestParam(defaultValue = "20") int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("id.timestamp")));
         return chatService.getChatMessageList(userId, chatRoomId, pageable);
     }

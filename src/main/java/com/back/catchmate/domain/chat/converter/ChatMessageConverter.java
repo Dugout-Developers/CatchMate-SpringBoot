@@ -3,48 +3,73 @@ package com.back.catchmate.domain.chat.converter;
 import com.back.catchmate.domain.chat.dto.ChatResponse;
 import com.back.catchmate.domain.chat.dto.ChatResponse.ChatMessageInfo;
 import com.back.catchmate.domain.chat.entity.ChatMessage;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Locale;
+
+import static com.back.catchmate.domain.chat.dto.ChatRequest.ChatMessageRequest.MessageType;
 
 @Component
 public class ChatMessageConverter {
-    public Mono<ChatResponse.PagedChatMessageInfo> toPagedMessageInfo(Flux<ChatMessage> chatMessageFlux, Pageable pageable) {
-        return chatMessageFlux.collectList()
-                .flatMap(chatMessages -> {
-                    // 전체 메시지 수를 구하고 페이지 계산
-                    int totalElements = chatMessages.size();
-                    int totalPages = (int) Math.ceil((double) totalElements / pageable.getPageSize());
-                    boolean isFirst = pageable.getPageNumber() == 0;
-                    boolean isLast = pageable.getPageNumber() == totalPages - 1;
+    public ChatResponse.PagedChatMessageInfo toPagedChatMessageInfo(Page<ChatMessage> chatMessageList) {
+        List<ChatMessageInfo> chatMessageInfoList = chatMessageList.stream()
+                .map(this::toChatMessageInfo)
+                .toList();
 
-                    // ChatMessageInfo 리스트로 변환
-                    List<ChatResponse.ChatMessageInfo> chatMessageInfoList = chatMessages.stream()
-                            .map(this::toChatMessageInfo)
-                            .collect(Collectors.toList());
-
-                    // PagedChatMessageInfo 반환
-                    return Mono.just(ChatResponse.PagedChatMessageInfo.builder()
-                            .chatMessageInfoList(chatMessageInfoList)
-                            .totalPages(totalPages)
-                            .totalElements((long) totalElements)
-                            .isFirst(isFirst)
-                            .isLast(isLast)
-                            .build());
-                });
+        return ChatResponse.PagedChatMessageInfo.builder()
+                .chatMessageInfoList(chatMessageInfoList)
+                .totalPages(chatMessageList.getTotalPages())
+                .totalElements(chatMessageList.getTotalElements())
+                .isFirst(chatMessageList.isFirst())
+                .isLast(chatMessageList.isLast())
+                .build();
     }
-
 
     private ChatMessageInfo toChatMessageInfo(ChatMessage chatMessage) {
         return ChatMessageInfo.builder()
                 .id(chatMessage.getId())
-                .roomId(chatMessage.getRoomId())
+                .roomId(chatMessage.getChatRoomId())
                 .content(chatMessage.getContent())
                 .senderId(chatMessage.getSenderId())
                 .build();
+    }
+
+    public ChatMessage toChatMessage(Long chatRoomId, String content, Long senderId, MessageType messageType) {
+        return ChatMessage.builder()
+                .chatRoomId(chatRoomId)
+                .content(content)
+                .senderId(senderId)
+                .sendTime(LocalDateTime.now(ZoneId.of("Asia/Seoul")))
+                .messageType(messageType.name())
+                .build();
+    }
+
+    public ChatMessage toEnterLeaveMessage(Long chatRoomId, String content, Long userId, MessageType messageType) {
+        return ChatMessage.builder()
+                .chatRoomId(chatRoomId)
+                .content(content)
+                .senderId(userId)
+                .sendTime(LocalDateTime.now(ZoneId.of("Asia/Seoul")))  // 서울 시간으로 시간 설정
+                .messageType(messageType.name())  // 메시지 타입 설정 (ENTER 또는 LEAVE)
+                .build();
+    }
+
+    public ChatMessage toDateMessage(Long chatRoomId, LocalDateTime localDateTime) {
+        return ChatMessage.builder()
+                .chatRoomId(chatRoomId)
+                .content(formatDate(localDateTime))
+                .senderId(-1L)
+                .messageType(MessageType.DATE.name())
+                .build();
+    }
+
+    private String formatDate(LocalDateTime dateTime) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M월 d일", Locale.KOREAN);
+        return dateTime.format(formatter);
     }
 }

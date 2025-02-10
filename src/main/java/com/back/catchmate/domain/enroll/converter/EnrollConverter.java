@@ -4,8 +4,10 @@ import com.back.catchmate.domain.board.converter.BoardConverter;
 import com.back.catchmate.domain.board.dto.BoardResponse.BoardInfo;
 import com.back.catchmate.domain.board.entity.Board;
 import com.back.catchmate.domain.enroll.dto.EnrollRequest.CreateEnrollRequest;
+import com.back.catchmate.domain.enroll.dto.EnrollResponse;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.CancelEnrollInfo;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.CreateEnrollInfo;
+import com.back.catchmate.domain.enroll.dto.EnrollResponse.EnrollDescriptionInfo;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.EnrollReceiveInfo;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.EnrollRequestInfo;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.NewEnrollCountInfo;
@@ -21,7 +23,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component
@@ -84,16 +88,32 @@ public class EnrollConverter {
     }
 
     public PagedEnrollReceiveInfo toPagedEnrollReceiveInfo(Page<Enroll> enrollList) {
-        List<EnrollReceiveInfo> enrollRequestInfoList = enrollList.stream()
-                .map(enroll -> {
-                    UserInfo userInfo = userConverter.toUserInfo(enroll.getUser());
-                    BoardInfo boardInfo = boardConverter.toBoardInfo(enroll.getBoard(), enroll.getBoard().getGame());
-                    return toEnrollReceiveInfo(enroll, userInfo, boardInfo);
-                })
-                .collect(Collectors.toList());
+        // boardId 기준으로 그룹화 (Map<BoardId, List<EnrollInfo>>)
+        Map<Long, List<EnrollResponse.EnrollInfo>> groupedByBoardId = enrollList.stream()
+                .collect(Collectors.groupingBy(
+                        enroll -> enroll.getBoard().getId(), // Key: boardId
+                        Collectors.mapping(this::toEnrollInfo, Collectors.toList()) // Value: EnrollInfo 리스트
+                ));
 
+        // 각 boardId에 대한 EnrollReceiveInfo 생성
+        List<EnrollReceiveInfo> enrollInfoList = groupedByBoardId.entrySet().stream()
+                .map(entry -> {
+                    List<EnrollResponse.EnrollInfo> sortedEnrollInfoList = entry.getValue().stream()
+                            .sorted(Comparator.comparing(EnrollResponse.EnrollInfo::getRequestDate).reversed())
+                            .limit(10)  // 최근 10개만 포함
+                            .collect(Collectors.toList());
+
+                    // boardId와 그에 해당하는 EnrollReceiveInfo 목록을 생성
+                    return EnrollReceiveInfo.builder()
+                            .boardInfo(boardConverter.toBoardInfo(entry.getKey())) // boardId에 해당하는 BoardInfo 객체 생성
+                            .enrollReceiveInfoList(sortedEnrollInfoList)
+                            .build();
+                })
+                .toList();
+
+        // PagedEnrollReceiveInfo 반환
         return PagedEnrollReceiveInfo.builder()
-                .enrollInfoList(enrollRequestInfoList)
+                .enrollInfoList(enrollInfoList) // boardId 단위로 그룹화된 신청 리스트
                 .totalPages(enrollList.getTotalPages())
                 .totalElements(enrollList.getTotalElements())
                 .isFirst(enrollList.isFirst())
@@ -101,15 +121,14 @@ public class EnrollConverter {
                 .build();
     }
 
-    public EnrollReceiveInfo toEnrollReceiveInfo(Enroll enroll, UserInfo userInfo, BoardInfo boardInfo) {
-        return EnrollReceiveInfo.builder()
+    public EnrollResponse.EnrollInfo toEnrollInfo(Enroll enroll) {
+        return EnrollResponse.EnrollInfo.builder()
                 .enrollId(enroll.getId())
                 .acceptStatus(enroll.getAcceptStatus())
                 .description(enroll.getDescription())
-                .receiveDate(enroll.getCreatedAt())
+                .requestDate(enroll.getCreatedAt())
                 .isNew(enroll.isNew())
-                .userInfo(userInfo)
-                .boardInfo(boardInfo)
+                .userInfo(userConverter.toUserInfo(enroll.getUser()))
                 .build();
     }
 
@@ -123,6 +142,13 @@ public class EnrollConverter {
         return UpdateEnrollInfo.builder()
                 .enrollId(enroll.getId())
                 .acceptStatus(acceptStatus)
+                .build();
+    }
+
+    public EnrollDescriptionInfo toEnrollDescriptionInfo(Enroll enroll) {
+        return EnrollDescriptionInfo.builder()
+                .enrollId(enroll.getId())
+                .description(enroll.getDescription())
                 .build();
     }
 }

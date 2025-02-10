@@ -27,20 +27,6 @@ public abstract class EnrollResponse {
 
     @Getter
     @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class EnrollReceiveInfo {
-        private Long enrollId;
-        private AcceptStatus acceptStatus;
-        private String description;
-        private LocalDateTime receiveDate;
-        private boolean isNew;
-        private UserInfo userInfo;
-        private BoardInfo boardInfo;
-    }
-
-    @Getter
-    @Builder
     @AllArgsConstructor
     @NoArgsConstructor
     public static class PagedEnrollRequestInfo {
@@ -49,6 +35,28 @@ public abstract class EnrollResponse {
         private Long totalElements;
         private Boolean isFirst;
         private Boolean isLast;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class EnrollReceiveInfo {
+        private BoardInfo boardInfo;
+        private List<EnrollInfo> enrollReceiveInfoList;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class EnrollInfo {
+        private Long enrollId;
+        private AcceptStatus acceptStatus;
+        private String description;
+        private LocalDateTime requestDate;
+        private boolean isNew;
+        private UserInfo userInfo;
     }
 
     @Getter
@@ -96,5 +104,14 @@ public abstract class EnrollResponse {
     public static class CancelEnrollInfo {
         private Long enrollId;
         private LocalDateTime deletedAt;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class EnrollDescriptionInfo {
+        private Long enrollId;
+        private String description;
     }
 }

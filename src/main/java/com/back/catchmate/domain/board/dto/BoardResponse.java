@@ -1,5 +1,6 @@
 package com.back.catchmate.domain.board.dto;
 
+import com.back.catchmate.domain.enroll.dto.EnrollResponse;
 import com.back.catchmate.domain.game.dto.GameResponse.GameInfo;
 import com.back.catchmate.domain.user.dto.UserResponse.UserInfo;
 import lombok.AllArgsConstructor;
@@ -29,6 +30,7 @@ public abstract class BoardResponse {
         private UserInfo userInfo;
         private boolean isBookMarked;
         private String buttonStatus;
+        private Long chatRoomId;
     }
 
     @Getter
