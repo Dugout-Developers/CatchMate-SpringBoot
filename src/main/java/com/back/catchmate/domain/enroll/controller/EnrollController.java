@@ -98,10 +98,10 @@ public class EnrollController {
         return enrollService.rejectEnroll(enrollId, userId);
     }
 
-    @GetMapping("/{enrollId}/description")
-    @Operation(summary = "보낸 신청 상세 조회 API", description = "보낸 신청의 상세 내용을 조회하는 API 입니다.")
-    public EnrollDescriptionInfo getEnrollDescriptionById(@PathVariable Long enrollId,
+    @GetMapping("/{boardId}/description")
+    @Operation(summary = "보낸 신청 상세 조회 API", description = "내가 특정 게시글에 보낸 신청의 상세 내용을 조회하는 API 입니다.")
+    public EnrollDescriptionInfo getEnrollDescriptionById(@PathVariable Long boardId,
                                                           @JwtValidation Long userId) {
-        return enrollService.getEnrollDescriptionById(enrollId, userId);
+        return enrollService.getEnrollDescriptionById(boardId, userId);
     }
 }

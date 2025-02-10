@@ -147,6 +147,7 @@ public class EnrollConverter {
 
     public EnrollDescriptionInfo toEnrollDescriptionInfo(Enroll enroll) {
         return EnrollDescriptionInfo.builder()
+                .enrollId(enroll.getId())
                 .description(enroll.getDescription())
                 .build();
     }

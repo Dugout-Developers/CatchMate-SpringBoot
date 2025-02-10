@@ -111,6 +111,7 @@ public abstract class EnrollResponse {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class EnrollDescriptionInfo {
+        private Long enrollId;
         private String description;
     }
 }
