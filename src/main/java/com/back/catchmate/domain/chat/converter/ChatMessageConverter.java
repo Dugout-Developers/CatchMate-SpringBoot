@@ -33,7 +33,7 @@ public class ChatMessageConverter {
     private ChatMessageInfo toChatMessageInfo(ChatMessage chatMessage) {
         return ChatMessageInfo.builder()
                 .id(chatMessage.getId())
-                .roomId(chatMessage.getRoomId())
+                .roomId(chatMessage.getChatRoomId())
                 .content(chatMessage.getContent())
                 .senderId(chatMessage.getSenderId())
                 .build();
@@ -41,7 +41,7 @@ public class ChatMessageConverter {
 
     public ChatMessage toChatMessage(Long chatRoomId, String content, Long senderId, MessageType messageType) {
         return ChatMessage.builder()
-                .roomId(chatRoomId)
+                .chatRoomId(chatRoomId)
                 .content(content)
                 .senderId(senderId)
                 .sendTime(LocalDateTime.now(ZoneId.of("Asia/Seoul")))
@@ -49,9 +49,19 @@ public class ChatMessageConverter {
                 .build();
     }
 
+    public ChatMessage toEnterLeaveMessage(Long chatRoomId, String content, Long userId, MessageType messageType) {
+        return ChatMessage.builder()
+                .chatRoomId(chatRoomId)
+                .content(content)
+                .senderId(userId)
+                .sendTime(LocalDateTime.now(ZoneId.of("Asia/Seoul")))  // 서울 시간으로 시간 설정
+                .messageType(messageType.name())  // 메시지 타입 설정 (ENTER 또는 LEAVE)
+                .build();
+    }
+
     public ChatMessage toDateMessage(Long chatRoomId, LocalDateTime localDateTime) {
         return ChatMessage.builder()
-                .roomId(chatRoomId)
+                .chatRoomId(chatRoomId)
                 .content(formatDate(localDateTime))
                 .senderId(-1L)
                 .messageType(MessageType.DATE.name())
