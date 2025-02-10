@@ -4,7 +4,9 @@ import com.back.catchmate.domain.chat.converter.ChatMessageConverter;
 import com.back.catchmate.domain.chat.dto.ChatRequest.ChatMessageRequest;
 import com.back.catchmate.domain.chat.dto.ChatResponse.PagedChatMessageInfo;
 import com.back.catchmate.domain.chat.entity.ChatMessage;
+import com.back.catchmate.domain.chat.entity.ChatRoom;
 import com.back.catchmate.domain.chat.repository.ChatMessageRepository;
+import com.back.catchmate.domain.chat.repository.ChatRoomRepository;
 import com.back.catchmate.domain.chat.repository.UserChatRoomRepository;
 import com.back.catchmate.global.error.ErrorCode;
 import com.back.catchmate.global.error.exception.BaseException;
@@ -16,6 +18,9 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 import static com.back.catchmate.domain.chat.dto.ChatRequest.ChatMessageRequest.MessageType;
 
 @Slf4j
@@ -24,6 +29,7 @@ import static com.back.catchmate.domain.chat.dto.ChatRequest.ChatMessageRequest.
 public class ChatServiceImpl implements ChatService {
     private final SimpMessagingTemplate messagingTemplate;
     private final ChatMessageRepository chatMessageRepository;
+    private final ChatRoomRepository chatRoomRepository;
     private final UserChatRoomRepository userChatRoomRepository;
     private final ChatMessageConverter chatMessageConverter;
 
@@ -31,16 +37,43 @@ public class ChatServiceImpl implements ChatService {
     @Override
     @Transactional
     public void sendMessage(Long chatRoomId, ChatMessageRequest request) {
+        String destination = "/topic/chat." + chatRoomId;
+
         if (request.getMessageType() == MessageType.TALK) {
-            ChatMessage chatMessage = chatMessageConverter.toChatMessage(chatRoomId, request.getContent(), request.getSenderId());
+            // 날짜 메시지가 필요한지 확인
+            if (isNewDateMessageNeeded(chatRoomId, LocalDateTime.now())) {
+                ChatMessage dateMessage = chatMessageConverter.toDateMessage(chatRoomId, LocalDateTime.now());
+                messagingTemplate.convertAndSend(destination, dateMessage);
+                chatMessageRepository.insert(dateMessage);
+            }
+
+            ChatMessage chatMessage = chatMessageConverter.toChatMessage(chatRoomId, request.getContent(), request.getSenderId(), MessageType.TALK);
             chatMessageRepository.insert(chatMessage);
+
+            ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+                    .orElseThrow(() -> new BaseException(ErrorCode.CHATROOM_NOT_FOUND));
+
+            chatRoom.updateLastMessageTime();
         }
 
-        String destination = "/topic/chat." + chatRoomId;
         log.info("Sending message to: {}", destination);
         messagingTemplate.convertAndSend(destination, request);
     }
 
+    private boolean isNewDateMessageNeeded(Long chatRoomId, LocalDateTime newMessageTime) {
+        LocalDate newDate = newMessageTime.toLocalDate();
+        ChatMessage chatMessage = chatMessageRepository.findFirstByRoomIdOrderBySendTimeDesc(chatRoomId);
+
+        if (chatMessage == null) {
+            return true;
+        } else {
+            LocalDate localDate = chatMessage.getSendTime().toLocalDate();
+            return !localDate.equals(newDate);
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public PagedChatMessageInfo getChatMessageList(Long userId, Long chatRoomId, Pageable pageable) {
         if (!userChatRoomRepository.existsByUserIdAndChatRoomId(userId, chatRoomId)) {
             throw new BaseException(ErrorCode.USER_CHATROOM_NOT_FOUND);

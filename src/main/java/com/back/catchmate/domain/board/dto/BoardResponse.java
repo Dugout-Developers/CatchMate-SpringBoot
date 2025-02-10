@@ -30,6 +30,7 @@ public abstract class BoardResponse {
         private UserInfo userInfo;
         private boolean isBookMarked;
         private String buttonStatus;
+        private Long chatRoomId;
     }
 
     @Getter
