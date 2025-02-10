@@ -51,6 +51,8 @@ public enum ErrorCode {
 
     // 파일
     FILE_UPLOAD_FAILED(HttpStatus.BAD_REQUEST, "파일 업로드를 실패했습니다."),
+    IMAGE_UPDATE_UNAUTHORIZED_ACCESS(HttpStatus.UNAUTHORIZED, "채팅방 이미지를 수정할 권한이 없습니다."),
+    KICK_CHATROOM_UNAUTHORIZED_ACCESS(HttpStatus.UNAUTHORIZED, "채팅방에서 내보낼 권한이 없습니다."),
 
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
     BAD_REQUEST(HttpStatus.BAD_REQUEST, "클라이언트 에러입니다"),
