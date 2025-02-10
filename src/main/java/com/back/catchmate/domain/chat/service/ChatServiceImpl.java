@@ -53,6 +53,7 @@ public class ChatServiceImpl implements ChatService {
             ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
                     .orElseThrow(() -> new BaseException(ErrorCode.CHATROOM_NOT_FOUND));
 
+            chatRoom.updateLastMessageContent(request.getContent());
             chatRoom.updateLastMessageTime();
         }
 
@@ -86,7 +87,7 @@ public class ChatServiceImpl implements ChatService {
     @Override
     @Transactional(readOnly = true)
     public PagedChatMessageInfo getChatMessageList(Long userId, Long chatRoomId, Pageable pageable) {
-        if (!userChatRoomRepository.existsByUserIdAndChatRoomId(userId, chatRoomId)) {
+        if (!userChatRoomRepository.existsByUserIdAndChatRoomIdAndDeletedAtIsNull(userId, chatRoomId)) {
             throw new BaseException(ErrorCode.USER_CHATROOM_NOT_FOUND);
         }
 

@@ -11,11 +11,15 @@ import com.back.catchmate.domain.user.repository.UserRepository;
 import com.back.catchmate.global.dto.StateResponse;
 import com.back.catchmate.global.error.ErrorCode;
 import com.back.catchmate.global.error.exception.BaseException;
+import com.back.catchmate.global.s3.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 import static com.back.catchmate.domain.chat.dto.ChatRequest.ChatMessageRequest.MessageType;
 
@@ -23,6 +27,7 @@ import static com.back.catchmate.domain.chat.dto.ChatRequest.ChatMessageRequest.
 @RequiredArgsConstructor
 public class ChatRoomServiceImpl implements ChatRoomService {
     private final ChatService chatService;
+    private final S3Service s3Service;
     private final UserRepository userRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final UserChatRoomRepository userChatRoomRepository;
@@ -61,6 +66,44 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         String content = user.getNickName() + " 님이 채팅을 떠났어요";  // 퇴장 메시지 내용
         chatService.sendEnterLeaveMessage(chatRoom.getId(), content, user.getId(), MessageType.LEAVE);
 
+        return new StateResponse(true);
+    }
+
+    @Override
+    @Transactional
+    public StateResponse updateChatRoomImage(Long userId, Long chatRoomId, MultipartFile image) throws IOException {
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+                .orElseThrow(() -> new BaseException(ErrorCode.CHATROOM_NOT_FOUND));
+
+        if (!chatRoom.isOwner(userId)) {
+            throw new BaseException(ErrorCode.IMAGE_UPDATE_UNAUTHORIZED_ACCESS);
+        }
+
+        String imageUrl = s3Service.uploadFile(image);
+        chatRoom.updateChatRoomImage(imageUrl);
+        return new StateResponse(true);
+    }
+
+    @Override
+    @Transactional
+    public StateResponse kickUserFromChatRoom(Long loginUserId, Long chatRoomId, Long userId) {
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+                .orElseThrow(() -> new BaseException(ErrorCode.CHATROOM_NOT_FOUND));
+
+        if (!chatRoom.isOwner(loginUserId)) {
+            throw new BaseException(ErrorCode.KICK_CHATROOM_UNAUTHORIZED_ACCESS);
+        }
+
+        UserChatRoom userChatRoom = userChatRoomRepository.findByUserIdAndChatRoomId(userId, chatRoom.getId())
+                .orElseThrow(() -> new BaseException(ErrorCode.USER_CHATROOM_NOT_FOUND));
+
+        userChatRoom.delete();
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+
+        String content = "방장의 결정으로 " + user.getNickName() + " 님이 채팅방에서 나갔습니다.";
+        chatService.sendEnterLeaveMessage(chatRoomId, content, userId, MessageType.LEAVE);
         return new StateResponse(true);
     }
 }
