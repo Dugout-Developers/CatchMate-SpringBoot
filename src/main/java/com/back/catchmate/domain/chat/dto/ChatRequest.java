@@ -5,8 +5,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 public abstract class ChatRequest {
     @Getter
     @Builder
@@ -14,12 +12,11 @@ public abstract class ChatRequest {
     @AllArgsConstructor
     public static class ChatMessageRequest {
         public enum MessageType {
-            ENTER, TALK, LEAVE;
+            ENTER, TALK, LEAVE, DATE;
         }
 
         private MessageType messageType;
         private Long senderId;   // 보낸 사람
         private String content;  // 메시지 내용
-        private LocalDateTime sendTime;
     }
 }

@@ -83,9 +83,9 @@ public class BoardConverter {
                 .liftUpDate(board.getLiftUpDate())
                 .gameInfo(gameInfo)
                 .userInfo(userInfo)
+                .chatRoomId(board.getChatRoom().getId())
                 .build();
     }
-
 
     public BoardInfo toBoardInfo(Board board, Game game) {
         GameInfo gameInfo = gameConverter.toGameInfo(game);
@@ -122,6 +122,7 @@ public class BoardConverter {
                 .buttonStatus(buttonStatus)
                 .gameInfo(gameInfo)
                 .userInfo(userInfo)
+                .chatRoomId(board.getChatRoom().getId())
                 .build();
     }
 
