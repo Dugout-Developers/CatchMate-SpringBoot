@@ -26,6 +26,8 @@ import com.back.catchmate.domain.user.entity.User;
 import com.back.catchmate.domain.user.repository.UserRepository;
 import com.back.catchmate.global.error.ErrorCode;
 import com.back.catchmate.global.error.exception.BaseException;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.FirebaseMessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,6 +35,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static com.back.catchmate.domain.chat.dto.ChatRequest.ChatMessageRequest.MessageType;
@@ -80,7 +84,7 @@ public class EnrollServiceImpl implements EnrollService {
         User boardWriter = userRepository.findById(board.getUser().getId())
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
         // 게시글 작성자에게 푸시 알림 메세지 전송
-        fcmService.sendMessage(boardWriter.getFcmToken(), title, body, boardId, AcceptStatus.PENDING);
+        fcmService.sendMessageByToken(boardWriter.getFcmToken(), title, body, boardId, AcceptStatus.PENDING);
 
         // 데이터베이스에 저장
         notificationService.createNotification(title, body, enroll.getUser().getProfileImageUrl(), boardId, boardWriter.getId(), AcceptStatus.PENDING);
@@ -180,13 +184,14 @@ public class EnrollServiceImpl implements EnrollService {
             throw new BaseException(ErrorCode.ENROLL_ACCEPT_INVALID);
         }
 
-        enterChatRoom(enrollApplicant, board);
+        Long chatRoomId = enterChatRoom(enrollApplicant, board);
+        subscribeToChatRoomTopic(enrollApplicant.getFcmToken(), chatRoomId);
 
         String title = ENROLLMENT_ACCEPT_TITLE;
         String body = ENROLLMENT_ACCEPT_BODY;
 
         // 직관 신청자에게 수락 푸시 알림 메세지 전송
-        fcmService.sendMessage(enrollApplicant.getFcmToken(), title, body, enroll.getBoard().getId(), AcceptStatus.ACCEPTED);
+        fcmService.sendMessageByToken(enrollApplicant.getFcmToken(), title, body, enroll.getBoard().getId(), AcceptStatus.ACCEPTED);
         // 데이터베이스에 저장
         notificationService.createNotification(title, body, boardWriter.getProfileImageUrl(), enroll.getBoard().getId(), enrollApplicant.getId(), AcceptStatus.ACCEPTED);
 
@@ -194,7 +199,7 @@ public class EnrollServiceImpl implements EnrollService {
         return enrollConverter.toUpdateEnrollInfo(enroll, AcceptStatus.ACCEPTED);
     }
 
-    private void enterChatRoom(User user, Board board) {
+    private Long enterChatRoom(User user, Board board) {
         ChatRoom chatRoom = chatRoomRepository.findByBoardId(board.getId())
                 .orElseThrow(() -> new BaseException(ErrorCode.CHATROOM_NOT_FOUND));
 
@@ -205,6 +210,12 @@ public class EnrollServiceImpl implements EnrollService {
 
         String content = user.getNickName() + " 님이 채팅에 참여했어요";
         chatService.sendEnterLeaveMessage(chatRoom.getId(), content, user.getId(), MessageType.ENTER);
+
+        return chatRoom.getId();
+    }
+
+    private void subscribeToChatRoomTopic(String fcmToken, Long chatRoomId) {
+        fcmService.subscribeToTopic(fcmToken, chatRoomId);
     }
 
     @Override
@@ -229,7 +240,7 @@ public class EnrollServiceImpl implements EnrollService {
         String body = ENROLLMENT_REJECT_BODY;
 
         // 직관 신청자에게 거절 푸시 알림 메세지 전송
-        fcmService.sendMessage(enrollApplicant.getFcmToken(), title, body, enroll.getBoard().getId(), AcceptStatus.REJECTED);
+        fcmService.sendMessageByToken(enrollApplicant.getFcmToken(), title, body, enroll.getBoard().getId(), AcceptStatus.REJECTED);
         // 데이터베이스에 저장
         notificationService.createNotification(title, body, boardWriter.getProfileImageUrl(), enroll.getBoard().getId(), enrollApplicant.getId(), AcceptStatus.REJECTED);
 

@@ -2,9 +2,19 @@ package com.back.catchmate.domain.notification.service;
 
 import com.back.catchmate.domain.enroll.entity.AcceptStatus;
 import com.back.catchmate.domain.notification.dto.FCMMessageRequest;
+import com.back.catchmate.domain.topic.dto.TopicRequest.TopicSubscribeRequest;
+import com.back.catchmate.domain.topic.dto.TopicRequest.TopicUnsubscribeRequest;
+import com.back.catchmate.domain.user.entity.User;
+import com.back.catchmate.domain.user.repository.UserRepository;
+import com.back.catchmate.global.error.ErrorCode;
+import com.back.catchmate.global.error.exception.BaseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.FirebaseMessagingException;
+import com.google.firebase.messaging.Message;
+import com.google.firebase.messaging.Notification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.MediaType;
@@ -17,8 +27,10 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -30,6 +42,7 @@ public class FCMService {
     @Value("${fcm.firebase_api_uri}")
     private String FIREBASE_ALARM_SEND_API_URI;
 
+    private final UserRepository userRepository;
     private final ObjectMapper objectMapper;
 
     // Firebase로 부터 Access Token을 가져오는 메서드
@@ -69,9 +82,9 @@ public class FCMService {
         return objectMapper.writeValueAsString(fcmMessage);
     }
 
-    // 알림 푸쉬를 보내는 역할을 하는 메서드
+    // 사용자의 FCM 토큰을 사용하여 푸쉬 알림을 보내는 역할을 하는 메서드
     @Async("asyncTask")
-    public void sendMessage(String targetToken, String title, String body, Long boardId, AcceptStatus acceptStatus) throws IOException {
+    public void sendMessageByToken(String targetToken, String title, String body, Long boardId, AcceptStatus acceptStatus) throws IOException {
         String message = makeMessage(targetToken, title, body, boardId, acceptStatus);
 
         OkHttpClient client = new OkHttpClient();
@@ -85,6 +98,46 @@ public class FCMService {
                 .build();
 
         Response response = client.newCall(request).execute();
+
+        if (response.body() == null) {
+            throw new BaseException(ErrorCode.EMPTY_FCM_RESPONSE);
+        }
+
         log.info(response.body().string());
+    }
+
+    public void sendMessageToTopic(String topic, String title, String body) {
+        Message message = Message.builder()
+                .setNotification(Notification.builder()
+                        .setTitle(title)
+                        .setBody(body)
+                        .build())
+                .setTopic(topic)
+                .build();
+
+        try {
+            String response = FirebaseMessaging.getInstance().send(message);
+            log.info("Successfully sent message: {}", response);
+        } catch (FirebaseMessagingException e) {
+            throw new BaseException(ErrorCode.FCM_SUBSCRIBE_BAD_REQUEST);
+        }
+    }
+
+    public void subscribeToTopic(String fcmToken, Long chatRoomId) {
+        try {
+            String topic = "chat_room_" + chatRoomId;
+            FirebaseMessaging.getInstance().subscribeToTopic(Collections.singletonList(fcmToken), topic);
+        } catch (FirebaseMessagingException e) {
+            throw new BaseException(ErrorCode.FCM_SUBSCRIBE_BAD_REQUEST);
+        }
+    }
+
+    public void unsubscribeFromTopic(String fcmToken, Long chatRoomId) {
+        try {
+            String topic = "chat_room_" + chatRoomId;
+            FirebaseMessaging.getInstance().unsubscribeFromTopic(Collections.singletonList(fcmToken), topic);
+        } catch (FirebaseMessagingException e) {
+            throw new BaseException(ErrorCode.FCM_UNSUBSCRIBE_BAD_REQUEST);
+        }
     }
 }
