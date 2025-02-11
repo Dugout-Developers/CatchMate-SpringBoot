@@ -8,6 +8,7 @@ import com.back.catchmate.domain.chat.entity.ChatRoom;
 import com.back.catchmate.domain.chat.repository.ChatMessageRepository;
 import com.back.catchmate.domain.chat.repository.ChatRoomRepository;
 import com.back.catchmate.domain.chat.repository.UserChatRoomRepository;
+import com.back.catchmate.domain.notification.service.FCMService;
 import com.back.catchmate.global.error.ErrorCode;
 import com.back.catchmate.global.error.exception.BaseException;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,7 @@ import static com.back.catchmate.domain.chat.dto.ChatRequest.ChatMessageRequest.
 @RequiredArgsConstructor
 public class ChatServiceImpl implements ChatService {
     private final SimpMessagingTemplate messagingTemplate;
+    private final FCMService fcmService;
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final UserChatRoomRepository userChatRoomRepository;
@@ -55,6 +57,10 @@ public class ChatServiceImpl implements ChatService {
 
             chatRoom.updateLastMessageContent(request.getContent());
             chatRoom.updateLastMessageTime();
+
+            // 채팅방에 알림 전송 (FCM 토픽을 사용)
+            String topic = "chat_room_" + chatRoomId;
+            fcmService.sendMessageToTopic(topic, "제목 뭘로할지 고민,,,", request.getContent());
         }
 
         log.info("Sending message to: {}", destination);

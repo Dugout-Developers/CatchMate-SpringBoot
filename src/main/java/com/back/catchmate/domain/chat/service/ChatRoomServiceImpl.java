@@ -6,6 +6,7 @@ import com.back.catchmate.domain.chat.entity.ChatRoom;
 import com.back.catchmate.domain.chat.entity.UserChatRoom;
 import com.back.catchmate.domain.chat.repository.ChatRoomRepository;
 import com.back.catchmate.domain.chat.repository.UserChatRoomRepository;
+import com.back.catchmate.domain.notification.service.FCMService;
 import com.back.catchmate.domain.user.entity.User;
 import com.back.catchmate.domain.user.repository.UserRepository;
 import com.back.catchmate.global.dto.StateResponse;
@@ -26,6 +27,7 @@ import static com.back.catchmate.domain.chat.dto.ChatRequest.ChatMessageRequest.
 @Service
 @RequiredArgsConstructor
 public class ChatRoomServiceImpl implements ChatRoomService {
+    private final FCMService fcmService;
     private final ChatService chatService;
     private final S3Service s3Service;
     private final UserRepository userRepository;
@@ -56,11 +58,12 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
         // 채팅방에서 나가기 처리
         userChatRoom.delete();
-
         // 게시글 현재 인원 수 감소
         chatRoom.getBoard().decrementCurrentPerson();
         // 채팅방에서 참여자 수 감소
         chatRoom.decrementParticipantCount();
+
+        unsubscribeFromTopic(user.getFcmToken(), chatRoomId);
 
         // 퇴장 메시지 보내기
         String content = user.getNickName() + " 님이 채팅을 떠났어요";  // 퇴장 메시지 내용
@@ -94,16 +97,27 @@ public class ChatRoomServiceImpl implements ChatRoomService {
             throw new BaseException(ErrorCode.KICK_CHATROOM_UNAUTHORIZED_ACCESS);
         }
 
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+
         UserChatRoom userChatRoom = userChatRoomRepository.findByUserIdAndChatRoomId(userId, chatRoom.getId())
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_CHATROOM_NOT_FOUND));
 
+        // 채팅방에서 나가기 처리
         userChatRoom.delete();
+        // 게시글 현재 인원 수 감소
+        chatRoom.getBoard().decrementCurrentPerson();
+        // 채팅방에서 참여자 수 감소
+        chatRoom.decrementParticipantCount();
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+        unsubscribeFromTopic(user.getFcmToken(), chatRoomId);
 
         String content = "방장의 결정으로 " + user.getNickName() + " 님이 채팅방에서 나갔습니다.";
         chatService.sendEnterLeaveMessage(chatRoomId, content, userId, MessageType.LEAVE);
         return new StateResponse(true);
+    }
+
+    private void unsubscribeFromTopic(String fcmToken, Long chatRoomId) {
+        fcmService.unsubscribeFromTopic(fcmToken, chatRoomId);
     }
 }
