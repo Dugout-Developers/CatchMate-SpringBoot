@@ -1,6 +1,7 @@
 package com.back.catchmate.domain.chat.dto;
 
 import com.back.catchmate.domain.board.dto.BoardResponse.BoardInfo;
+import com.back.catchmate.domain.chat.dto.ChatRequest.ChatMessageRequest.MessageType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,6 +21,7 @@ public abstract class ChatResponse {
         private Long roomId;
         private String content;
         private Long senderId;
+        private MessageType messageType;
     }
 
     @Getter
