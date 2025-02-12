@@ -180,8 +180,7 @@ public class EnrollServiceImpl implements EnrollService {
             throw new BaseException(ErrorCode.ENROLL_ACCEPT_INVALID);
         }
 
-        Long chatRoomId = enterChatRoom(enrollApplicant, board);
-        subscribeToChatRoomTopic(enrollApplicant.getFcmToken(), chatRoomId);
+        enterChatRoom(enrollApplicant, board);
 
         String title = ENROLLMENT_ACCEPT_TITLE;
         String body = ENROLLMENT_ACCEPT_BODY;
@@ -195,7 +194,7 @@ public class EnrollServiceImpl implements EnrollService {
         return enrollConverter.toUpdateEnrollInfo(enroll, AcceptStatus.ACCEPTED);
     }
 
-    private Long enterChatRoom(User user, Board board) {
+    private void enterChatRoom(User user, Board board) {
         ChatRoom chatRoom = chatRoomRepository.findByBoardId(board.getId())
                 .orElseThrow(() -> new BaseException(ErrorCode.CHATROOM_NOT_FOUND));
 
@@ -206,12 +205,6 @@ public class EnrollServiceImpl implements EnrollService {
 
         String content = user.getNickName() + " 님이 채팅에 참여했어요";
         chatService.sendEnterLeaveMessage(chatRoom.getId(), content, user.getId(), MessageType.ENTER);
-
-        return chatRoom.getId();
-    }
-
-    private void subscribeToChatRoomTopic(String fcmToken, Long chatRoomId) {
-        fcmService.subscribeToTopic(fcmToken, chatRoomId);
     }
 
     @Override
