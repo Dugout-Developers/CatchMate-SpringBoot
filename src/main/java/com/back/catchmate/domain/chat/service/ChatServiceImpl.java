@@ -60,7 +60,7 @@ public class ChatServiceImpl implements ChatService {
 
             // 채팅방에 알림 전송 (FCM 토픽을 사용)
             String topic = "chat_room_" + chatRoomId;
-            fcmService.sendMessageToTopic(topic, "제목 뭘로할지 고민,,,", request.getContent());
+            fcmService.sendMessageToTopic(topic, chatRoom.getBoard().getTitle(), request.getContent());
         }
 
         log.info("Sending message to: {}", destination);

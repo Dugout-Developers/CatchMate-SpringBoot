@@ -2,10 +2,6 @@ package com.back.catchmate.domain.notification.service;
 
 import com.back.catchmate.domain.enroll.entity.AcceptStatus;
 import com.back.catchmate.domain.notification.dto.FCMMessageRequest;
-import com.back.catchmate.domain.topic.dto.TopicRequest.TopicSubscribeRequest;
-import com.back.catchmate.domain.topic.dto.TopicRequest.TopicUnsubscribeRequest;
-import com.back.catchmate.domain.user.entity.User;
-import com.back.catchmate.domain.user.repository.UserRepository;
 import com.back.catchmate.global.error.ErrorCode;
 import com.back.catchmate.global.error.exception.BaseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -27,7 +23,6 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -42,7 +37,6 @@ public class FCMService {
     @Value("${fcm.firebase_api_uri}")
     private String FIREBASE_ALARM_SEND_API_URI;
 
-    private final UserRepository userRepository;
     private final ObjectMapper objectMapper;
 
     // Firebase로 부터 Access Token을 가져오는 메서드

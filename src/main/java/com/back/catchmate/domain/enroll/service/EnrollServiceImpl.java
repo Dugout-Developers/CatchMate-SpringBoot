@@ -10,9 +10,9 @@ import com.back.catchmate.domain.chat.repository.UserChatRoomRepository;
 import com.back.catchmate.domain.chat.service.ChatService;
 import com.back.catchmate.domain.enroll.converter.EnrollConverter;
 import com.back.catchmate.domain.enroll.dto.EnrollRequest.CreateEnrollRequest;
-import com.back.catchmate.domain.enroll.dto.EnrollResponse;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.CancelEnrollInfo;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.CreateEnrollInfo;
+import com.back.catchmate.domain.enroll.dto.EnrollResponse.EnrollDescriptionInfo;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.NewEnrollCountInfo;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.PagedEnrollReceiveInfo;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.PagedEnrollRequestInfo;
@@ -26,8 +26,6 @@ import com.back.catchmate.domain.user.entity.User;
 import com.back.catchmate.domain.user.repository.UserRepository;
 import com.back.catchmate.global.error.ErrorCode;
 import com.back.catchmate.global.error.exception.BaseException;
-import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.FirebaseMessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -35,8 +33,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static com.back.catchmate.domain.chat.dto.ChatRequest.ChatMessageRequest.MessageType;
@@ -249,7 +245,7 @@ public class EnrollServiceImpl implements EnrollService {
     }
 
     @Override
-    public EnrollResponse.EnrollDescriptionInfo getEnrollDescriptionById(Long boardId, Long userId) {
+    public EnrollDescriptionInfo getEnrollDescriptionById(Long boardId, Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
