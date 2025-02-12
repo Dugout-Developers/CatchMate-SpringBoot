@@ -122,15 +122,7 @@ public class BoardServiceImpl implements BoardService {
 
         // 채팅방 입장
         UserChatRoom userChatRoom = userChatRoomConverter.toEntity(loginUser, chatRoom);
-
-        // 채팅방 구독
-        subscribeToChatRoomTopic(loginUser.getFcmToken(), chatRoom.getId());
-
         userChatRoomRepository.save(userChatRoom);
-    }
-
-    private void subscribeToChatRoomTopic(String fcmToken, Long chatRoomId) {
-        fcmService.subscribeToTopic(fcmToken, chatRoomId);
     }
 
     private Club findOrDefaultClub(Long clubId) {

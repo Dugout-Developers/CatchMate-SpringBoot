@@ -27,7 +27,6 @@ import static com.back.catchmate.domain.chat.dto.ChatRequest.ChatMessageRequest.
 @Service
 @RequiredArgsConstructor
 public class ChatRoomServiceImpl implements ChatRoomService {
-    private final FCMService fcmService;
     private final ChatService chatService;
     private final S3Service s3Service;
     private final UserRepository userRepository;
@@ -62,8 +61,6 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         chatRoom.getBoard().decrementCurrentPerson();
         // 채팅방에서 참여자 수 감소
         chatRoom.decrementParticipantCount();
-
-        unsubscribeFromTopic(user.getFcmToken(), chatRoomId);
 
         // 퇴장 메시지 보내기
         String content = user.getNickName() + " 님이 채팅을 떠났어요";  // 퇴장 메시지 내용
@@ -110,14 +107,8 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         // 채팅방에서 참여자 수 감소
         chatRoom.decrementParticipantCount();
 
-        unsubscribeFromTopic(user.getFcmToken(), chatRoomId);
-
         String content = "방장의 결정으로 " + user.getNickName() + " 님이 채팅방에서 나갔습니다.";
         chatService.sendEnterLeaveMessage(chatRoomId, content, userId, MessageType.LEAVE);
         return new StateResponse(true);
-    }
-
-    private void unsubscribeFromTopic(String fcmToken, Long chatRoomId) {
-        fcmService.unsubscribeFromTopic(fcmToken, chatRoomId);
     }
 }

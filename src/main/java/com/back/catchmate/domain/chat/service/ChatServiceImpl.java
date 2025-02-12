@@ -9,8 +9,11 @@ import com.back.catchmate.domain.chat.repository.ChatMessageRepository;
 import com.back.catchmate.domain.chat.repository.ChatRoomRepository;
 import com.back.catchmate.domain.chat.repository.UserChatRoomRepository;
 import com.back.catchmate.domain.notification.service.FCMService;
+import com.back.catchmate.domain.user.entity.User;
+import com.back.catchmate.domain.user.repository.UserRepository;
 import com.back.catchmate.global.error.ErrorCode;
 import com.back.catchmate.global.error.exception.BaseException;
+import com.google.firebase.messaging.FirebaseMessagingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -19,6 +22,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -34,11 +38,15 @@ public class ChatServiceImpl implements ChatService {
     private final ChatRoomRepository chatRoomRepository;
     private final UserChatRoomRepository userChatRoomRepository;
     private final ChatMessageConverter chatMessageConverter;
+    private final UserRepository userRepository;
 
     // 메시지를 특정 채팅방으로 전송
     @Override
     @Transactional
-    public void sendChatMessage(Long chatRoomId, ChatMessageRequest request) {
+    public void sendChatMessage(Long chatRoomId, ChatMessageRequest request) throws IOException, FirebaseMessagingException {
+        User user = userRepository.findById(request.getSenderId())
+                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+
         String destination = "/topic/chat." + chatRoomId;
 
         if (request.getMessageType() == MessageType.TALK) {
@@ -54,13 +62,11 @@ public class ChatServiceImpl implements ChatService {
 
             ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
                     .orElseThrow(() -> new BaseException(ErrorCode.CHATROOM_NOT_FOUND));
-
             chatRoom.updateLastMessageContent(request.getContent());
             chatRoom.updateLastMessageTime();
 
-            // 채팅방에 알림 전송 (FCM 토픽을 사용)
-            String topic = "chat_room_" + chatRoomId;
-            fcmService.sendMessageToTopic(topic, chatRoom.getBoard().getTitle(), request.getContent());
+            // 자신을 제외한 채팅방에 FCM 알림 전송
+            fcmService.sendMessagesByTokens(chatRoomId, chatRoom.getBoard().getTitle(), request.getContent(), user.getFcmToken());
         }
 
         log.info("Sending message to: {}", destination);
