@@ -36,6 +36,7 @@ public class ChatMessageConverter {
                 .roomId(chatMessage.getChatRoomId())
                 .content(chatMessage.getContent())
                 .senderId(chatMessage.getSenderId())
+                .messageType(MessageType.valueOf(chatMessage.getMessageType()))
                 .build();
     }
 

@@ -1,7 +1,7 @@
 package com.back.catchmate.domain.chat.service;
 
 import com.back.catchmate.domain.chat.dto.ChatRequest.ChatMessageRequest;
-import com.back.catchmate.domain.chat.dto.ChatResponse;
+import com.back.catchmate.domain.chat.dto.ChatResponse.PagedChatMessageInfo;
 import org.springframework.data.domain.Pageable;
 
 public interface ChatService {
@@ -9,5 +9,5 @@ public interface ChatService {
 
     void sendEnterLeaveMessage(Long chatRoomId, String content, Long senderId, ChatMessageRequest.MessageType messageType);
 
-    ChatResponse.PagedChatMessageInfo getChatMessageList(Long userId, Long roomId, Pageable pageable);
+    PagedChatMessageInfo getChatMessageList(Long userId, Long roomId, Pageable pageable);
 }
