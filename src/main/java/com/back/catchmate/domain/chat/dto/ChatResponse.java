@@ -1,6 +1,7 @@
 package com.back.catchmate.domain.chat.dto;
 
 import com.back.catchmate.domain.board.dto.BoardResponse.BoardInfo;
+import com.back.catchmate.domain.chat.dto.ChatRequest.ChatMessageRequest.MessageType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,6 +21,7 @@ public abstract class ChatResponse {
         private Long roomId;
         private String content;
         private Long senderId;
+        private MessageType messageType;
     }
 
     @Getter
@@ -38,22 +40,24 @@ public abstract class ChatResponse {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class PagedChatRoomInfo {
-        private List<ChatRoomInfo> chatRoomInfoList;
-        private Integer totalPages;
-        private Long totalElements;
-        private Boolean isFirst;
-        private Boolean isLast;
+    public static class ChatRoomInfo {
+        private Long chatRoomId;
+        private BoardInfo boardInfo;
+        private Integer participantCount;
+        private LocalDateTime lastMessageAt;
+        private String lastMessageContent;
+        private String chatRoomImage;
     }
 
     @Getter
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class ChatRoomInfo {
-        private Long chatRoomId;
-        private BoardInfo boardInfo;
-        private Integer participantCount;
-        private LocalDateTime lastMessageAt;
+    public static class PagedChatRoomInfo {
+        private List<ChatRoomInfo> chatRoomInfoList;
+        private Integer totalPages;
+        private Long totalElements;
+        private Boolean isFirst;
+        private Boolean isLast;
     }
 }

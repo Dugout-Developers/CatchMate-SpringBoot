@@ -23,6 +23,7 @@ import com.back.catchmate.domain.game.converter.GameConverter;
 import com.back.catchmate.domain.game.dto.GameRequest.CreateGameRequest;
 import com.back.catchmate.domain.game.entity.Game;
 import com.back.catchmate.domain.game.repository.GameRepository;
+import com.back.catchmate.domain.notification.service.FCMService;
 import com.back.catchmate.domain.user.entity.User;
 import com.back.catchmate.domain.user.repository.UserRepository;
 import com.back.catchmate.global.error.ErrorCode;
@@ -44,6 +45,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class BoardServiceImpl implements BoardService {
     private static final Long DEFAULT_CLUB_ID = 0L;
+    private final FCMService fcmService;
     private final BoardRepository boardRepository;
     private final GameRepository gameRepository;
     private final ClubRepository clubRepository;
@@ -76,7 +78,6 @@ public class BoardServiceImpl implements BoardService {
         Board board = (boardId != null)
                 ? updateExistingBoard(user, boardId, cheerClub, game, request)
                 : createNewBoardWithChatRoom(user, cheerClub, game, request);
-
 
         return boardConverter.toBoardInfo(board, game);
     }

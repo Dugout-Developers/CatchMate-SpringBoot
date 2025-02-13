@@ -10,9 +10,9 @@ import com.back.catchmate.domain.chat.repository.UserChatRoomRepository;
 import com.back.catchmate.domain.chat.service.ChatService;
 import com.back.catchmate.domain.enroll.converter.EnrollConverter;
 import com.back.catchmate.domain.enroll.dto.EnrollRequest.CreateEnrollRequest;
-import com.back.catchmate.domain.enroll.dto.EnrollResponse;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.CancelEnrollInfo;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.CreateEnrollInfo;
+import com.back.catchmate.domain.enroll.dto.EnrollResponse.EnrollDescriptionInfo;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.NewEnrollCountInfo;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.PagedEnrollReceiveInfo;
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.PagedEnrollRequestInfo;
@@ -80,7 +80,7 @@ public class EnrollServiceImpl implements EnrollService {
         User boardWriter = userRepository.findById(board.getUser().getId())
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
         // 게시글 작성자에게 푸시 알림 메세지 전송
-        fcmService.sendMessage(boardWriter.getFcmToken(), title, body, boardId, AcceptStatus.PENDING);
+        fcmService.sendMessageByToken(boardWriter.getFcmToken(), title, body, boardId, AcceptStatus.PENDING);
 
         // 데이터베이스에 저장
         notificationService.createNotification(title, body, enroll.getUser().getProfileImageUrl(), boardId, boardWriter.getId(), AcceptStatus.PENDING);
@@ -186,7 +186,7 @@ public class EnrollServiceImpl implements EnrollService {
         String body = ENROLLMENT_ACCEPT_BODY;
 
         // 직관 신청자에게 수락 푸시 알림 메세지 전송
-        fcmService.sendMessage(enrollApplicant.getFcmToken(), title, body, enroll.getBoard().getId(), AcceptStatus.ACCEPTED);
+        fcmService.sendMessageByToken(enrollApplicant.getFcmToken(), title, body, enroll.getBoard().getId(), AcceptStatus.ACCEPTED);
         // 데이터베이스에 저장
         notificationService.createNotification(title, body, boardWriter.getProfileImageUrl(), enroll.getBoard().getId(), enrollApplicant.getId(), AcceptStatus.ACCEPTED);
 
@@ -229,7 +229,7 @@ public class EnrollServiceImpl implements EnrollService {
         String body = ENROLLMENT_REJECT_BODY;
 
         // 직관 신청자에게 거절 푸시 알림 메세지 전송
-        fcmService.sendMessage(enrollApplicant.getFcmToken(), title, body, enroll.getBoard().getId(), AcceptStatus.REJECTED);
+        fcmService.sendMessageByToken(enrollApplicant.getFcmToken(), title, body, enroll.getBoard().getId(), AcceptStatus.REJECTED);
         // 데이터베이스에 저장
         notificationService.createNotification(title, body, boardWriter.getProfileImageUrl(), enroll.getBoard().getId(), enrollApplicant.getId(), AcceptStatus.REJECTED);
 
@@ -238,7 +238,7 @@ public class EnrollServiceImpl implements EnrollService {
     }
 
     @Override
-    public EnrollResponse.EnrollDescriptionInfo getEnrollDescriptionById(Long boardId, Long userId) {
+    public EnrollDescriptionInfo getEnrollDescriptionById(Long boardId, Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 

@@ -39,9 +39,11 @@ public class ChatRoom extends BaseTimeEntity {
     @Column(nullable = false)
     private int participantCount;
 
-    // 마지막 메시지 시간
-    @Column(nullable = false)
     private LocalDateTime lastMessageAt;
+
+    private String lastMessageContent;
+
+    private String chatRoomImage;
 
     // 채팅방에 메시지가 있을 때 마지막 메시지 시간 업데이트
     public void updateLastMessageTime() {
@@ -56,5 +58,17 @@ public class ChatRoom extends BaseTimeEntity {
     // 참여자 수 감소 메소드
     public void decrementParticipantCount() {
         this.participantCount--;
+    }
+
+    public boolean isOwner(Long userId) {
+        return this.board.getUser().getId().equals(userId);
+    }
+
+    public void updateChatRoomImage(String chatRoomImage) {
+        this.chatRoomImage = chatRoomImage;
+    }
+
+    public void updateLastMessageContent(String content) {
+        this.lastMessageContent = content;
     }
 }

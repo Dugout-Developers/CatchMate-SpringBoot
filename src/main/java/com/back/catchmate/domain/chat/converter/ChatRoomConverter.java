@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,7 +23,9 @@ public class ChatRoomConverter {
         return ChatRoom.builder()
                 .board(board)
                 .participantCount(1)
-                .lastMessageAt(LocalDateTime.now())
+                .lastMessageAt(null)
+                .lastMessageContent(null)
+                .chatRoomImage(String.valueOf(board.getClub().getId()))
                 .build();
     }
 
@@ -50,6 +51,8 @@ public class ChatRoomConverter {
                 .boardInfo(boardInfo)
                 .participantCount(chatRoom.getParticipantCount())
                 .lastMessageAt(chatRoom.getLastMessageAt())
+                .lastMessageContent(chatRoom.getLastMessageContent())
+                .chatRoomImage(chatRoom.getChatRoomImage())
                 .build();
     }
 }

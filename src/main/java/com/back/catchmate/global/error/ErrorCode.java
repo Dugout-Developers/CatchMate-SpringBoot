@@ -44,6 +44,11 @@ public enum ErrorCode {
 
     // 알림
     NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 알림입니다."),
+    EMPTY_FCM_RESPONSE(HttpStatus.BAD_REQUEST, "알림 데이터가 존재하지 않습니다."),
+    FCM_TOPIC_SEND_BAD_REQUEST(HttpStatus.BAD_REQUEST, "토픽 알람 전송중 에러가 발생했습니다."),
+    FCM_TOKEN_SEND_BAD_REQUEST(HttpStatus.BAD_REQUEST, "토픽 알람 전송중 에러가 발생했습니다."),
+    FCM_SUBSCRIBE_BAD_REQUEST(HttpStatus.BAD_REQUEST, "토픽 구독중 에러가 발생했습니다."),
+    FCM_UNSUBSCRIBE_BAD_REQUEST(HttpStatus.BAD_REQUEST, "토픽 구독 취소중 에러가 발생했습니다."),
 
     // 채팅방
     CHATROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 채팅방입니다."),
@@ -51,6 +56,8 @@ public enum ErrorCode {
 
     // 파일
     FILE_UPLOAD_FAILED(HttpStatus.BAD_REQUEST, "파일 업로드를 실패했습니다."),
+    IMAGE_UPDATE_UNAUTHORIZED_ACCESS(HttpStatus.UNAUTHORIZED, "채팅방 이미지를 수정할 권한이 없습니다."),
+    KICK_CHATROOM_UNAUTHORIZED_ACCESS(HttpStatus.UNAUTHORIZED, "채팅방에서 내보낼 권한이 없습니다."),
 
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
     BAD_REQUEST(HttpStatus.BAD_REQUEST, "클라이언트 에러입니다"),
