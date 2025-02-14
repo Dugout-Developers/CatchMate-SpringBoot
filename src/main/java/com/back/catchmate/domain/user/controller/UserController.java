@@ -90,7 +90,7 @@ public class UserController {
     }
 
     @GetMapping("/block")
-    @Operation(summary = "차단한 유저 목록 API", description = "내가 차단한 유저 목록을 조회합니다.")
+    @Operation(summary = "차단한 유저 목록 API", description = "내가 차단한 유저 목록을 조회하는 API 입니다.")
     public PagedUserInfo getBlockedUsers(@JwtValidation Long userId,
                                          @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
                                          @Parameter(hidden = true) Pageable pageable) {

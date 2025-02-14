@@ -23,7 +23,6 @@ import com.back.catchmate.domain.game.converter.GameConverter;
 import com.back.catchmate.domain.game.dto.GameRequest.CreateGameRequest;
 import com.back.catchmate.domain.game.entity.Game;
 import com.back.catchmate.domain.game.repository.GameRepository;
-import com.back.catchmate.domain.notification.service.FCMService;
 import com.back.catchmate.domain.user.entity.User;
 import com.back.catchmate.domain.user.repository.BlockedUserRepository;
 import com.back.catchmate.domain.user.repository.UserRepository;

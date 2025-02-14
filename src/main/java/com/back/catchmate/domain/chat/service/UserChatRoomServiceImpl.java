@@ -3,7 +3,6 @@ package com.back.catchmate.domain.chat.service;
 import com.back.catchmate.domain.chat.converter.UserChatRoomConverter;
 import com.back.catchmate.domain.chat.entity.UserChatRoom;
 import com.back.catchmate.domain.chat.repository.UserChatRoomRepository;
-import com.back.catchmate.domain.user.dto.UserResponse;
 import com.back.catchmate.domain.user.dto.UserResponse.UserInfoList;
 import com.back.catchmate.global.error.ErrorCode;
 import com.back.catchmate.global.error.exception.BaseException;
