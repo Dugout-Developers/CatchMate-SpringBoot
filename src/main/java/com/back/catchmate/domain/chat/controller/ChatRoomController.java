@@ -43,8 +43,9 @@ public class ChatRoomController {
 
     @GetMapping("/{chatRoomId}/user-list")
     @Operation(summary = "채팅방에 참여한 유저 정보 리스트 반환 API", description = "채팅방에 참여한 유저 정보 리스트 반환 API 입니다.")
-    public UserInfoList getUsersInChatRoom(@PathVariable Long chatRoomId) {
-        return userChatRoomService.getUserInfoList(chatRoomId);
+    public UserInfoList getUsersInChatRoom(@JwtValidation Long userId,
+                                           @PathVariable Long chatRoomId) {
+        return userChatRoomService.getUserInfoList(userId, chatRoomId);
     }
 
     @PatchMapping("/{chatRoomId}/image")

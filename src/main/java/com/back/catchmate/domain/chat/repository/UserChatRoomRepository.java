@@ -10,15 +10,16 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserChatRoomRepository extends JpaRepository<UserChatRoom, Long> {
-    Optional<UserChatRoom> findByUserIdAndChatRoomId(Long userId, Long chatRoomId);
+    Optional<UserChatRoom> findByUserIdAndChatRoomIdAndDeletedAtIsNull(Long userId, Long chatRoomId);
 
     boolean existsByUserIdAndChatRoomIdAndDeletedAtIsNull(Long userId, Long chatRoomId);
 
     @Query("SELECT ucr FROM UserChatRoom ucr " +
             "JOIN FETCH ucr.chatRoom cr " +
             "WHERE ucr.user.id = :userId " +
+            "AND ucr.deletedAt IS NULL " +
             "ORDER BY cr.lastMessageAt DESC")
     Page<UserChatRoom> findAllByUserId(Long userId, Pageable pageable);
 
-    List<UserChatRoom> findByChatRoomId(Long chatRoomId);
+    List<UserChatRoom> findByChatRoomIdAndDeletedAtIsNull(Long chatRoomId);
 }
