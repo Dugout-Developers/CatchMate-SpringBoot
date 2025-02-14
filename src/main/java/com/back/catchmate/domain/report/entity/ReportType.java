@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum ReportReason {
+public enum ReportType {
     PROFANITY("욕설 / 비하 발언"),
     DEFAMATION("선수 혹은 특정인 비방"),
     PRIVACY_INVASION("개인 사생활 침해"),
