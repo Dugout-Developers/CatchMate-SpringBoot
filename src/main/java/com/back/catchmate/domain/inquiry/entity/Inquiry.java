@@ -1,4 +1,4 @@
-package com.back.catchmate.domain.report.entity;
+package com.back.catchmate.domain.inquiry.entity;
 
 import com.back.catchmate.domain.user.entity.User;
 import com.back.catchmate.global.entity.BaseTimeEntity;
@@ -24,25 +24,20 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Table(name = "reports")
-public class Report extends BaseTimeEntity {
+@Table(name = "inquiries")
+public class Inquiry extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reported_user_id", nullable = false)
-    private User reportedUser; // 신고 대상
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reporter_id", nullable = false)
-    private User reporter; // 신고자
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 500)
-    private ReportType reportType; // 신고 사유
+    @Column(nullable = false, length = 50)
+    private InquiryType inquiryType; // 문의 유형
 
-    @Column(nullable = false, length = 500)
-    private String content; // 신고 사유
+    @Column(nullable = false, length = 1000)
+    private String content; // 문의 내용
 }
-

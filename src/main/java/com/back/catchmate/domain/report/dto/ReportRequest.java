@@ -1,6 +1,6 @@
 package com.back.catchmate.domain.report.dto;
 
-import com.back.catchmate.domain.report.entity.ReportReason;
+import com.back.catchmate.domain.report.entity.ReportType;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,8 +16,8 @@ public abstract class ReportRequest {
         @NotNull
         private Long reportedUserId;
         @NotNull
-        private ReportReason reportReason;
+        private ReportType reportType;
         @NotNull
-        private String reasonDetail;
+        private String content;
     }
 }
