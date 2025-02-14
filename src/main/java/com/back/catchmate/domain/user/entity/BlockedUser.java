@@ -1,8 +1,6 @@
-package com.back.catchmate.domain.chat.entity;
+package com.back.catchmate.domain.user.entity;
 
-import com.back.catchmate.domain.user.entity.User;
 import com.back.catchmate.global.entity.BaseTimeEntity;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -16,30 +14,23 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Table(name = "user_chat_rooms")
-public class UserChatRoom extends BaseTimeEntity {
+@Table(name = "blocked_users")
+public class BlockedUser extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_chat_room_id")
     private Long id;
 
-    // 사용자와 채팅방 간의 다대다 관계
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
+    @JoinColumn(name = "blocker_id", nullable = false)
+    private User blocker;  // 차단한 유저
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "chat_room_id")
-    private ChatRoom chatRoom;
-
-    // 채팅방에 참여한 시간
-    @Column(nullable = false)
-    private LocalDateTime joinedAt;
+    @JoinColumn(name = "blocked_id", nullable = false)
+    private User blocked;  // 차단당한 유저
 }

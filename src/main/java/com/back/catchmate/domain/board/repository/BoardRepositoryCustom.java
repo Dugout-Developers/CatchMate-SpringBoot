@@ -8,5 +8,5 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface BoardRepositoryCustom {
-    Page<Board> findFilteredBoards(LocalDate gameDate, Integer maxPerson, List<Long> preferredTeamIdList, Pageable pageable);
+    Page<Board> findFilteredBoards(Long userId, LocalDate gameDate, Integer maxPerson, List<Long> preferredTeamIdList, Pageable pageable);
 }

@@ -3,17 +3,24 @@ package com.back.catchmate.domain.user.converter;
 import com.back.catchmate.domain.club.converter.ClubConverter;
 import com.back.catchmate.domain.club.dto.ClubResponse.ClubInfo;
 import com.back.catchmate.domain.club.entity.Club;
+import com.back.catchmate.domain.notification.dto.NotificationResponse;
+import com.back.catchmate.domain.notification.entity.Notification;
 import com.back.catchmate.domain.user.dto.UserRequest;
+import com.back.catchmate.domain.user.dto.UserResponse;
 import com.back.catchmate.domain.user.dto.UserResponse.LoginInfo;
 import com.back.catchmate.domain.user.dto.UserResponse.UpdateAlarmInfo;
 import com.back.catchmate.domain.user.dto.UserResponse.UserInfo;
 import com.back.catchmate.domain.user.entity.AlarmType;
+import com.back.catchmate.domain.user.entity.BlockedUser;
 import com.back.catchmate.domain.user.entity.Provider;
 import com.back.catchmate.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -68,6 +75,20 @@ public class UserConverter {
                 .favoriteClub(clubInfo)
                 .birthDate(user.getBirthDate())
                 .watchStyle(user.getWatchStyle())
+                .build();
+    }
+
+    public UserResponse.PagedUserInfo toPagedUserInfo(Page<BlockedUser> blockedUserList) {
+        List<UserResponse.UserInfo> blockedUserInfoList = blockedUserList.stream()
+                .map(blockedUser -> toUserInfo(blockedUser.getBlocked()))  // 차단된 유저 정보 변환
+                .collect(Collectors.toList());
+
+        return UserResponse.PagedUserInfo.builder()
+                .userInfoList(blockedUserInfoList)
+                .totalPages(blockedUserList.getTotalPages())
+                .totalElements(blockedUserList.getTotalElements())
+                .isFirst(blockedUserList.isFirst())
+                .isLast(blockedUserList.isLast())
                 .build();
     }
 
