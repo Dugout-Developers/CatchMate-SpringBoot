@@ -8,13 +8,22 @@ import com.back.catchmate.domain.game.entity.Game;
 import com.back.catchmate.domain.notification.entity.Notification;
 import com.back.catchmate.domain.user.entity.User;
 import com.back.catchmate.global.entity.BaseTimeEntity;
-import jakarta.persistence.*;
+import jakarta.persistence.Id;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -22,10 +31,8 @@ import java.util.List;
 
 @Entity
 @Getter
-@Setter
 @Builder
-@ToString
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Table(name = "boards")
 public class Board extends BaseTimeEntity {
@@ -98,6 +105,10 @@ public class Board extends BaseTimeEntity {
         this.isCompleted = boardRequest.getIsCompleted();
         this.club = cheerClub;
         this.game = game;
+    }
+
+    public void updateLiftUpDate(LocalDateTime localDateTime) {
+        this.liftUpDate = localDateTime;
     }
 
     public void deleteBoard() {
