@@ -272,7 +272,7 @@ public class BoardServiceImpl implements BoardService {
         LocalDateTime nextLiftUpAllowed = board.getLiftUpDate().plusDays(3);
 
         if (nextLiftUpAllowed.isBefore(now)) {
-            board.setLiftUpDate(now);
+            board.updateLiftUpDate(now);
             return boardConverter.toLiftUpStatusInfo(true, null);
         } else {
             // 남은 시간 계산

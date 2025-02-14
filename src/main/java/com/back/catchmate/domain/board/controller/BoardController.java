@@ -41,7 +41,7 @@ public class BoardController {
     private final BookMarkService bookMarkService;
 
     @PostMapping
-    @Operation(summary = "게시글 등록 API & 게시글 임시 등록 API", description = "게시글을 등록합니다.")
+    @Operation(summary = "게시글 등록 API & 게시글 임시 등록 API", description = "게시글을 등록하는 API 입니다.")
     public BoardInfo createOrUpdateBoard(@JwtValidation Long userId,
                                          @Valid @RequestBody CreateOrUpdateBoardRequest request) {
         return boardService.createOrUpdateBoard(userId, null, request);
@@ -88,7 +88,7 @@ public class BoardController {
     }
 
     @GetMapping("/bookmark")
-    @Operation(summary = "찜한 게시글 조회 API", description = "사용자가 찜한 게시글을 조회하는 API입니다.")
+    @Operation(summary = "찜한 게시글 조회 API", description = "사용자가 찜한 게시글을 조회하는 API 입니다.")
     public PagedBoardInfo getBookMarkBoardList(@JwtValidation Long userId,
                                                @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
                                                @Parameter(hidden = true) Pageable pageable) {
@@ -103,7 +103,7 @@ public class BoardController {
     }
 
     @PatchMapping("/{boardId}")
-    @Operation(summary = "게시글 수정 API", description = "게시글을 수정합니다.")
+    @Operation(summary = "게시글 수정 API", description = "게시글을 수정하는 API 입니다.")
     public BoardInfo updateBoard(@JwtValidation Long userId,
                                  @PathVariable Long boardId,
                                  @Valid @RequestBody CreateOrUpdateBoardRequest request) {
@@ -111,14 +111,14 @@ public class BoardController {
     }
 
     @DeleteMapping("/{boardId}")
-    @Operation(summary = "게시글 삭제 API", description = "게시글을 삭제합니다.")
+    @Operation(summary = "게시글 삭제 API", description = "게시글을 삭제하는 API 입니다.")
     public BoardDeleteInfo deleteBoard(@JwtValidation Long userId,
                                        @PathVariable Long boardId) {
         return boardService.deleteBoard(userId, boardId);
     }
 
     @PatchMapping("/{boardId}/lift-up")
-    @Operation(summary = "게시글 끌어올리기 API", description = "게시글을 끌어올립니다.")
+    @Operation(summary = "게시글 끌어올리기 API", description = "게시글을 끌어올리는 API 입니다.")
     public LiftUpStatusInfo updateLiftUpDate(@JwtValidation Long userId,
                                              @PathVariable Long boardId) {
         return boardService.updateLiftUpDate(userId, boardId);
