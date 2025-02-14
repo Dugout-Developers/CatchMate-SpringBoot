@@ -63,6 +63,8 @@ public enum ErrorCode {
     USER_BLOCK_FAILED(HttpStatus.BAD_REQUEST, "해당 유저를 이미 차단했습니다."),
     SELF_BLOCK_FAILED(HttpStatus.BAD_REQUEST, "자기 자신을 차단할 수 없습니다."),
     USER_UNBLOCK_FAILED(HttpStatus.BAD_REQUEST, "해당 유저를 차단한 이력이 없습니다."),
+    BLOCKED_USER_BOARD(HttpStatus.BAD_REQUEST, "내가 차단한 유저의 게시글입니다."),
+    BLOCKED_USER_BOARD_LIST(HttpStatus.BAD_REQUEST, "내가 차단한 유저의 게시글 리스트입니다."),
 
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
     BAD_REQUEST(HttpStatus.BAD_REQUEST, "클라이언트 에러입니다"),

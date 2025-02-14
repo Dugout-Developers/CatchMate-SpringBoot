@@ -4,6 +4,7 @@ import com.back.catchmate.domain.board.entity.Board;
 import com.back.catchmate.domain.board.entity.QBoard;
 import com.back.catchmate.domain.club.entity.QClub;
 import com.back.catchmate.domain.game.entity.QGame;
+import com.back.catchmate.domain.user.repository.BlockedUserRepository;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -18,9 +19,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BoardRepositoryImpl implements BoardRepositoryCustom {
     private final JPAQueryFactory queryFactory;
+    private final BlockedUserRepository blockedUserRepository;
 
     @Override
-    public Page<Board> findFilteredBoards(LocalDate gameDate, Integer maxPerson, List<Long> preferredTeamIdList, Pageable pageable) {
+    public Page<Board> findFilteredBoards(Long userId, LocalDate gameDate, Integer maxPerson, List<Long> preferredTeamIdList, Pageable pageable) {
         QBoard board = QBoard.board;
         QGame game = QGame.game;
         QClub club = QClub.club;
@@ -46,6 +48,12 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
         if (gameDate != null) {
             builder.and(board.game.gameStartDate.goe(gameDate.atStartOfDay()));
             builder.and(board.game.gameStartDate.lt(gameDate.plusDays(1).atStartOfDay()));
+        }
+
+        // 차단된 유저의 게시글 제외
+        List<Long> blockedUserIds = blockedUserRepository.findBlockedUserIdListByUserId(userId);
+        if (!blockedUserIds.isEmpty()) {
+            builder.and(board.user.id.notIn(blockedUserIds));
         }
 
         // 쿼리 실행
