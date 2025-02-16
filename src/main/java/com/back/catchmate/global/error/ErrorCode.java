@@ -13,6 +13,7 @@ public enum ErrorCode {
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 사용자입니다."),
     USER_ENTITY_NOT_FOUND(HttpStatus.BAD_REQUEST, "존재하지 않는 사용자 ID 입니다."),
     USER_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "이미 가입된 사용자입니다."),
+    FORBIDDEN_ACCESS(HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
 
     // 클럽
     CLUB_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 구단입니다."),

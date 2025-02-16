@@ -48,6 +48,13 @@ public class SecurityConfig {
                 .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(whiteList).permitAll() // 화이트리스트에 있는 경로는 누구나 접근 가능
+                        .requestMatchers("/admin/**").hasRole("ADMIN") // 관리자 전용
+                        .anyRequest().authenticated() // 그 외 요청은 인증 필요
+                );
+
+        http
                 .addFilterBefore(new JwtAuthenticationFilter(jwtService, userRepository), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
