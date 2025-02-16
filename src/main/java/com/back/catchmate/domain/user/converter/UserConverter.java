@@ -3,14 +3,13 @@ package com.back.catchmate.domain.user.converter;
 import com.back.catchmate.domain.club.converter.ClubConverter;
 import com.back.catchmate.domain.club.dto.ClubResponse.ClubInfo;
 import com.back.catchmate.domain.club.entity.Club;
-import com.back.catchmate.domain.notification.dto.NotificationResponse;
-import com.back.catchmate.domain.notification.entity.Notification;
 import com.back.catchmate.domain.user.dto.UserRequest;
 import com.back.catchmate.domain.user.dto.UserResponse;
 import com.back.catchmate.domain.user.dto.UserResponse.LoginInfo;
 import com.back.catchmate.domain.user.dto.UserResponse.UpdateAlarmInfo;
 import com.back.catchmate.domain.user.dto.UserResponse.UserInfo;
 import com.back.catchmate.domain.user.entity.AlarmType;
+import com.back.catchmate.domain.user.entity.Authority;
 import com.back.catchmate.domain.user.entity.BlockedUser;
 import com.back.catchmate.domain.user.entity.Provider;
 import com.back.catchmate.domain.user.entity.User;
@@ -47,6 +46,7 @@ public class UserConverter {
                 .enrollAlarm('N')
                 .eventAlarm('N')
                 .fcmToken(request.getFcmToken())
+                .authority(Authority.ROLE_USER)
                 .build();
     }
 
