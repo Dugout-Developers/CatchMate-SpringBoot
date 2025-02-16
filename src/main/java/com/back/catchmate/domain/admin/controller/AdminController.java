@@ -4,6 +4,7 @@ import com.back.catchmate.domain.admin.dto.AdminResponse.AdminDashboardInfo;
 import com.back.catchmate.domain.admin.dto.AdminResponse.GenderRatioDto;
 import com.back.catchmate.domain.admin.service.AdminService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import static com.back.catchmate.domain.admin.dto.AdminResponse.CheerStyleStatsInfo;
 import static com.back.catchmate.domain.admin.dto.AdminResponse.TeamSupportStatsInfo;
 
+@Tag(name = "관리자 관련 API")
 @RestController
 @RequestMapping("/admin")
 @RequiredArgsConstructor
