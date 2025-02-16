@@ -13,7 +13,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -43,8 +49,9 @@ public class ChatRoomController {
 
     @GetMapping("/{chatRoomId}/user-list")
     @Operation(summary = "채팅방에 참여한 유저 정보 리스트 반환 API", description = "채팅방에 참여한 유저 정보 리스트 반환 API 입니다.")
-    public UserInfoList getUsersInChatRoom(@PathVariable Long chatRoomId) {
-        return userChatRoomService.getUserInfoList(chatRoomId);
+    public UserInfoList getUsersInChatRoom(@JwtValidation Long userId,
+                                           @PathVariable Long chatRoomId) {
+        return userChatRoomService.getUserInfoList(userId, chatRoomId);
     }
 
     @PatchMapping("/{chatRoomId}/image")

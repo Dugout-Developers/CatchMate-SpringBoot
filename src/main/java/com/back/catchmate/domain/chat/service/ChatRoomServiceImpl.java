@@ -6,7 +6,6 @@ import com.back.catchmate.domain.chat.entity.ChatRoom;
 import com.back.catchmate.domain.chat.entity.UserChatRoom;
 import com.back.catchmate.domain.chat.repository.ChatRoomRepository;
 import com.back.catchmate.domain.chat.repository.UserChatRoomRepository;
-import com.back.catchmate.domain.notification.service.FCMService;
 import com.back.catchmate.domain.user.entity.User;
 import com.back.catchmate.domain.user.repository.UserRepository;
 import com.back.catchmate.global.dto.StateResponse;
@@ -52,19 +51,24 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                 .orElseThrow(() -> new BaseException(ErrorCode.CHATROOM_NOT_FOUND));
 
         // UserChatRoom 엔티티를 찾아서 나가기
-        UserChatRoom userChatRoom = userChatRoomRepository.findByUserIdAndChatRoomId(user.getId(), chatRoom.getId())
+        UserChatRoom userChatRoom = userChatRoomRepository.findByUserIdAndChatRoomIdAndDeletedAtIsNull(user.getId(), chatRoom.getId())
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_CHATROOM_NOT_FOUND));
 
-        // 채팅방에서 나가기 처리
-        userChatRoom.delete();
-        // 게시글 현재 인원 수 감소
-        chatRoom.getBoard().decrementCurrentPerson();
-        // 채팅방에서 참여자 수 감소
-        chatRoom.decrementParticipantCount();
+        if (chatRoom.isOwner(userId)) {
+            userChatRoom.delete();
+            chatRoom.getBoard().deleteBoard();
+        } else {
+            // 채팅방에서 나가기 처리
+            userChatRoom.delete();
+            // 게시글 현재 인원 수 감소
+            chatRoom.getBoard().decrementCurrentPerson();
+            // 채팅방에서 참여자 수 감소
+            chatRoom.decrementParticipantCount();
 
-        // 퇴장 메시지 보내기
-        String content = user.getNickName() + " 님이 채팅을 떠났어요";  // 퇴장 메시지 내용
-        chatService.sendEnterLeaveMessage(chatRoom.getId(), content, user.getId(), MessageType.LEAVE);
+            // 퇴장 메시지 보내기
+            String content = user.getNickName() + " 님이 채팅을 떠났어요";  // 퇴장 메시지 내용
+            chatService.sendEnterLeaveMessage(chatRoom.getId(), content, user.getId(), MessageType.LEAVE);
+        }
 
         return new StateResponse(true);
     }
@@ -97,7 +101,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
-        UserChatRoom userChatRoom = userChatRoomRepository.findByUserIdAndChatRoomId(userId, chatRoom.getId())
+        UserChatRoom userChatRoom = userChatRoomRepository.findByUserIdAndChatRoomIdAndDeletedAtIsNull(userId, chatRoom.getId())
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_CHATROOM_NOT_FOUND));
 
         // 채팅방에서 나가기 처리

@@ -1,6 +1,7 @@
 package com.back.catchmate.domain.user.dto;
 
 import com.back.catchmate.domain.club.dto.ClubResponse.ClubInfo;
+import com.back.catchmate.domain.notification.dto.NotificationResponse;
 import com.back.catchmate.domain.user.entity.AlarmType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -48,6 +49,18 @@ public abstract class UserResponse {
     @AllArgsConstructor
     public static class UserInfoList {
         private List<UserInfo> userInfoList;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class PagedUserInfo {
+        private List<UserInfo> userInfoList;
+        private Integer totalPages;
+        private Long totalElements;
+        private Boolean isFirst;
+        private Boolean isLast;
     }
 
     @Getter

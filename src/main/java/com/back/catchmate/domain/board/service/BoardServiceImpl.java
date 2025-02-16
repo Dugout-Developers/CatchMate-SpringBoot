@@ -23,8 +23,8 @@ import com.back.catchmate.domain.game.converter.GameConverter;
 import com.back.catchmate.domain.game.dto.GameRequest.CreateGameRequest;
 import com.back.catchmate.domain.game.entity.Game;
 import com.back.catchmate.domain.game.repository.GameRepository;
-import com.back.catchmate.domain.notification.service.FCMService;
 import com.back.catchmate.domain.user.entity.User;
+import com.back.catchmate.domain.user.repository.BlockedUserRepository;
 import com.back.catchmate.domain.user.repository.UserRepository;
 import com.back.catchmate.global.error.ErrorCode;
 import com.back.catchmate.global.error.exception.BaseException;
@@ -45,7 +45,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class BoardServiceImpl implements BoardService {
     private static final Long DEFAULT_CLUB_ID = 0L;
-    private final FCMService fcmService;
     private final BoardRepository boardRepository;
     private final GameRepository gameRepository;
     private final ClubRepository clubRepository;
@@ -54,6 +53,7 @@ public class BoardServiceImpl implements BoardService {
     private final EnrollRepository enrollRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final UserChatRoomRepository userChatRoomRepository;
+    private final BlockedUserRepository blockedUserRepository;
     private final BoardConverter boardConverter;
     private final GameConverter gameConverter;
     private final ChatRoomConverter chatRoomConverter;
@@ -174,6 +174,10 @@ public class BoardServiceImpl implements BoardService {
         Board board = boardRepository.findByIdAndDeletedAtIsNullAndIsCompleted(boardId)
                 .orElseThrow(() -> new BaseException(ErrorCode.BOARD_NOT_FOUND));
 
+        if (isUserBlocked(user.getId(), board.getUser().getId())) {
+            throw new BaseException(ErrorCode.BLOCKED_USER_BOARD);
+        }
+
         boolean isBookMarked = bookMarkRepository.existsByUserIdAndBoardIdAndDeletedAtIsNull(user.getId(), board.getId());
 
         // 타 유저 게시물 여부 확인
@@ -203,7 +207,7 @@ public class BoardServiceImpl implements BoardService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
-        Page<Board> boardList = boardRepository.findFilteredBoards(gameStartDate, maxPerson, preferredTeamIdList, pageable);
+        Page<Board> boardList = boardRepository.findFilteredBoards(user.getId(), gameStartDate, maxPerson, preferredTeamIdList, pageable);
         return boardConverter.toPagedBoardInfoFromBoardList(boardList);
     }
 
@@ -216,8 +220,16 @@ public class BoardServiceImpl implements BoardService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
+        if (isUserBlocked(loginUserId, userId)) {
+            throw new BaseException(ErrorCode.BLOCKED_USER_BOARD_LIST);
+        }
+
         Page<Board> boardList = boardRepository.findAllByUserIdAndDeletedAtIsNullAndIsCompletedIsTrue(user.getId(), pageable);
         return boardConverter.toPagedBoardInfoFromBoardList(boardList);
+    }
+
+    private boolean isUserBlocked(Long blockerId, Long blockedId) {
+        return blockedUserRepository.existsByBlockerIdAndBlockedIdAndDeletedAtIsNull(blockerId, blockedId);
     }
 
     @Override
