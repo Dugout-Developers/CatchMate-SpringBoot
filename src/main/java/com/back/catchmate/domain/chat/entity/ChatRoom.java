@@ -1,11 +1,17 @@
 package com.back.catchmate.domain.chat.entity;
 
 import com.back.catchmate.domain.board.entity.Board;
-import com.back.catchmate.domain.board.entity.BookMark;
-import com.back.catchmate.domain.enroll.entity.Enroll;
-import com.back.catchmate.domain.notification.entity.Notification;
 import com.back.catchmate.global.entity.BaseTimeEntity;
-import jakarta.persistence.*;
+import jakarta.persistence.Id;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -75,7 +81,6 @@ public class ChatRoom extends BaseTimeEntity {
         for (UserChatRoom userChatRoom : userChatRoomList) {
             userChatRoom.delete();
         }
-        // 삭제 시간 기록
         super.delete();
     }
 }
