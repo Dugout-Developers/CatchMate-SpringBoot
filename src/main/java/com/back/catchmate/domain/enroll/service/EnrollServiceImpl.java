@@ -195,7 +195,7 @@ public class EnrollServiceImpl implements EnrollService {
     }
 
     private void enterChatRoom(User user, Board board) {
-        ChatRoom chatRoom = chatRoomRepository.findByBoardId(board.getId())
+        ChatRoom chatRoom = chatRoomRepository.findByBoardIdAndDeletedAtIsNull(board.getId())
                 .orElseThrow(() -> new BaseException(ErrorCode.CHATROOM_NOT_FOUND));
 
         chatRoom.incrementParticipantCount();

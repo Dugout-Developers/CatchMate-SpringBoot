@@ -40,6 +40,13 @@ public class ChatRoomController {
         return chatRoomService.getChatRoomList(userId, pageable);
     }
 
+    @GetMapping("/{chatRoomId}}")
+    @Operation(summary = "채팅방 정보 조회 API", description = "체팅방 정보를 조회하는 API 입니다.")
+    public ChatResponse.ChatRoomInfo getChatRoom(@JwtValidation Long userId,
+                                                 @PathVariable Long chatRoomId) {
+        return chatRoomService.getChatRoom(userId, chatRoomId);
+    }
+
     @DeleteMapping("/{chatRoomId}")
     @Operation(summary = "내가 속한 채팅방 나가기 API", description = "내가 속해있는 채팅방을 나가는 API 입니다.")
     public StateResponse leaveChatRoom(@JwtValidation Long userId,

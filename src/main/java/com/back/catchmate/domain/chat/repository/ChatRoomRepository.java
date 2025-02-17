@@ -6,7 +6,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
-    Optional<ChatRoom> findByBoardId(Long boardId);
+    Optional<ChatRoom> findByIdAndDeletedAtIsNull(Long chatRoomId);
+
+    Optional<ChatRoom> findByBoardIdAndDeletedAtIsNull(Long boardId);
 
     boolean existsByBoardId(Long boardId);
 }
