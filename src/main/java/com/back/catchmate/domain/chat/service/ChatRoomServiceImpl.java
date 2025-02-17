@@ -2,6 +2,8 @@ package com.back.catchmate.domain.chat.service;
 
 import com.back.catchmate.domain.chat.converter.ChatRoomConverter;
 import com.back.catchmate.domain.chat.dto.ChatResponse;
+import com.back.catchmate.domain.chat.dto.ChatResponse.ChatRoomInfo;
+import com.back.catchmate.domain.chat.dto.ChatResponse.PagedChatRoomInfo;
 import com.back.catchmate.domain.chat.entity.ChatRoom;
 import com.back.catchmate.domain.chat.entity.UserChatRoom;
 import com.back.catchmate.domain.chat.repository.ChatRoomRepository;
@@ -35,9 +37,22 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
     @Override
     @Transactional(readOnly = true)
-    public ChatResponse.PagedChatRoomInfo getChatRoomList(Long userId, Pageable pageable) {
+    public PagedChatRoomInfo getChatRoomList(Long userId, Pageable pageable) {
         Page<UserChatRoom> userChatRoomList = userChatRoomRepository.findAllByUserId(userId, pageable);
         return chatRoomConverter.toPagedChatRoomInfo(userChatRoomList);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ChatRoomInfo getChatRoom(Long userId, Long chatRoomId) {
+        ChatRoom chatRoom = chatRoomRepository.findByIdAndDeletedAtIsNull(chatRoomId)
+                .orElseThrow(() -> new BaseException(ErrorCode.CHATROOM_NOT_FOUND));
+
+        if (!userChatRoomRepository.existsByUserIdAndChatRoomIdAndDeletedAtIsNull(userId, chatRoomId)) {
+            throw new BaseException(ErrorCode.USER_CHATROOM_NOT_FOUND);
+        }
+
+        return chatRoomConverter.toChatRoomInfo(chatRoom, chatRoom.getBoard());
     }
 
     @Override
@@ -47,7 +62,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
-        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+        ChatRoom chatRoom = chatRoomRepository.findByIdAndDeletedAtIsNull(chatRoomId)
                 .orElseThrow(() -> new BaseException(ErrorCode.CHATROOM_NOT_FOUND));
 
         // UserChatRoom 엔티티를 찾아서 나가기
