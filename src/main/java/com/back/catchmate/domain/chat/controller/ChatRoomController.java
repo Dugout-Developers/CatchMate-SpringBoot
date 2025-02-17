@@ -40,7 +40,7 @@ public class ChatRoomController {
         return chatRoomService.getChatRoomList(userId, pageable);
     }
 
-    @GetMapping("/{chatRoomId}}")
+    @GetMapping("/{chatRoomId}")
     @Operation(summary = "채팅방 정보 조회 API", description = "체팅방 정보를 조회하는 API 입니다.")
     public ChatResponse.ChatRoomInfo getChatRoom(@JwtValidation Long userId,
                                                  @PathVariable Long chatRoomId) {
