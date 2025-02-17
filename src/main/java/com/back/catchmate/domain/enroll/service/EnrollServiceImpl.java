@@ -163,21 +163,29 @@ public class EnrollServiceImpl implements EnrollService {
         User loginUser = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
-        Enroll enroll = enrollRepository.findById(enrollId)
+        Enroll enroll = enrollRepository.findByIdWithLock(enrollId)
                 .orElseThrow(() -> new BaseException(ErrorCode.ENROLL_NOT_FOUND));
 
         User boardWriter = enroll.getBoard().getUser();
         User enrollApplicant = userRepository.findById(enroll.getUser().getId())
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
-        Board board = enroll.getBoard();
+        Board board = boardRepository.findByIdWithLock(enroll.getBoard().getId())
+                .orElseThrow(() -> new BaseException(ErrorCode.BOARD_NOT_FOUND));
+
         if (board.canIncrementCurrentPerson()) {
             board.incrementCurrentPerson();
+        } else {
+            throw new BaseException(ErrorCode.FULL_PERSON);
         }
 
-        // 게시글 작성자와 로그인한 사용자가 다를 경우 예외 발생
         if (loginUser.isDifferentUserFrom(boardWriter)) {
             throw new BaseException(ErrorCode.ENROLL_ACCEPT_INVALID);
+        }
+
+        int updatedRows = enrollRepository.updateEnrollStatus(enrollId, AcceptStatus.ACCEPTED);
+        if (updatedRows == 0) {
+            throw new BaseException(ErrorCode.ENROLL_ALREADY_ACCEPTED);
         }
 
         enterChatRoom(enrollApplicant, board);
@@ -185,17 +193,14 @@ public class EnrollServiceImpl implements EnrollService {
         String title = ENROLLMENT_ACCEPT_TITLE;
         String body = ENROLLMENT_ACCEPT_BODY;
 
-        // 직관 신청자에게 수락 푸시 알림 메세지 전송
         fcmService.sendMessageByToken(enrollApplicant.getFcmToken(), title, body, enroll.getBoard().getId(), AcceptStatus.ACCEPTED);
-        // 데이터베이스에 저장
         notificationService.createNotification(title, body, boardWriter.getProfileImageUrl(), enroll.getBoard().getId(), enrollApplicant.getId(), AcceptStatus.ACCEPTED);
 
-        enroll.respondToEnroll(AcceptStatus.ACCEPTED);
         return enrollConverter.toUpdateEnrollInfo(enroll, AcceptStatus.ACCEPTED);
     }
 
     private void enterChatRoom(User user, Board board) {
-        ChatRoom chatRoom = chatRoomRepository.findByBoardIdAndDeletedAtIsNull(board.getId())
+        ChatRoom chatRoom = chatRoomRepository.findByBoardIdWithLock(board.getId())
                 .orElseThrow(() -> new BaseException(ErrorCode.CHATROOM_NOT_FOUND));
 
         chatRoom.incrementParticipantCount();
@@ -213,14 +218,13 @@ public class EnrollServiceImpl implements EnrollService {
         User loginUser = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
-        Enroll enroll = enrollRepository.findById(enrollId)
+        Enroll enroll = enrollRepository.findByIdWithLock(enrollId)
                 .orElseThrow(() -> new BaseException(ErrorCode.ENROLL_NOT_FOUND));
 
         User boardWriter = enroll.getBoard().getUser();
         User enrollApplicant = userRepository.findById(enroll.getUser().getId())
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
-        // 게시글 작성자와 로그인한 사용자가 다를 경우 예외 발생
         if (loginUser.isDifferentUserFrom(boardWriter)) {
             throw new BaseException(ErrorCode.ENROLL_REJECT_INVALID);
         }
@@ -228,14 +232,13 @@ public class EnrollServiceImpl implements EnrollService {
         String title = ENROLLMENT_REJECT_TITLE;
         String body = ENROLLMENT_REJECT_BODY;
 
-        // 직관 신청자에게 거절 푸시 알림 메세지 전송
         fcmService.sendMessageByToken(enrollApplicant.getFcmToken(), title, body, enroll.getBoard().getId(), AcceptStatus.REJECTED);
-        // 데이터베이스에 저장
         notificationService.createNotification(title, body, boardWriter.getProfileImageUrl(), enroll.getBoard().getId(), enrollApplicant.getId(), AcceptStatus.REJECTED);
 
         enroll.respondToEnroll(AcceptStatus.REJECTED);
         return enrollConverter.toUpdateEnrollInfo(enroll, AcceptStatus.REJECTED);
     }
+
 
     @Override
     public EnrollDescriptionInfo getEnrollDescriptionById(Long boardId, Long userId) {

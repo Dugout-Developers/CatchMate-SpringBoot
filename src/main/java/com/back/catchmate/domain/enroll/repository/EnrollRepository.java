@@ -1,9 +1,13 @@
 package com.back.catchmate.domain.enroll.repository;
 
+import com.back.catchmate.domain.enroll.entity.AcceptStatus;
 import com.back.catchmate.domain.enroll.entity.Enroll;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -33,4 +37,12 @@ public interface EnrollRepository extends JpaRepository<Enroll, Long> {
     int countNewEnrollListByUserId(@Param("userId") Long userId);
 
     boolean existsByUserIdAndBoardIdAndDeletedAtIsNull(Long userId, Long boardId);
+
+    @Modifying
+    @Query("UPDATE Enroll e SET e.acceptStatus = :status WHERE e.id = :enrollId AND e.acceptStatus = 'PENDING'")
+    int updateEnrollStatus(@Param("enrollId") Long enrollId, @Param("status") AcceptStatus status);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT e FROM Enroll e WHERE e.id = :enrollId")
+    Optional<Enroll> findByIdWithLock(@Param("enrollId") Long enrollId);
 }

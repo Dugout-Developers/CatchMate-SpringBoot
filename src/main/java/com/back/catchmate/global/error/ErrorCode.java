@@ -27,6 +27,7 @@ public enum ErrorCode {
     ENROLL_ACCEPT_INVALID(HttpStatus.BAD_REQUEST, "직관 신청을 수락할 권한이 없습니다."),
     ENROLL_REJECT_INVALID(HttpStatus.BAD_REQUEST, "직관 신청을 거절할 권한이 없습니다."),
     ENROLL_GET_INVALID(HttpStatus.BAD_REQUEST, "직관 신청을 조회할 권한이 없습니다."),
+    ENROLL_ALREADY_ACCEPTED(HttpStatus.BAD_REQUEST, "이미 수락된 신청입니다."),
 
     // 게시글
     BOARD_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 게시글입니다."),
@@ -42,6 +43,7 @@ public enum ErrorCode {
     ALREADY_BOOKMARK(HttpStatus.BAD_REQUEST, "이미 찜한 게시글입니다."),
     BOOKMARK_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 찜입니다."),
     BOOKMARK_BAD_REQUEST(HttpStatus.BAD_REQUEST, "본인 게시글은 찜할 수 없습니다."),
+    FULL_PERSON(HttpStatus.BAD_REQUEST, "해당 게시글은 마감되었습니다."),
 
     // 알림
     NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 알림입니다."),
