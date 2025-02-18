@@ -1,7 +1,6 @@
 package com.back.catchmate.domain.user.dto;
 
 import com.back.catchmate.domain.club.dto.ClubResponse.ClubInfo;
-import com.back.catchmate.domain.notification.dto.NotificationResponse;
 import com.back.catchmate.domain.user.entity.AlarmType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
