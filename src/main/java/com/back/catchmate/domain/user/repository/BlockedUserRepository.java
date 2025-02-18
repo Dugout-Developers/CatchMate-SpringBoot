@@ -17,6 +17,6 @@ public interface BlockedUserRepository extends JpaRepository<BlockedUser, Long> 
 
     Page<BlockedUser> findAllByBlockerIdAndDeletedAtIsNull(Long blockerId, Pageable pageable);
 
-    @Query("SELECT b.blocked.id FROM BlockedUser b WHERE b.blocker.id = :userId")
+    @Query("SELECT b.blocked.id FROM BlockedUser b WHERE b.blocker.id = :userId AND b.deletedAt IS NULL")
     List<Long> findBlockedUserIdListByUserId(@Param("userId") Long userId);
 }
