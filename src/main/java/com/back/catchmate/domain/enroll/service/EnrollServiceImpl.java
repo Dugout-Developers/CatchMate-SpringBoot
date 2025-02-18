@@ -188,6 +188,8 @@ public class EnrollServiceImpl implements EnrollService {
             throw new BaseException(ErrorCode.ENROLL_ALREADY_ACCEPTED);
         }
 
+        enroll.respondToEnroll(AcceptStatus.ACCEPTED);
+
         enterChatRoom(enrollApplicant, board);
 
         String title = ENROLLMENT_ACCEPT_TITLE;
