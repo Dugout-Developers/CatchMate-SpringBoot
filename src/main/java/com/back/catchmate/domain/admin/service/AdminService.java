@@ -4,6 +4,7 @@ import com.back.catchmate.domain.admin.dto.AdminRequest;
 import com.back.catchmate.domain.admin.dto.AdminResponse;
 import com.back.catchmate.domain.admin.dto.AdminResponse.CheerStyleStatsInfo;
 import com.back.catchmate.domain.admin.dto.AdminResponse.PagedBoardInfo;
+import com.back.catchmate.domain.admin.dto.AdminResponse.PagedReportInfo;
 import com.back.catchmate.domain.admin.dto.AdminResponse.PagedUserInfo;
 import com.back.catchmate.domain.admin.dto.AdminResponse.TeamSupportStatsInfo;
 import com.back.catchmate.global.dto.StateResponse;
@@ -33,4 +34,10 @@ public interface AdminService {
     AdminResponse.InquiryInfo getInquiry(Long inquiryId);
 
     StateResponse answerInquiry(Long userId, Long inquiryId, AdminRequest.AnswerInquiryRequest request) throws IOException;
+
+    PagedReportInfo getReportList(Pageable pageable);
+
+    AdminResponse.ReportInfo getReport(Long reportId);
+
+    StateResponse processReport(Long reportId);
 }

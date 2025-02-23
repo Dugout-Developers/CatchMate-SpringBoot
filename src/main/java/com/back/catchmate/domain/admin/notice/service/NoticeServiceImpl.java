@@ -61,7 +61,7 @@ public class NoticeServiceImpl implements NoticeService {
 //            throw new BaseException(ErrorCode.FORBIDDEN);
 //        }
 
-        notice.softDelete();
+        notice.delete();
         noticeRepository.save(notice);
     }
 

@@ -44,5 +44,12 @@ public class Report extends BaseTimeEntity {
 
     @Column(nullable = false, length = 500)
     private String content; // 신고 사유
+
+    @Column
+    private Boolean isProcessed;
+
+    public void updateReport(){
+        isProcessed = true;
+    }
 }
 

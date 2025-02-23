@@ -3,8 +3,10 @@ package com.back.catchmate.domain.admin.dto;
 import com.back.catchmate.domain.club.dto.ClubResponse;
 import com.back.catchmate.domain.game.dto.GameResponse.GameInfo;
 import com.back.catchmate.domain.inquiry.entity.InquiryType;
+import com.back.catchmate.domain.report.entity.ReportType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -118,6 +120,29 @@ public abstract class AdminResponse {
     @AllArgsConstructor
     public static class PagedInquiryInfo {
         private List<InquiryInfo> inquiryInfoList;
+        private Integer totalPages;
+        private Long totalElements;
+        private Boolean isFirst;
+        private Boolean isLast;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    public static class ReportInfo {
+        private Long reportId;
+        private UserInfo reporter;
+        private UserInfo reportedUser;
+        private ReportType reportType;
+        private String content;
+        private LocalDateTime createdAt;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    public static class PagedReportInfo {
+        private List<ReportInfo> reportInfoList;
         private Integer totalPages;
         private Long totalElements;
         private Boolean isFirst;
