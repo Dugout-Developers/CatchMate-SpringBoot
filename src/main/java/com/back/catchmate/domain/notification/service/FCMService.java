@@ -53,7 +53,7 @@ public class FCMService {
     }
 
     // 신청 알림 파라미터들을 요구하는 body 형태로 가공
-    public String makeEnrollMessage(String targetToken, String title, String body, Long boardId, AcceptStatus acceptStatus) throws JsonProcessingException {
+    public String makeEnrollMessage(String targetToken, String title, String body, Long boardId, AcceptStatus acceptStatus, Long chatRoomId) throws JsonProcessingException {
         FCMMessageRequest fcmMessage = FCMMessageRequest.builder()
                 .message(
                         FCMMessageRequest.Message.builder()
@@ -67,6 +67,7 @@ public class FCMService {
                                 .data(
                                         FCMMessageRequest.Data.builder()
                                                 .boardId(String.valueOf(boardId))
+                                                .chatRoomId(String.valueOf(chatRoomId))
                                                 .acceptStatus(acceptStatus)
                                                 .build()
                                 )
@@ -80,8 +81,8 @@ public class FCMService {
 
     // 사용자의 FCM 토큰을 사용하여 푸쉬 알림을 보내는 역할을 하는 메서드
     @Async("asyncTask")
-    public void sendMessageByToken(String targetToken, String title, String body, Long boardId, AcceptStatus acceptStatus) throws IOException {
-        String message = makeEnrollMessage(targetToken, title, body, boardId, acceptStatus);
+    public void sendMessageByToken(String targetToken, String title, String body, Long boardId, AcceptStatus acceptStatus, Long chatRoomId) throws IOException {
+        String message = makeEnrollMessage(targetToken, title, body, boardId, acceptStatus, chatRoomId);
 
         OkHttpClient client = new OkHttpClient();
         RequestBody requestBody = RequestBody.create(message, MediaType.get("application/json; charset=utf-8"));

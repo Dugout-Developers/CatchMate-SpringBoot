@@ -80,7 +80,7 @@ public class EnrollServiceImpl implements EnrollService {
         User boardWriter = userRepository.findById(board.getUser().getId())
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
         // 게시글 작성자에게 푸시 알림 메세지 전송
-        fcmService.sendMessageByToken(boardWriter.getFcmToken(), title, body, boardId, AcceptStatus.PENDING);
+        fcmService.sendMessageByToken(boardWriter.getFcmToken(), title, body, boardId, AcceptStatus.PENDING, null);
 
         // 데이터베이스에 저장
         notificationService.createNotification(title, body, enroll.getUser().getProfileImageUrl(), boardId, boardWriter.getId(), AcceptStatus.PENDING);
@@ -194,7 +194,7 @@ public class EnrollServiceImpl implements EnrollService {
         String title = ENROLLMENT_ACCEPT_TITLE;
         String body = ENROLLMENT_ACCEPT_BODY;
 
-        fcmService.sendMessageByToken(enrollApplicant.getFcmToken(), title, body, enroll.getBoard().getId(), AcceptStatus.ACCEPTED);
+        fcmService.sendMessageByToken(enrollApplicant.getFcmToken(), title, body, enroll.getBoard().getId(), AcceptStatus.ACCEPTED, board.getChatRoom().getId());
         notificationService.createNotification(title, body, boardWriter.getProfileImageUrl(), enroll.getBoard().getId(), enrollApplicant.getId(), AcceptStatus.ACCEPTED);
 
         return enrollConverter.toUpdateEnrollInfo(enroll, AcceptStatus.ACCEPTED);
@@ -233,7 +233,7 @@ public class EnrollServiceImpl implements EnrollService {
         String title = ENROLLMENT_REJECT_TITLE;
         String body = ENROLLMENT_REJECT_BODY;
 
-        fcmService.sendMessageByToken(enrollApplicant.getFcmToken(), title, body, enroll.getBoard().getId(), AcceptStatus.REJECTED);
+        fcmService.sendMessageByToken(enrollApplicant.getFcmToken(), title, body, enroll.getBoard().getId(), AcceptStatus.REJECTED, null);
         notificationService.createNotification(title, body, boardWriter.getProfileImageUrl(), enroll.getBoard().getId(), enrollApplicant.getId(), AcceptStatus.REJECTED);
 
         enroll.respondToEnroll(AcceptStatus.REJECTED);
