@@ -34,8 +34,8 @@ public class NoticeController {
 
     @PostMapping
     @Operation(summary = "공지글 등록 API", description = "공지글을 등록하는 API 입니다.")
-    public NoticeResponse.NoticeInfo create(@JwtValidation Long userId,
-                                            @Valid @RequestBody NoticeRequest.CreateNoticeRequest request) {
+    public NoticeResponse.NoticeInfo createNotice(@JwtValidation Long userId,
+                                                  @Valid @RequestBody NoticeRequest.CreateNoticeRequest request) {
         return noticeService.createNotice(userId, request);
     }
 
@@ -56,16 +56,16 @@ public class NoticeController {
 
     @PutMapping("/{noticeId}")
     @Operation(summary = "공지사항 수정 API", description = "공지사항을 수정하는 API 입니다.")
-    public NoticeResponse.NoticeInfo update(@JwtValidation Long userId,
-                                            @PathVariable Long noticeId,
-                                            @Valid @RequestBody NoticeRequest.UpdateNoticeRequest request) {
+    public NoticeResponse.NoticeInfo updateNotice(@JwtValidation Long userId,
+                                                  @PathVariable Long noticeId,
+                                                  @Valid @RequestBody NoticeRequest.UpdateNoticeRequest request) {
         return noticeService.updateNotice(userId, noticeId, request);
     }
 
     @DeleteMapping("/{noticeId}")
     @Operation(summary = "공지사항 삭제 API", description = "공지사항을 삭제하는 API 입니다.")
-    public StateResponse delete(@JwtValidation Long userId,
-                                @PathVariable Long noticeId) {
+    public StateResponse deleteNotice(@JwtValidation Long userId,
+                                      @PathVariable Long noticeId) {
         return noticeService.deleteNotice(userId, noticeId);
     }
 }
