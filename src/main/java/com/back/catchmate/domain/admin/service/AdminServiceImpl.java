@@ -13,6 +13,7 @@ import com.back.catchmate.domain.chat.repository.UserChatRoomRepository;
 import com.back.catchmate.domain.inquiry.entity.Inquiry;
 import com.back.catchmate.domain.inquiry.repository.InquiryRepository;
 import com.back.catchmate.domain.notification.service.FCMService;
+import com.back.catchmate.domain.report.entity.Report;
 import com.back.catchmate.domain.report.repository.ReportRepository;
 import com.back.catchmate.domain.user.entity.User;
 import com.back.catchmate.domain.user.repository.UserRepository;
@@ -201,6 +202,33 @@ public class AdminServiceImpl implements AdminService {
         String body = "문의 답변이 도착했어요.";
         fcmService.sendMessageByToken(inquiry.getUser().getFcmToken(), title, body, inquiryId);
 
+        return new StateResponse(true);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public AdminResponse.PagedReportInfo getReportList(Pageable pageable) {
+        Page<Report> reportList = reportRepository.findAll(pageable);
+
+        return adminConverter.toPagedReportInfo(reportList);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public AdminResponse.ReportInfo getReport(Long reportId) {
+        Report report = reportRepository.findById(reportId)
+                .orElseThrow(() -> new BaseException(ErrorCode.REPORT_NOT_FOUND));
+
+        return adminConverter.toReportInfo(report);
+    }
+
+    @Override
+    @Transactional
+    public StateResponse processReport(Long reportId) {
+        Report report = reportRepository.findById(reportId)
+                .orElseThrow(() -> new BaseException(ErrorCode.REPORT_NOT_FOUND));
+
+        report.updateReport();
         return new StateResponse(true);
     }
 }

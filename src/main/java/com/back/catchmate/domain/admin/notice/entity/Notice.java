@@ -2,8 +2,20 @@ package com.back.catchmate.domain.admin.notice.entity;
 
 import com.back.catchmate.domain.user.entity.User;
 import com.back.catchmate.global.entity.BaseTimeEntity;
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
@@ -31,11 +43,6 @@ public class Notice extends BaseTimeEntity {
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
-
-    // 💡 공지사항 삭제 (Soft Delete)
-    public void softDelete() {
-        this.deletedAt = LocalDateTime.now();
-    }
 
     // 💡 삭제 여부 확인
     public boolean isDeleted() {

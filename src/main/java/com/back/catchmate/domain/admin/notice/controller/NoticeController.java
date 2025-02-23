@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 
-@Tag(name = "공지사항 API")
+@Tag(name = "[관리자] 공지사항 관련 API")
 @RestController
 @RequestMapping("/admin/notice")
 @RequiredArgsConstructor
@@ -41,17 +41,17 @@ public class NoticeController {
 
     @DeleteMapping("/{noticeId}")
     @Operation(summary = "공지글 삭제 API", description = "공지글을 삭제하는 API 입니다.")
-    public void delete(@JwtValidation Long userId, @PathVariable Long noticeId) {
+    public void delete(@JwtValidation Long userId,
+                       @PathVariable Long noticeId) {
         noticeService.delete(userId, noticeId);
     }
 
     @GetMapping("/list")
     @Operation(summary = "공지사항 목록 조회 API", description = "공지사항 목록을 페이징하여 조회합니다.")
-    public NoticeResponse.PagedNoticeInfo getNoticeList(
-            @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd") LocalDate startDate,
-            @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd") LocalDate endDate,
-            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
-            @Parameter(hidden = true) Pageable pageable) {
+    public NoticeResponse.PagedNoticeInfo getNoticeList(@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd") LocalDate startDate,
+                                                        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd") LocalDate endDate,
+                                                        @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
+                                                        @Parameter(hidden = true) Pageable pageable) {
         return noticeService.getNoticeList(startDate, endDate, pageable);
     }
 
