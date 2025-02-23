@@ -1,12 +1,17 @@
 package com.back.catchmate.domain.admin.controller;
 
+import com.back.catchmate.domain.admin.dto.AdminRequest.AnswerInquiryRequest;
 import com.back.catchmate.domain.admin.dto.AdminResponse.AdminDashboardInfo;
 import com.back.catchmate.domain.admin.dto.AdminResponse.BoardInfo;
 import com.back.catchmate.domain.admin.dto.AdminResponse.GenderRatioDto;
+import com.back.catchmate.domain.admin.dto.AdminResponse.InquiryInfo;
 import com.back.catchmate.domain.admin.dto.AdminResponse.PagedBoardInfo;
+import com.back.catchmate.domain.admin.dto.AdminResponse.PagedInquiryInfo;
 import com.back.catchmate.domain.admin.dto.AdminResponse.PagedUserInfo;
 import com.back.catchmate.domain.admin.dto.AdminResponse.UserInfo;
 import com.back.catchmate.domain.admin.service.AdminService;
+import com.back.catchmate.global.dto.StateResponse;
+import com.back.catchmate.global.jwt.JwtValidation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -16,9 +21,13 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.io.IOException;
 
 import static com.back.catchmate.domain.admin.dto.AdminResponse.CheerStyleStatsInfo;
 import static com.back.catchmate.domain.admin.dto.AdminResponse.TeamSupportStatsInfo;
@@ -80,5 +89,26 @@ public class AdminController {
     @Operation(summary = "특정 게시글 조회", description = "게시글 상세정보를 조회하는 API 입니다.")
     public BoardInfo getBoardInfo(@PathVariable Long boardId) {
         return adminService.getBoardInfo(boardId);
+    }
+
+    @GetMapping("/inquiries")
+    @Operation(summary = "문의 내역 조회", description = "사용자들의 문의 내역을 페이징하여 조회하는 API 입니다.")
+    public PagedInquiryInfo getInquiryList(@PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
+                                           @Parameter(hidden = true) Pageable pageable) {
+        return adminService.getInquiryList(pageable);
+    }
+
+    @GetMapping("/inquiries/{inquiryId}")
+    @Operation(summary = "문의 내역 단일 조회", description = "특정 문의 내역의 상세 정보를 조회하는 API 입니다.")
+    public InquiryInfo getInquiry(@PathVariable Long inquiryId) {
+        return adminService.getInquiry(inquiryId);
+    }
+
+    @PostMapping("/inquiries/{inquiryId}/answer")
+    @Operation(summary = "문의 내역에 대한 답변", description = "관리자가 특정 문의에 대해 답변을 작성하는 API 입니다.")
+    public StateResponse answerInquiry(@JwtValidation Long userId,
+                                       @PathVariable Long inquiryId,
+                                       @RequestBody AnswerInquiryRequest request) throws IOException {
+        return adminService.answerInquiry(userId, inquiryId, request);
     }
 }
