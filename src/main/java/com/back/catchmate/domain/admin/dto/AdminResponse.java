@@ -1,9 +1,7 @@
 package com.back.catchmate.domain.admin.dto;
 
 import com.back.catchmate.domain.club.dto.ClubResponse;
-import com.back.catchmate.domain.game.dto.GameResponse;
 import com.back.catchmate.domain.game.dto.GameResponse.GameInfo;
-import com.back.catchmate.domain.user.dto.UserResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -36,7 +34,7 @@ public abstract class AdminResponse {
     @Builder
     @AllArgsConstructor
     public static class TeamSupportStatsInfo {
-        private Map<String, Long> teamSupportCountMap;   // 구단별 가입자 수
+        private Map<Long, Long> teamSupportCountMap;   // 구단별 가입자 수
     }
 
     @Getter

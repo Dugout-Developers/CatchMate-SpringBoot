@@ -4,17 +4,13 @@ import com.back.catchmate.domain.admin.dto.AdminResponse;
 import com.back.catchmate.domain.admin.dto.AdminResponse.AdminDashboardInfo;
 import com.back.catchmate.domain.admin.dto.AdminResponse.CheerStyleStatsInfo;
 import com.back.catchmate.domain.admin.dto.AdminResponse.PagedUserInfo;
-import com.back.catchmate.domain.board.dto.BoardResponse;
 import com.back.catchmate.domain.board.entity.Board;
-import com.back.catchmate.domain.chat.entity.ChatRoom;
 import com.back.catchmate.domain.chat.entity.UserChatRoom;
 import com.back.catchmate.domain.club.converter.ClubConverter;
 import com.back.catchmate.domain.club.dto.ClubResponse;
 import com.back.catchmate.domain.game.converter.GameConverter;
 import com.back.catchmate.domain.game.dto.GameResponse;
 import com.back.catchmate.domain.game.entity.Game;
-import com.back.catchmate.domain.user.converter.UserConverter;
-import com.back.catchmate.domain.user.dto.UserResponse;
 import com.back.catchmate.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -22,7 +18,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static com.back.catchmate.domain.admin.dto.AdminResponse.GenderRatioDto;
 import static com.back.catchmate.domain.admin.dto.AdminResponse.TeamSupportStatsInfo;
@@ -32,12 +27,8 @@ import static com.back.catchmate.domain.admin.dto.AdminResponse.TeamSupportStats
 public class AdminConverter {
     private final ClubConverter clubConverter;
     private final GameConverter gameConverter;
-    private final UserConverter userConverter;
 
-    public AdminDashboardInfo toAdminDashboardInfo(long totalUserCount,
-                                                   long totalBoardCount,
-                                                   long totalReportCount,
-                                                   long totalInquiryCount) {
+    public AdminDashboardInfo toAdminDashboardInfo(long totalUserCount, long totalBoardCount, long totalReportCount, long totalInquiryCount) {
         return AdminDashboardInfo.builder()
                 .totalUserCount(totalUserCount)
                 .totalBoardCount(totalBoardCount)
@@ -53,7 +44,7 @@ public class AdminConverter {
                 .build();
     }
 
-    public TeamSupportStatsInfo toTeamSupportStatsInfo(Map<String, Long> teamSupportCountMap) {
+    public TeamSupportStatsInfo toCheerClubStatsInfo(Map<Long, Long> teamSupportCountMap) {
         return TeamSupportStatsInfo.builder()
                 .teamSupportCountMap(teamSupportCountMap)
                 .build();
@@ -116,7 +107,6 @@ public class AdminConverter {
         GameResponse.GameInfo gameInfo = gameConverter.toGameInfo(game);
         AdminResponse.UserInfo userInfo = toUserInfo(board.getUser());
 
-        // 채팅방에 참여한 유저들을 userInfoList에 채워넣기
         List<AdminResponse.UserInfo> userInfoList = userChatRoomList.stream()
                 .map(userChatRoom -> toUserInfo(userChatRoom.getUser()))
                 .toList();

@@ -183,9 +183,8 @@ public class EnrollServiceImpl implements EnrollService {
             throw new BaseException(ErrorCode.ENROLL_ACCEPT_INVALID);
         }
 
-        int updatedRows = enrollRepository.updateEnrollStatus(enrollId, AcceptStatus.ACCEPTED);
-        if (updatedRows == 0) {
-            throw new BaseException(ErrorCode.ENROLL_ALREADY_ACCEPTED);
+        if (enroll.getAcceptStatus() != AcceptStatus.PENDING) {
+            throw new BaseException(ErrorCode.ENROLL_ALREADY_RESPOND);
         }
 
         enroll.respondToEnroll(AcceptStatus.ACCEPTED);
