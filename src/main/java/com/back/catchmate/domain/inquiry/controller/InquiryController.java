@@ -1,6 +1,7 @@
 package com.back.catchmate.domain.inquiry.controller;
 
 import com.back.catchmate.domain.inquiry.dto.InquiryRequest.CreateInquiryRequest;
+import com.back.catchmate.domain.inquiry.dto.InquiryResponse.InquiryInfo;
 import com.back.catchmate.domain.inquiry.service.InquiryService;
 import com.back.catchmate.global.dto.StateResponse;
 import com.back.catchmate.global.jwt.JwtValidation;
@@ -8,6 +9,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,5 +41,11 @@ public class InquiryController {
     public StateResponse submitInquiry(@JwtValidation Long userId,
                                        @Valid @RequestBody CreateInquiryRequest request) {
         return inquiryService.submitInquiry(userId, request);
+    }
+
+    @GetMapping("/{inquiryId}")
+    @Operation(summary = "고객센터 문의 조회 API", description = "고객센터 문의를 조회하는 API 입니다.")
+    public InquiryInfo getInquiry(@PathVariable Long inquiryId) {
+        return inquiryService.getInquiry(inquiryId);
     }
 }

@@ -40,4 +40,20 @@ public class Inquiry extends BaseTimeEntity {
 
     @Column(nullable = false, length = 1000)
     private String content; // 문의 내용
+
+    @Column(nullable = false)
+    private Boolean isCompleted; // 문의 내용
+
+    @Column(length = 1000)
+    private String answer; // 문의 답변
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "answered_by")
+    private User answeredBy;
+
+    public void updateAnswer(String answer, User answeredBy) {
+        this.answer = answer;
+        this.answeredBy = answeredBy;
+        this.isCompleted = true;
+    }
 }

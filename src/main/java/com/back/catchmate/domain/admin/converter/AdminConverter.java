@@ -11,6 +11,8 @@ import com.back.catchmate.domain.club.dto.ClubResponse;
 import com.back.catchmate.domain.game.converter.GameConverter;
 import com.back.catchmate.domain.game.dto.GameResponse;
 import com.back.catchmate.domain.game.entity.Game;
+import com.back.catchmate.domain.inquiry.entity.Inquiry;
+import com.back.catchmate.domain.report.entity.Report;
 import com.back.catchmate.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -137,6 +139,60 @@ public class AdminConverter {
                 .totalElements(boardList.getTotalElements())
                 .isFirst(boardList.isFirst())
                 .isLast(boardList.isLast())
+                .build();
+    }
+
+    public AdminResponse.InquiryInfo toInquiryInfo(Inquiry inquiry) {
+        return AdminResponse.InquiryInfo.builder()
+                .inquiryId(inquiry.getId())
+                .inquiryType(inquiry.getInquiryType())
+                .content(inquiry.getContent())
+                .nickName(inquiry.getUser().getNickName())
+                .answer(inquiry.getAnswer())
+                .isCompleted(inquiry.getIsCompleted())
+                .createdAt(inquiry.getCreatedAt())
+                .build();
+    }
+
+    public AdminResponse.PagedInquiryInfo toPagedInquiryInfo(Page<Inquiry> inquiryList) {
+        List<AdminResponse.InquiryInfo> inquiryInfoList = inquiryList.stream()
+                .map(this::toInquiryInfo)
+                .toList();
+
+        return AdminResponse.PagedInquiryInfo.builder()
+                .inquiryInfoList(inquiryInfoList)
+                .totalPages(inquiryList.getTotalPages())
+                .totalElements(inquiryList.getTotalElements())
+                .isFirst(inquiryList.isFirst())
+                .isLast(inquiryList.isLast())
+                .build();
+    }
+
+    public AdminResponse.ReportInfo toReportInfo(Report report) {
+        AdminResponse.UserInfo reporter = toUserInfo(report.getReporter());
+        AdminResponse.UserInfo reportedUser = toUserInfo(report.getReportedUser());
+
+        return AdminResponse.ReportInfo.builder()
+                .reportId(report.getId())
+                .reporter(reporter)
+                .reportedUser(reportedUser)
+                .reportType(report.getReportType())
+                .content(report.getContent())
+                .createdAt(report.getCreatedAt())
+                .build();
+    }
+
+    public AdminResponse.PagedReportInfo toPagedReportInfo(Page<Report> reportList) {
+        List<AdminResponse.ReportInfo> reportInfoList = reportList.stream()
+                .map(this::toReportInfo)
+                .toList();
+
+        return AdminResponse.PagedReportInfo.builder()
+                .reportInfoList(reportInfoList) // reportInfoList로 설정
+                .totalPages(reportList.getTotalPages()) // 전체 페이지 수
+                .totalElements(reportList.getTotalElements()) // 전체 요소 수
+                .isFirst(reportList.isFirst()) // 첫 번째 페이지 여부
+                .isLast(reportList.isLast()) // 마지막 페이지 여부
                 .build();
     }
 }

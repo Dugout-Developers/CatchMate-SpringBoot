@@ -1,7 +1,10 @@
 package com.back.catchmate.domain.inquiry.service;
 
+import com.back.catchmate.domain.admin.dto.AdminResponse;
+import com.back.catchmate.domain.admin.dto.AdminResponse.InquiryInfo;
 import com.back.catchmate.domain.inquiry.converter.InquiryConverter;
 import com.back.catchmate.domain.inquiry.dto.InquiryRequest.CreateInquiryRequest;
+import com.back.catchmate.domain.inquiry.dto.InquiryResponse;
 import com.back.catchmate.domain.inquiry.entity.Inquiry;
 import com.back.catchmate.domain.inquiry.repository.InquiryRepository;
 import com.back.catchmate.domain.user.entity.User;
@@ -29,5 +32,13 @@ public class InquiryServiceImpl implements InquiryService {
         Inquiry inquiry = inquiryConverter.toEntity(user, request);
         inquiryRepository.save(inquiry);
         return new StateResponse(true);
+    }
+
+    @Override
+    public InquiryResponse.InquiryInfo getInquiry(Long inquiryId) {
+        Inquiry inquiry = inquiryRepository.findById(inquiryId)
+                .orElseThrow(() -> new BaseException(ErrorCode.INQUIRY_NOT_FOUND));
+
+        return inquiryConverter.toInquiryInfo(inquiry);
     }
 }

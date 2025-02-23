@@ -1,16 +1,23 @@
 package com.back.catchmate.domain.admin.service;
 
 import com.back.catchmate.domain.admin.converter.AdminConverter;
+import com.back.catchmate.domain.admin.dto.AdminRequest;
 import com.back.catchmate.domain.admin.dto.AdminResponse;
+import com.back.catchmate.domain.admin.dto.AdminResponse.InquiryInfo;
+import com.back.catchmate.domain.admin.dto.AdminResponse.PagedInquiryInfo;
 import com.back.catchmate.domain.admin.dto.AdminResponse.PagedUserInfo;
 import com.back.catchmate.domain.board.entity.Board;
 import com.back.catchmate.domain.board.repository.BoardRepository;
 import com.back.catchmate.domain.chat.entity.UserChatRoom;
 import com.back.catchmate.domain.chat.repository.UserChatRoomRepository;
+import com.back.catchmate.domain.inquiry.entity.Inquiry;
 import com.back.catchmate.domain.inquiry.repository.InquiryRepository;
+import com.back.catchmate.domain.notification.service.FCMService;
+import com.back.catchmate.domain.report.entity.Report;
 import com.back.catchmate.domain.report.repository.ReportRepository;
 import com.back.catchmate.domain.user.entity.User;
 import com.back.catchmate.domain.user.repository.UserRepository;
+import com.back.catchmate.global.dto.StateResponse;
 import com.back.catchmate.global.error.ErrorCode;
 import com.back.catchmate.global.error.exception.BaseException;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +26,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +35,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class AdminServiceImpl implements AdminService {
+    private final FCMService fcmService;
     private final UserRepository userRepository;
     private final BoardRepository boardRepository;
     private final ReportRepository reportRepository;
@@ -159,5 +168,67 @@ public class AdminServiceImpl implements AdminService {
         List<UserChatRoom> userChatRoomList = userChatRoomRepository.findByChatRoomIdAndDeletedAtIsNull(board.getChatRoom().getId());
 
         return adminConverter.toBoardInfo(board, board.getGame(), userChatRoomList);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PagedInquiryInfo getInquiryList(Pageable pageable) {
+        Page<Inquiry> inquiryList = inquiryRepository.findAll(pageable);
+
+        return adminConverter.toPagedInquiryInfo(inquiryList);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public InquiryInfo getInquiry(Long inquiryId) {
+        Inquiry inquiry = inquiryRepository.findById(inquiryId)
+                .orElseThrow(() -> new BaseException(ErrorCode.INQUIRY_NOT_FOUND));
+
+        return adminConverter.toInquiryInfo(inquiry);
+    }
+
+    @Override
+    @Transactional
+    public StateResponse answerInquiry(Long userId, Long inquiryId, AdminRequest.AnswerInquiryRequest request) throws IOException {
+        User user = userRepository.findByIdAndDeletedAtIsNull(userId)
+                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+
+        Inquiry inquiry = inquiryRepository.findById(inquiryId)
+                .orElseThrow(() -> new BaseException(ErrorCode.INQUIRY_NOT_FOUND));
+
+        inquiry.updateAnswer(request.getAnswer(), user);
+
+        String title = "문의 답변 안내 문자";
+        String body = "문의 답변이 도착했어요.";
+        fcmService.sendMessageByToken(inquiry.getUser().getFcmToken(), title, body, inquiryId);
+
+        return new StateResponse(true);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public AdminResponse.PagedReportInfo getReportList(Pageable pageable) {
+        Page<Report> reportList = reportRepository.findAll(pageable);
+
+        return adminConverter.toPagedReportInfo(reportList);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public AdminResponse.ReportInfo getReport(Long reportId) {
+        Report report = reportRepository.findById(reportId)
+                .orElseThrow(() -> new BaseException(ErrorCode.REPORT_NOT_FOUND));
+
+        return adminConverter.toReportInfo(report);
+    }
+
+    @Override
+    @Transactional
+    public StateResponse processReport(Long reportId) {
+        Report report = reportRepository.findById(reportId)
+                .orElseThrow(() -> new BaseException(ErrorCode.REPORT_NOT_FOUND));
+
+        report.updateReport();
+        return new StateResponse(true);
     }
 }

@@ -1,4 +1,4 @@
-package com.back.catchmate.domain.report.dto;
+package com.back.catchmate.domain.admin.dto;
 
 import com.back.catchmate.domain.report.entity.ReportType;
 import jakarta.validation.constraints.NotNull;
@@ -7,15 +7,13 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-public abstract class ReportRequest {
+public abstract class AdminRequest {
     @Getter
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class CreateReportRequest {
+    public static class AnswerInquiryRequest {
         @NotNull
-        private ReportType reportType;
-        @NotNull
-        private String content;
+        private String answer;
     }
 }
