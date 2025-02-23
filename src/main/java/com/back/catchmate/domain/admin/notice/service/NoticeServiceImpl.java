@@ -7,6 +7,7 @@ import com.back.catchmate.domain.admin.notice.entity.Notice;
 import com.back.catchmate.domain.admin.notice.repository.NoticeRepository;
 import com.back.catchmate.domain.user.entity.User;
 import com.back.catchmate.domain.user.repository.UserRepository;
+import com.back.catchmate.global.dto.StateResponse;
 import com.back.catchmate.global.error.ErrorCode;
 import com.back.catchmate.global.error.exception.BaseException;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +28,8 @@ public class NoticeServiceImpl implements NoticeService {
     private final NoticeRepository noticeRepository;
 
     @Override
-    public NoticeResponse.NoticeInfo create(Long userId, NoticeRequest.CreateNoticeRequest noticeRequest) {
+    @Transactional
+    public NoticeResponse.NoticeInfo createNotice(Long userId, NoticeRequest.CreateNoticeRequest noticeRequest) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
@@ -35,34 +37,6 @@ public class NoticeServiceImpl implements NoticeService {
         notice = noticeRepository.save(notice);
 
         return noticeConverter.toNoticeInfo(notice);
-    }
-
-    @Override
-    public NoticeResponse.NoticeInfo update(Long userId, Long noticeId, NoticeRequest.UpdateNoticeRequest request) {
-        Notice notice = noticeRepository.findById(noticeId)
-                .orElseThrow(() -> new BaseException(ErrorCode.NOTICE_NOT_FOUND));
-
-//        if (!notice.getUser().getId().equals(userId)) {
-//            throw new BaseException(ErrorCode.FORBIDDEN);
-//        }
-
-        Notice updatedNotice = noticeConverter.toUpdatedEntity(notice, request);
-        noticeRepository.save(updatedNotice);
-
-        return noticeConverter.toNoticeInfo(updatedNotice);
-    }
-
-    @Override
-    public void delete(Long userId, Long noticeId) {
-        Notice notice = noticeRepository.findById(noticeId)
-                .orElseThrow(() -> new BaseException(ErrorCode.NOTICE_NOT_FOUND));
-
-//        if (!notice.getUser().getId().equals(userId)) {
-//            throw new BaseException(ErrorCode.FORBIDDEN);
-//        }
-
-        notice.delete();
-        noticeRepository.save(notice);
     }
 
     @Override
@@ -82,5 +56,33 @@ public class NoticeServiceImpl implements NoticeService {
 
         Page<Notice> notices = noticeRepository.findNoticesWithinDateRange(startDateTime, endDateTime, pageable);
         return noticeConverter.toPagedNoticeInfo(notices);
+    }
+
+    @Override
+    @Transactional
+    public NoticeResponse.NoticeInfo updateNotice(Long userId, Long noticeId, NoticeRequest.UpdateNoticeRequest request) {
+        Notice notice = noticeRepository.findById(noticeId)
+                .orElseThrow(() -> new BaseException(ErrorCode.NOTICE_NOT_FOUND));
+
+//        if (!notice.getUser().getId().equals(userId)) {
+//            throw new BaseException(ErrorCode.FORBIDDEN);
+//        }
+
+        notice.updateNotice(request.getTitle(), request.getContent());
+        return noticeConverter.toNoticeInfo(notice);
+    }
+
+    @Override
+    @Transactional
+    public StateResponse deleteNotice(Long userId, Long noticeId) {
+        Notice notice = noticeRepository.findById(noticeId)
+                .orElseThrow(() -> new BaseException(ErrorCode.NOTICE_NOT_FOUND));
+
+//        if (!notice.getUser().getId().equals(userId)) {
+//            throw new BaseException(ErrorCode.FORBIDDEN);
+//        }
+
+        notice.delete();
+        return new StateResponse(true);
     }
 }

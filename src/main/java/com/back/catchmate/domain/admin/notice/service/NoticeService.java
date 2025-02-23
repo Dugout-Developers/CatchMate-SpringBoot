@@ -2,16 +2,17 @@ package com.back.catchmate.domain.admin.notice.service;
 
 import com.back.catchmate.domain.admin.notice.dto.NoticeRequest;
 import com.back.catchmate.domain.admin.notice.dto.NoticeResponse;
+import com.back.catchmate.global.dto.StateResponse;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
 
 public interface NoticeService {
-    NoticeResponse.NoticeInfo create(Long userId, NoticeRequest.CreateNoticeRequest noticeRequest);
+    NoticeResponse.NoticeInfo createNotice(Long userId, NoticeRequest.CreateNoticeRequest noticeRequest);
 
-    NoticeResponse.NoticeInfo update(Long userId, Long noticeId, NoticeRequest.UpdateNoticeRequest request);
+    NoticeResponse.NoticeInfo updateNotice(Long userId, Long noticeId, NoticeRequest.UpdateNoticeRequest request);
 
-    void delete(Long userId, Long noticeId);
+    StateResponse deleteNotice(Long userId, Long noticeId);
 
     NoticeResponse.NoticeInfo getNotice(Long noticeId);
 

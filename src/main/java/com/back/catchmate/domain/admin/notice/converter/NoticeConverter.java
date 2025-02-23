@@ -1,23 +1,21 @@
 package com.back.catchmate.domain.admin.notice.converter;
 
+import com.back.catchmate.domain.admin.converter.AdminConverter;
+import com.back.catchmate.domain.admin.dto.AdminResponse;
 import com.back.catchmate.domain.admin.notice.dto.NoticeRequest;
 import com.back.catchmate.domain.admin.notice.dto.NoticeResponse;
 import com.back.catchmate.domain.admin.notice.entity.Notice;
-import com.back.catchmate.domain.admin.notice.repository.NoticeRepository;
-import com.back.catchmate.domain.user.converter.UserConverter;
 import com.back.catchmate.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
 public class NoticeConverter {
-    private final NoticeRepository noticeRepository;
-    private final UserConverter userConverter;
+    private final AdminConverter adminConverter;
 
     public Notice toEntity(User user, NoticeRequest.CreateNoticeRequest request) {
         return Notice.builder()
@@ -27,36 +25,30 @@ public class NoticeConverter {
                 .build();
     }
 
-    public Notice toUpdatedEntity(Notice notice, NoticeRequest.UpdateNoticeRequest request) {
-        return Notice.builder()
-                .id(notice.getId())  // 기존 ID 유지
-                .user(notice.getUser())  // 기존 유저 유지
-                .title(request.getTitle())
-                .content(request.getContent())
-                .build();
-    }
-
     public NoticeResponse.NoticeInfo toNoticeInfo(Notice notice) {
+        AdminResponse.UserInfo userInfo = adminConverter.toUserInfo(notice.getUser());
+
         return NoticeResponse.NoticeInfo.builder()
                 .noticeId(notice.getId())
                 .title(notice.getTitle())
                 .content(notice.getContent())
+                .userInfo(userInfo)
                 .createdAt(notice.getCreatedAt())
                 .updatedAt(notice.getUpdatedAt())
                 .build();
     }
 
-    public NoticeResponse.PagedNoticeInfo toPagedNoticeInfo(Page<Notice> noticePage) {
-        List<NoticeResponse.NoticeInfo> noticeInfos = noticePage.getContent().stream()
+    public NoticeResponse.PagedNoticeInfo toPagedNoticeInfo(Page<Notice> noticeList) {
+        List<NoticeResponse.NoticeInfo> noticeInfoList = noticeList.getContent().stream()
                 .map(this::toNoticeInfo)
-                .collect(Collectors.toList());
+                .toList();
 
         return NoticeResponse.PagedNoticeInfo.builder()
-                .notices(noticeInfos)
-                .totalPages(noticePage.getTotalPages())
-                .totalElements(noticePage.getTotalElements())
-                .currentPage(noticePage.getNumber())
-                .size(noticePage.getSize())
+                .notices(noticeInfoList)
+                .totalPages(noticeList.getTotalPages()) // 전체 페이지 수
+                .totalElements(noticeList.getTotalElements()) // 전체 요소 수
+                .isFirst(noticeList.isFirst()) // 첫 번째 페이지 여부
+                .isLast(noticeList.isLast()) // 마지막 페이지 여부
                 .build();
     }
 }
