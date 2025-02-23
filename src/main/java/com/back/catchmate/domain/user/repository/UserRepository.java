@@ -20,7 +20,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     long countByGenderAndDeletedAtIsNull(char gender);
 
-    @Query("SELECT u.club.name, COUNT(u) FROM User u WHERE u.deletedAt IS NULL GROUP BY u.club.name")
+    @Query("SELECT u.club.id, COUNT(u) FROM User u WHERE u.deletedAt IS NULL GROUP BY u.club.id")
     List<Object[]> countUsersByClub();
 
     @Query("SELECT u.watchStyle, COUNT(u) FROM User u WHERE u.deletedAt IS NULL GROUP BY u.watchStyle")

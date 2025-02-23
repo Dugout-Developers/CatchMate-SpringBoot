@@ -27,7 +27,7 @@ public enum ErrorCode {
     ENROLL_ACCEPT_INVALID(HttpStatus.BAD_REQUEST, "직관 신청을 수락할 권한이 없습니다."),
     ENROLL_REJECT_INVALID(HttpStatus.BAD_REQUEST, "직관 신청을 거절할 권한이 없습니다."),
     ENROLL_GET_INVALID(HttpStatus.BAD_REQUEST, "직관 신청을 조회할 권한이 없습니다."),
-    ENROLL_ALREADY_ACCEPTED(HttpStatus.BAD_REQUEST, "이미 수락된 신청입니다."),
+    ENROLL_ALREADY_RESPOND(HttpStatus.BAD_REQUEST, "이미 수락된 신청입니다."),
 
     // 게시글
     BOARD_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 게시글입니다."),
