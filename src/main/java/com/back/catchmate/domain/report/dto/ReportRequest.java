@@ -14,8 +14,6 @@ public abstract class ReportRequest {
     @AllArgsConstructor
     public static class CreateReportRequest {
         @NotNull
-        private Long reportedUserId;
-        @NotNull
         private ReportType reportType;
         @NotNull
         private String content;
