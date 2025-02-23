@@ -61,13 +61,14 @@ public class NoticeServiceImpl implements NoticeService {
 //            throw new BaseException(ErrorCode.FORBIDDEN);
 //        }
 
-        noticeRepository.delete(notice);
+        notice.softDelete();
+        noticeRepository.save(notice);
     }
 
     @Override
     @Transactional(readOnly = true)
     public NoticeResponse.NoticeInfo getNotice(Long noticeId) {
-        Notice notice = noticeRepository.findById(noticeId)
+        Notice notice = noticeRepository.findByIdAndDeletedAtIsNull(noticeId)
                 .orElseThrow(() -> new BaseException(ErrorCode.NOTICE_NOT_FOUND));
 
         return noticeConverter.toNoticeInfo(notice);
