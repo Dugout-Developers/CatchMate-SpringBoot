@@ -3,7 +3,6 @@ package com.back.catchmate.domain.admin.service;
 import com.back.catchmate.domain.admin.converter.AdminConverter;
 import com.back.catchmate.domain.admin.dto.AdminResponse;
 import com.back.catchmate.domain.admin.dto.AdminResponse.PagedUserInfo;
-import com.back.catchmate.domain.board.converter.BoardConverter;
 import com.back.catchmate.domain.board.entity.Board;
 import com.back.catchmate.domain.board.repository.BoardRepository;
 import com.back.catchmate.domain.chat.entity.UserChatRoom;
@@ -33,7 +32,6 @@ public class AdminServiceImpl implements AdminService {
     private final ReportRepository reportRepository;
     private final InquiryRepository inquiryRepository;
     private final AdminConverter adminConverter;
-    private final BoardConverter boardConverter;
     private final UserChatRoomRepository userChatRoomRepository;
 
     @Override
@@ -70,39 +68,45 @@ public class AdminServiceImpl implements AdminService {
         // 구단별 가입자 수를 조회
         List<Object[]> results = userRepository.countUsersByClub();
         // 구단별 가입자 수를 Map으로 변환
-        Map<String, Long> teamSupportCountMap = createTeamOrCheerStyleSupportCountMap(results);
+        Map<Long, Long> teamSupportCountMap = createCheerClubCountMap(results);
 
-        initializeKboTeamsWithZero(teamSupportCountMap);
-        return adminConverter.toTeamSupportStatsInfo(teamSupportCountMap);
+        initializeKboClubsWithZero(teamSupportCountMap);
+        return adminConverter.toCheerClubStatsInfo(teamSupportCountMap);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public AdminResponse.CheerStyleStatsInfo getCheerStyleStats() {
         // 응원 스타일별 가입자 수를 조회
         List<Object[]> results = userRepository.countUsersByWatchStyle();
         // 응원 스타일별 가입자 수를 Map으로 변환
-        Map<String, Long> cheerStyleSupportCountMap = createTeamOrCheerStyleSupportCountMap(results);
+        Map<String, Long> cheerStyleSupportCountMap = createCheerStyleCountMap(results);
 
         initializeRolesWithZero(cheerStyleSupportCountMap);
         return adminConverter.toCheerStyleStatsInfo(cheerStyleSupportCountMap);
     }
 
-    private Map<String, Long> createTeamOrCheerStyleSupportCountMap(List<Object[]> results) {
+    private Map<Long, Long> createCheerClubCountMap(List<Object[]> results) {
         return results.stream()
                 .collect(Collectors.toMap(
-                        result -> (String) result[0], // 구단명 (clubName)
-                        result -> (Long) result[1]    // 가입자 수 (count)
+                        result -> (Long) result[0],
+                        result -> (Long) result[1]
                 ));
     }
 
-    private void initializeKboTeamsWithZero(Map<String, Long> teamSupportCountMap) {
-        List<String> kboTeams = Arrays.asList(
-                "삼성 라이온즈", "LG 트윈스", "KIA 타이거즈", "두산 베어스", "롯데 자이언츠",
-                "한화 이글스", "SK 와이번스", "NC 다이노스", "키움 히어로즈", "SSG 랜더스"
-        );
+    private Map<String, Long> createCheerStyleCountMap(List<Object[]> results) {
+        return results.stream()
+                .collect(Collectors.toMap(
+                        result -> (String) result[0],
+                        result -> (Long) result[1]
+                ));
+    }
+
+    private void initializeKboClubsWithZero(Map<Long, Long> teamSupportCountMap) {
+        List<Long> kboTeamIds = Arrays.asList(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L, 11L, 12L);
 
         // 각 팀에 대해 존재하지 않으면 0으로 초기화
-        kboTeams.forEach(team -> teamSupportCountMap.putIfAbsent(team, 0L));
+        kboTeamIds.forEach(teamId -> teamSupportCountMap.putIfAbsent(teamId, 0L));
     }
 
     private void initializeRolesWithZero(Map<String, Long> roleSupportCountMap) {
