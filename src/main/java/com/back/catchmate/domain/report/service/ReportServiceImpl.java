@@ -22,11 +22,11 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     @Transactional
-    public StateResponse reportUser(Long reporterId, ReportRequest.CreateReportRequest request) {
+    public StateResponse reportUser(Long reporterId, Long reportedUserId, ReportRequest.CreateReportRequest request) {
         User reporter = userRepository.findById(reporterId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
-        User reportedUser = userRepository.findById(request.getReportedUserId())
+        User reportedUser = userRepository.findById(reportedUserId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
         Report report = reportConverter.toEntity(reporter, reportedUser, request);

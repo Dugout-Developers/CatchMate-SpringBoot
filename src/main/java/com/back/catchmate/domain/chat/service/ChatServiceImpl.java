@@ -65,8 +65,11 @@ public class ChatServiceImpl implements ChatService {
             chatRoom.updateLastMessageContent(request.getContent());
             chatRoom.updateLastMessageTime();
 
-            // 자신을 제외한 채팅방에 FCM 알림 전송
-            fcmService.sendMessagesByTokens(chatRoomId, chatRoom.getBoard().getTitle(), request.getContent(), user.getFcmToken());
+            // 채팅방에 참여한 사용자 수 확인
+            if (chatRoom.getParticipantCount() > 1) {
+                // 자신을 제외한 채팅방에 FCM 알림 전송
+                fcmService.sendMessagesByTokens(chatRoomId, chatRoom.getBoard().getTitle(), request.getContent(), user.getFcmToken());
+            }
         }
 
         log.info("Sending message to: {}", destination);
