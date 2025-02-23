@@ -2,6 +2,7 @@ package com.back.catchmate.domain.admin.dto;
 
 import com.back.catchmate.domain.club.dto.ClubResponse;
 import com.back.catchmate.domain.game.dto.GameResponse.GameInfo;
+import com.back.catchmate.domain.inquiry.entity.InquiryType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -92,6 +93,31 @@ public abstract class AdminResponse {
     @AllArgsConstructor
     public static class PagedBoardInfo {
         private List<BoardInfo> boardInfoList;
+        private Integer totalPages;
+        private Long totalElements;
+        private Boolean isFirst;
+        private Boolean isLast;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class InquiryInfo {
+        private Long inquiryId;
+        private InquiryType inquiryType;
+        private String content;
+        private String nickName;
+        private String answer;
+        private Boolean isCompleted;
+        private LocalDateTime createdAt;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    public static class PagedInquiryInfo {
+        private List<InquiryInfo> inquiryInfoList;
         private Integer totalPages;
         private Long totalElements;
         private Boolean isFirst;

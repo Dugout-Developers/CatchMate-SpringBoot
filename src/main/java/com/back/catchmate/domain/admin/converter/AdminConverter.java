@@ -11,6 +11,7 @@ import com.back.catchmate.domain.club.dto.ClubResponse;
 import com.back.catchmate.domain.game.converter.GameConverter;
 import com.back.catchmate.domain.game.dto.GameResponse;
 import com.back.catchmate.domain.game.entity.Game;
+import com.back.catchmate.domain.inquiry.entity.Inquiry;
 import com.back.catchmate.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -139,4 +140,31 @@ public class AdminConverter {
                 .isLast(boardList.isLast())
                 .build();
     }
+
+    public AdminResponse.InquiryInfo toInquiryInfo(Inquiry inquiry) {
+        return AdminResponse.InquiryInfo.builder()
+                .inquiryId(inquiry.getId())
+                .inquiryType(inquiry.getInquiryType())
+                .content(inquiry.getContent())
+                .nickName(inquiry.getUser().getNickName())
+                .answer(inquiry.getAnswer())
+                .isCompleted(inquiry.getIsCompleted())
+                .createdAt(inquiry.getCreatedAt())
+                .build();
+    }
+
+    public AdminResponse.PagedInquiryInfo toPagedInquiryInfo(Page<Inquiry> inquiryList) {
+        List<AdminResponse.InquiryInfo> inquiryInfoList = inquiryList.stream()
+                .map(this::toInquiryInfo)
+                .toList();
+
+        return AdminResponse.PagedInquiryInfo.builder()
+                .inquiryInfoList(inquiryInfoList)
+                .totalPages(inquiryList.getTotalPages())
+                .totalElements(inquiryList.getTotalElements())
+                .isFirst(inquiryList.isFirst())
+                .isLast(inquiryList.isLast())
+                .build();
+    }
+
 }

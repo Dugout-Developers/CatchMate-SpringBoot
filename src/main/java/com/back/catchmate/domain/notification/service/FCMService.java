@@ -102,6 +102,55 @@ public class FCMService {
         log.info(response.body().string());
     }
 
+    // 신청 알림 파라미터들을 요구하는 body 형태로 가공
+    public String makeInquiryMessage(String targetToken, String title, String body, Long inquiryId) throws JsonProcessingException {
+        FCMMessageRequest fcmMessage = FCMMessageRequest.builder()
+                .message(
+                        FCMMessageRequest.Message.builder()
+                                .token(targetToken)
+                                .notification(
+                                        FCMMessageRequest.Notification.builder()
+                                                .title(title)
+                                                .body(body)
+                                                .build()
+                                )
+                                .data(
+                                        FCMMessageRequest.Data.builder()
+                                                .boardId(String.valueOf(inquiryId))
+                                                .build()
+                                )
+                                .build()
+                )
+                .validateOnly(false)
+                .build();
+
+        return objectMapper.writeValueAsString(fcmMessage);
+    }
+
+    // 사용자의 FCM 토큰을 사용하여 푸쉬 알림을 보내는 역할을 하는 메서드
+    @Async("asyncTask")
+    public void sendMessageByToken(String targetToken, String title, String body, Long inquiryId) throws IOException {
+        String message = makeInquiryMessage(targetToken, title, body, inquiryId);
+
+        OkHttpClient client = new OkHttpClient();
+        RequestBody requestBody = RequestBody.create(message, MediaType.get("application/json; charset=utf-8"));
+
+        Request request = new Request.Builder()
+                .url(FIREBASE_ALARM_SEND_API_URI)
+                .post(requestBody)
+                .addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken())
+                .addHeader(HttpHeaders.CONTENT_TYPE, "application/json; UTF-8")
+                .build();
+
+        Response response = client.newCall(request).execute();
+
+        if (response.body() == null) {
+            throw new BaseException(ErrorCode.EMPTY_FCM_RESPONSE);
+        }
+
+        log.info(response.body().string());
+    }
+
     // 특정 채팅방의 모든 사용자에게 FCM 메시지 전송
     @Async("asyncTask")
     public void sendMessagesByTokens(Long chatRoomId, String title, String body, String senderToken) throws IOException, FirebaseMessagingException {
