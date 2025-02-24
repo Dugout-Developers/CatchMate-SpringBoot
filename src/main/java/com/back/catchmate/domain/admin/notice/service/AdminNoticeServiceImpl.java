@@ -1,10 +1,10 @@
 package com.back.catchmate.domain.admin.notice.service;
 
-import com.back.catchmate.domain.admin.notice.converter.NoticeConverter;
+import com.back.catchmate.domain.admin.notice.converter.AdminNoticeConverter;
 import com.back.catchmate.domain.admin.notice.dto.NoticeRequest;
 import com.back.catchmate.domain.admin.notice.dto.NoticeResponse;
-import com.back.catchmate.domain.admin.notice.entity.Notice;
-import com.back.catchmate.domain.admin.notice.repository.NoticeRepository;
+import com.back.catchmate.domain.notice.entity.Notice;
+import com.back.catchmate.domain.notice.repository.NoticeRepository;
 import com.back.catchmate.domain.user.entity.User;
 import com.back.catchmate.domain.user.repository.UserRepository;
 import com.back.catchmate.global.dto.StateResponse;
@@ -22,10 +22,10 @@ import java.time.LocalTime;
 
 @Service
 @RequiredArgsConstructor
-public class NoticeServiceImpl implements NoticeService {
+public class AdminNoticeServiceImpl implements AdminNoticeService {
     private final UserRepository userRepository;
-    private final NoticeConverter noticeConverter;
     private final NoticeRepository noticeRepository;
+    private final AdminNoticeConverter adminNoticeConverter;
 
     @Override
     @Transactional
@@ -33,10 +33,10 @@ public class NoticeServiceImpl implements NoticeService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
-        Notice notice = noticeConverter.toEntity(user, noticeRequest);
+        Notice notice = adminNoticeConverter.toEntity(user, noticeRequest);
         notice = noticeRepository.save(notice);
 
-        return noticeConverter.toNoticeInfo(notice);
+        return adminNoticeConverter.toNoticeInfo(notice);
     }
 
     @Override
@@ -45,7 +45,7 @@ public class NoticeServiceImpl implements NoticeService {
         Notice notice = noticeRepository.findByIdAndDeletedAtIsNull(noticeId)
                 .orElseThrow(() -> new BaseException(ErrorCode.NOTICE_NOT_FOUND));
 
-        return noticeConverter.toNoticeInfo(notice);
+        return adminNoticeConverter.toNoticeInfo(notice);
     }
 
     @Override
@@ -55,7 +55,7 @@ public class NoticeServiceImpl implements NoticeService {
         LocalDateTime endDateTime = (endDate != null) ? endDate.atTime(LocalTime.MAX) : null;
 
         Page<Notice> notices = noticeRepository.findNoticesWithinDateRange(startDateTime, endDateTime, pageable);
-        return noticeConverter.toPagedNoticeInfo(notices);
+        return adminNoticeConverter.toPagedNoticeInfo(notices);
     }
 
     @Override
@@ -69,7 +69,7 @@ public class NoticeServiceImpl implements NoticeService {
 //        }
 
         notice.updateNotice(request.getTitle(), request.getContent());
-        return noticeConverter.toNoticeInfo(notice);
+        return adminNoticeConverter.toNoticeInfo(notice);
     }
 
     @Override

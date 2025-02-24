@@ -6,7 +6,6 @@ import com.back.catchmate.domain.inquiry.entity.InquiryType;
 import com.back.catchmate.domain.report.entity.ReportType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

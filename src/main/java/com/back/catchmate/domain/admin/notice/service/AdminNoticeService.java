@@ -7,7 +7,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
 
-public interface NoticeService {
+public interface AdminNoticeService {
     NoticeResponse.NoticeInfo createNotice(Long userId, NoticeRequest.CreateNoticeRequest noticeRequest);
 
     NoticeResponse.NoticeInfo updateNotice(Long userId, Long noticeId, NoticeRequest.UpdateNoticeRequest request);

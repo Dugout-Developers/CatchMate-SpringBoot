@@ -1,6 +1,5 @@
-package com.back.catchmate.domain.admin.notice.dto;
+package com.back.catchmate.domain.notice.dto;
 
-import com.back.catchmate.domain.admin.dto.AdminResponse;
 import com.back.catchmate.domain.user.dto.UserResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,7 +18,7 @@ public abstract class NoticeResponse {
         private Long noticeId;
         private String title;
         private String content;
-        private AdminResponse.UserInfo userInfo;
+        private UserResponse.UserInfo userInfo;
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
     }
@@ -28,7 +27,7 @@ public abstract class NoticeResponse {
     @Builder
     @AllArgsConstructor
     public static class PagedNoticeInfo {
-        private List<NoticeInfo> notices;
+        private List<NoticeInfo> noticeInfoList;
         private Integer totalPages;
         private Long totalElements;
         private Boolean isFirst;

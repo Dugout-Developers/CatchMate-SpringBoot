@@ -1,4 +1,4 @@
-package com.back.catchmate.domain.admin.notice.entity;
+package com.back.catchmate.domain.notice.entity;
 
 import com.back.catchmate.domain.user.entity.User;
 import com.back.catchmate.global.entity.BaseTimeEntity;

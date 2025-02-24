@@ -2,7 +2,7 @@ package com.back.catchmate.domain.admin.notice.controller;
 
 import com.back.catchmate.domain.admin.notice.dto.NoticeRequest;
 import com.back.catchmate.domain.admin.notice.dto.NoticeResponse;
-import com.back.catchmate.domain.admin.notice.service.NoticeService;
+import com.back.catchmate.domain.admin.notice.service.AdminNoticeService;
 import com.back.catchmate.global.dto.StateResponse;
 import com.back.catchmate.global.jwt.JwtValidation;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -29,14 +29,14 @@ import java.time.LocalDate;
 @RestController
 @RequestMapping("/admin/notice")
 @RequiredArgsConstructor
-public class NoticeController {
-    private final NoticeService noticeService;
+public class AdminNoticeController {
+    private final AdminNoticeService adminNoticeService;
 
     @PostMapping
     @Operation(summary = "공지글 등록 API", description = "공지글을 등록하는 API 입니다.")
     public NoticeResponse.NoticeInfo createNotice(@JwtValidation Long userId,
                                                   @Valid @RequestBody NoticeRequest.CreateNoticeRequest request) {
-        return noticeService.createNotice(userId, request);
+        return adminNoticeService.createNotice(userId, request);
     }
 
     @GetMapping("/list")
@@ -45,13 +45,13 @@ public class NoticeController {
                                                         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd") LocalDate endDate,
                                                         @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
                                                         @Parameter(hidden = true) Pageable pageable) {
-        return noticeService.getNoticeList(startDate, endDate, pageable);
+        return adminNoticeService.getNoticeList(startDate, endDate, pageable);
     }
 
     @GetMapping("/{noticeId}")
     @Operation(summary = "공지사항 단일 조회 API", description = "특정 공지사항을 조회하는 API 입니다.")
     public NoticeResponse.NoticeInfo getNotice(@PathVariable Long noticeId) {
-        return noticeService.getNotice(noticeId);
+        return adminNoticeService.getNotice(noticeId);
     }
 
     @PutMapping("/{noticeId}")
@@ -59,13 +59,13 @@ public class NoticeController {
     public NoticeResponse.NoticeInfo updateNotice(@JwtValidation Long userId,
                                                   @PathVariable Long noticeId,
                                                   @Valid @RequestBody NoticeRequest.UpdateNoticeRequest request) {
-        return noticeService.updateNotice(userId, noticeId, request);
+        return adminNoticeService.updateNotice(userId, noticeId, request);
     }
 
     @DeleteMapping("/{noticeId}")
     @Operation(summary = "공지사항 삭제 API", description = "공지사항을 삭제하는 API 입니다.")
     public StateResponse deleteNotice(@JwtValidation Long userId,
                                       @PathVariable Long noticeId) {
-        return noticeService.deleteNotice(userId, noticeId);
+        return adminNoticeService.deleteNotice(userId, noticeId);
     }
 }

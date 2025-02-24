@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 
-@Tag(name = "직관 신청 관련 API")
+@Tag(name = "[사용자] 직관 신청 관련 API")
 @RestController
 @RequestMapping("/enrolls")
 @RequiredArgsConstructor
