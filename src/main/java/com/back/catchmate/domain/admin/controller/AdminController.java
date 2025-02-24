@@ -106,7 +106,7 @@ public class AdminController {
         return adminService.getInquiry(inquiryId);
     }
 
-    @PostMapping("/inquiry/{inquiryId}/answer")
+    @PatchMapping("/inquiry/{inquiryId}/answer")
     @Operation(summary = "문의 내역에 대한 답변", description = "관리자가 특정 문의에 대해 답변을 작성하는 API 입니다.")
     public StateResponse answerInquiry(@JwtValidation Long userId,
                                        @PathVariable Long inquiryId,

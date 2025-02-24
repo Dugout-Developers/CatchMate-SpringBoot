@@ -13,6 +13,7 @@ import com.back.catchmate.domain.chat.repository.UserChatRoomRepository;
 import com.back.catchmate.domain.inquiry.entity.Inquiry;
 import com.back.catchmate.domain.inquiry.repository.InquiryRepository;
 import com.back.catchmate.domain.notification.service.FCMService;
+import com.back.catchmate.domain.notification.service.NotificationService;
 import com.back.catchmate.domain.report.entity.Report;
 import com.back.catchmate.domain.report.repository.ReportRepository;
 import com.back.catchmate.domain.user.entity.User;
@@ -32,16 +33,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.back.catchmate.domain.notification.message.NotificationMessages.INQUIRY_ANSWER_BODY;
+import static com.back.catchmate.domain.notification.message.NotificationMessages.INQUIRY_ANSWER_TITLE;
+
 @Service
 @RequiredArgsConstructor
 public class AdminServiceImpl implements AdminService {
     private final FCMService fcmService;
+    private final NotificationService notificationService;
     private final UserRepository userRepository;
     private final BoardRepository boardRepository;
     private final ReportRepository reportRepository;
     private final InquiryRepository inquiryRepository;
-    private final AdminConverter adminConverter;
     private final UserChatRoomRepository userChatRoomRepository;
+    private final AdminConverter adminConverter;
+
 
     @Override
     @Transactional(readOnly = true)
@@ -198,9 +204,11 @@ public class AdminServiceImpl implements AdminService {
 
         inquiry.updateAnswer(request.getAnswer(), user);
 
-        String title = "문의 답변 안내 문자";
-        String body = "문의 답변이 도착했어요.";
+        String title = INQUIRY_ANSWER_TITLE;
+        String body = INQUIRY_ANSWER_BODY;
+
         fcmService.sendMessageByToken(inquiry.getUser().getFcmToken(), title, body, inquiryId);
+        notificationService.createNotification(title, body, null, inquiryId, userId);
 
         return new StateResponse(true);
     }
