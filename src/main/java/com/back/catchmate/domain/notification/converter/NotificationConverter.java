@@ -4,6 +4,7 @@ import com.back.catchmate.domain.board.converter.BoardConverter;
 import com.back.catchmate.domain.board.dto.BoardResponse.BoardInfo;
 import com.back.catchmate.domain.board.entity.Board;
 import com.back.catchmate.domain.enroll.entity.AcceptStatus;
+import com.back.catchmate.domain.inquiry.entity.Inquiry;
 import com.back.catchmate.domain.notification.dto.NotificationResponse.NotificationInfo;
 import com.back.catchmate.domain.notification.dto.NotificationResponse.PagedNotificationInfo;
 import com.back.catchmate.domain.notification.entity.Notification;
@@ -29,6 +30,17 @@ public class NotificationConverter {
                 .senderProfileImageUrl(senderProfileImageUrl)
                 .isRead(false)
                 .acceptStatus(acceptStatus)
+                .build();
+    }
+
+    public Notification toEntity(User user, Inquiry inquiry, String senderProfileImageUrl, String title, String body) {
+        return Notification.builder()
+                .user(user)
+                .inquiry(inquiry)
+                .title(title)
+                .body(body)
+                .senderProfileImageUrl(senderProfileImageUrl)
+                .isRead(false)
                 .build();
     }
 
