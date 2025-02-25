@@ -38,7 +38,7 @@ public class BoardConverter {
                 .title(boardRequest.getTitle())
                 .content(boardRequest.getContent())
                 .maxPerson(boardRequest.getMaxPerson())
-                .currentPerson(0)
+                .currentPerson(1)
                 .user(user)
                 .club(cheerClub)
                 .game(game)

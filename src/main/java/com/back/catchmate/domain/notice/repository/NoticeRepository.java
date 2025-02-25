@@ -1,6 +1,6 @@
-package com.back.catchmate.domain.admin.notice.repository;
+package com.back.catchmate.domain.notice.repository;
 
-import com.back.catchmate.domain.admin.notice.entity.Notice;
+import com.back.catchmate.domain.notice.entity.Notice;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 public interface NoticeRepository extends JpaRepository<Notice, Long> {
-
     @Query("SELECT n FROM Notice n " +
             "WHERE (:startDateTime IS NULL OR n.createdAt >= :startDateTime) " +
             "AND (:endDateTime IS NULL OR n.createdAt <= :endDateTime) " +
@@ -21,4 +20,6 @@ public interface NoticeRepository extends JpaRepository<Notice, Long> {
                                             Pageable pageable);
 
     Optional<Notice> findByIdAndDeletedAtIsNull(Long id);
+
+    Page<Notice> findAllByDeletedAtIsNull(Pageable pageable);
 }

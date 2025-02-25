@@ -12,8 +12,6 @@ import java.util.Optional;
 public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
     Optional<ChatRoom> findByIdAndDeletedAtIsNull(Long chatRoomId);
 
-    Optional<ChatRoom> findByBoardIdAndDeletedAtIsNull(Long boardId);
-
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT c FROM ChatRoom c WHERE c.board.id = :boardId AND c.deletedAt IS NULL")
     Optional<ChatRoom> findByBoardIdWithLock(@Param("boardId") Long boardId);

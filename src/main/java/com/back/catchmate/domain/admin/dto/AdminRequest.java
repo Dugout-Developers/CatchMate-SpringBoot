@@ -1,6 +1,5 @@
 package com.back.catchmate.domain.admin.dto;
 
-import com.back.catchmate.domain.report.entity.ReportType;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,5 +14,27 @@ public abstract class AdminRequest {
     public static class AnswerInquiryRequest {
         @NotNull
         private String answer;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CreateNoticeRequest {
+        @NotNull
+        private String title;
+        @NotNull
+        private String content;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UpdateNoticeRequest {
+        @NotNull
+        private String title;
+        @NotNull
+        private String content;
     }
 }

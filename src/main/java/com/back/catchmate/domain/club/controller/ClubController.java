@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "구단 관련 API")
+@Tag(name = "[사용자] 구단 관련 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/clubs")

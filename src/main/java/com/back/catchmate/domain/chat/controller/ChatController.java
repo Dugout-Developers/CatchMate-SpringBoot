@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 
-@Tag(name = "채팅 관련 API")
+@Tag(name = "[사용자] 채팅 관련 API")
 @RestController
 @RequestMapping("/chats")
 @RequiredArgsConstructor

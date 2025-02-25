@@ -11,6 +11,7 @@ import com.back.catchmate.global.dto.StateResponse;
 import org.springframework.data.domain.Pageable;
 
 import java.io.IOException;
+import java.time.LocalDate;
 
 public interface AdminService {
     AdminResponse.AdminDashboardInfo getDashboardStats();
@@ -40,4 +41,14 @@ public interface AdminService {
     AdminResponse.ReportInfo getReport(Long reportId);
 
     StateResponse processReport(Long reportId);
+
+    AdminResponse.NoticeInfo createNotice(Long userId, AdminRequest.CreateNoticeRequest noticeRequest);
+
+    AdminResponse.NoticeInfo updateNotice(Long userId, Long noticeId, AdminRequest.UpdateNoticeRequest request);
+
+    StateResponse deleteNotice(Long userId, Long noticeId);
+
+    AdminResponse.NoticeInfo getNotice(Long noticeId);
+
+    AdminResponse.PagedNoticeInfo getNoticeList(LocalDate startDate, LocalDate endDate, Pageable pageable);
 }

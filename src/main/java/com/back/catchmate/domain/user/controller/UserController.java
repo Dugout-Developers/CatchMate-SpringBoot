@@ -32,7 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
-@Tag(name = "사용자 관련 API")
+@Tag(name = "[사용자] 사용자 관련 API")
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor

@@ -24,7 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
-@Tag(name = "채팅방 관련 API")
+@Tag(name = "[사용자] 채팅방 관련 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/chat-rooms")
