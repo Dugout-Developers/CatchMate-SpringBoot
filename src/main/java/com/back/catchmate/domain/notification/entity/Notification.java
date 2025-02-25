@@ -68,4 +68,8 @@ public class Notification extends BaseTimeEntity {
     public boolean isNotRead() {
         return !this.isRead;
     }
+
+    public void updateAcceptStatus(AcceptStatus acceptStatus) {
+        this.acceptStatus = acceptStatus;
+    }
 }

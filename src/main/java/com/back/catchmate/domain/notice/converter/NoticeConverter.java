@@ -1,6 +1,6 @@
 package com.back.catchmate.domain.notice.converter;
 
-import com.back.catchmate.domain.admin.notice.dto.NoticeRequest;
+import com.back.catchmate.domain.admin.dto.AdminRequest;
 import com.back.catchmate.domain.notice.dto.NoticeResponse;
 import com.back.catchmate.domain.notice.entity.Notice;
 import com.back.catchmate.domain.user.converter.UserConverter;
@@ -17,7 +17,7 @@ import java.util.List;
 public class NoticeConverter {
     private final UserConverter userConverter;
 
-    public Notice toEntity(User user, NoticeRequest.CreateNoticeRequest request) {
+    public Notice toEntity(User user, AdminRequest.CreateNoticeRequest request) {
         return Notice.builder()
                 .user(user)
                 .title(request.getTitle())

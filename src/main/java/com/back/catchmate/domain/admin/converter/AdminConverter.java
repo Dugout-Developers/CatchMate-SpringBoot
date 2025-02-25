@@ -1,5 +1,6 @@
 package com.back.catchmate.domain.admin.converter;
 
+import com.back.catchmate.domain.admin.dto.AdminRequest;
 import com.back.catchmate.domain.admin.dto.AdminResponse;
 import com.back.catchmate.domain.admin.dto.AdminResponse.AdminDashboardInfo;
 import com.back.catchmate.domain.admin.dto.AdminResponse.CheerStyleStatsInfo;
@@ -12,6 +13,7 @@ import com.back.catchmate.domain.game.converter.GameConverter;
 import com.back.catchmate.domain.game.dto.GameResponse;
 import com.back.catchmate.domain.game.entity.Game;
 import com.back.catchmate.domain.inquiry.entity.Inquiry;
+import com.back.catchmate.domain.notice.entity.Notice;
 import com.back.catchmate.domain.report.entity.Report;
 import com.back.catchmate.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
@@ -193,6 +195,41 @@ public class AdminConverter {
                 .totalElements(reportList.getTotalElements()) // 전체 요소 수
                 .isFirst(reportList.isFirst()) // 첫 번째 페이지 여부
                 .isLast(reportList.isLast()) // 마지막 페이지 여부
+                .build();
+    }
+
+    public Notice toEntity(User user, AdminRequest.CreateNoticeRequest request) {
+        return Notice.builder()
+                .user(user)
+                .title(request.getTitle())
+                .content(request.getContent())
+                .build();
+    }
+
+    public AdminResponse.NoticeInfo toNoticeInfo(Notice notice) {
+        AdminResponse.UserInfo userInfo = toUserInfo(notice.getUser());
+
+        return AdminResponse.NoticeInfo.builder()
+                .noticeId(notice.getId())
+                .title(notice.getTitle())
+                .content(notice.getContent())
+                .userInfo(userInfo)
+                .createdAt(notice.getCreatedAt())
+                .updatedAt(notice.getUpdatedAt())
+                .build();
+    }
+
+    public AdminResponse.PagedNoticeInfo toPagedNoticeInfo(Page<Notice> noticeList) {
+        List<AdminResponse.NoticeInfo> noticeInfoList = noticeList.getContent().stream()
+                .map(this::toNoticeInfo)
+                .toList();
+
+        return AdminResponse.PagedNoticeInfo.builder()
+                .notices(noticeInfoList)
+                .totalPages(noticeList.getTotalPages()) // 전체 페이지 수
+                .totalElements(noticeList.getTotalElements()) // 전체 요소 수
+                .isFirst(noticeList.isFirst()) // 첫 번째 페이지 여부
+                .isLast(noticeList.isLast()) // 마지막 페이지 여부
                 .build();
     }
 }

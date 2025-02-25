@@ -147,4 +147,28 @@ public abstract class AdminResponse {
         private Boolean isFirst;
         private Boolean isLast;
     }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class NoticeInfo {
+        private Long noticeId;
+        private String title;
+        private String content;
+        private AdminResponse.UserInfo userInfo;
+        private LocalDateTime createdAt;
+        private LocalDateTime updatedAt;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    public static class PagedNoticeInfo {
+        private List<NoticeInfo> notices;
+        private Integer totalPages;
+        private Long totalElements;
+        private Boolean isFirst;
+        private Boolean isLast;
+    }
 }
