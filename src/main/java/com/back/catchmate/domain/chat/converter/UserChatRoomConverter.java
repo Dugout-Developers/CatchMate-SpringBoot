@@ -22,6 +22,7 @@ public class UserChatRoomConverter {
                 .user(user)
                 .chatRoom(chatRoom)
                 .joinedAt(LocalDateTime.now())
+                .lastReadTime(LocalDateTime.now())
                 .build();
     }
 
