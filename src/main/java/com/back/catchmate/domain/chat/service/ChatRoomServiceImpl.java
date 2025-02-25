@@ -1,10 +1,12 @@
 package com.back.catchmate.domain.chat.service;
 
+import com.back.catchmate.domain.board.entity.Board;
 import com.back.catchmate.domain.chat.converter.ChatRoomConverter;
 import com.back.catchmate.domain.chat.dto.ChatResponse.ChatRoomInfo;
 import com.back.catchmate.domain.chat.dto.ChatResponse.PagedChatRoomInfo;
 import com.back.catchmate.domain.chat.entity.ChatRoom;
 import com.back.catchmate.domain.chat.entity.UserChatRoom;
+import com.back.catchmate.domain.chat.repository.ChatMessageRepository;
 import com.back.catchmate.domain.chat.repository.ChatRoomRepository;
 import com.back.catchmate.domain.chat.repository.UserChatRoomRepository;
 import com.back.catchmate.domain.enroll.entity.AcceptStatus;
@@ -24,7 +26,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Optional;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.back.catchmate.domain.chat.dto.ChatRequest.ChatMessageRequest.MessageType;
 
@@ -37,13 +41,40 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     private final ChatRoomRepository chatRoomRepository;
     private final UserChatRoomRepository userChatRoomRepository;
     private final EnrollRepository enrollRepository;
+    private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomConverter chatRoomConverter;
 
     @Override
     @Transactional(readOnly = true)
     public PagedChatRoomInfo getChatRoomList(Long userId, Pageable pageable) {
         Page<UserChatRoom> userChatRoomList = userChatRoomRepository.findAllByUserId(userId, pageable);
-        return chatRoomConverter.toPagedChatRoomInfo(userChatRoomList);
+
+        List<ChatRoomInfo> chatRoomInfoList = userChatRoomList.stream()
+                .map(userChatRoom -> {
+                    ChatRoom chatRoom = userChatRoom.getChatRoom();
+                    Board board = chatRoom.getBoard();
+                    int unreadMessageCount = (int) getUnreadMessageCount(userId, chatRoom.getId());
+                    return chatRoomConverter.toChatRoomInfo(chatRoom, board, unreadMessageCount);
+                })
+                .collect(Collectors.toList());
+
+        return new PagedChatRoomInfo(chatRoomInfoList, userChatRoomList.getTotalPages(),
+                userChatRoomList.getTotalElements(), userChatRoomList.isFirst(),
+                userChatRoomList.isLast());
+    }
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public long getUnreadMessageCount(Long userId, Long chatRoomId) {
+        // 사용자의 마지막 읽은 시간 조회
+        UserChatRoom userChatRoom = userChatRoomRepository.findByUserIdAndChatRoomIdAndDeletedAtIsNull(userId, chatRoomId)
+                .orElseThrow(() -> new BaseException(ErrorCode.CHATROOM_NOT_FOUND));
+
+        LocalDateTime lastReadTime = userChatRoom.getLastReadTime();
+
+        // 특정 시간 이후의 메시지 개수 조회
+        return chatMessageRepository.countByChatRoomIdAndSendTimeGreaterThanAndMessageType(chatRoomId, lastReadTime, "TALK");
     }
 
     @Override
@@ -56,7 +87,8 @@ public class ChatRoomServiceImpl implements ChatRoomService {
             throw new BaseException(ErrorCode.USER_CHATROOM_NOT_FOUND);
         }
 
-        return chatRoomConverter.toChatRoomInfo(chatRoom, chatRoom.getBoard());
+        int unreadMessageCount = (int) getUnreadMessageCount(userId, chatRoomId);
+        return chatRoomConverter.toChatRoomInfo(chatRoom, chatRoom.getBoard(), unreadMessageCount);
     }
 
     @Override

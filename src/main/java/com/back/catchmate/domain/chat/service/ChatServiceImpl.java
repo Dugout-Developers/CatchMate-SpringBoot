@@ -5,6 +5,7 @@ import com.back.catchmate.domain.chat.dto.ChatRequest.ChatMessageRequest;
 import com.back.catchmate.domain.chat.dto.ChatResponse.PagedChatMessageInfo;
 import com.back.catchmate.domain.chat.entity.ChatMessage;
 import com.back.catchmate.domain.chat.entity.ChatRoom;
+import com.back.catchmate.domain.chat.entity.UserChatRoom;
 import com.back.catchmate.domain.chat.repository.ChatMessageRepository;
 import com.back.catchmate.domain.chat.repository.ChatRoomRepository;
 import com.back.catchmate.domain.chat.repository.UserChatRoomRepository;
@@ -100,11 +101,16 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public PagedChatMessageInfo getChatMessageList(Long userId, Long chatRoomId, Pageable pageable) {
         if (!userChatRoomRepository.existsByUserIdAndChatRoomIdAndDeletedAtIsNull(userId, chatRoomId)) {
             throw new BaseException(ErrorCode.USER_CHATROOM_NOT_FOUND);
         }
+
+        UserChatRoom userChatRoom = userChatRoomRepository.findByUserIdAndChatRoomIdAndDeletedAtIsNull(userId, chatRoomId)
+                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+
+        userChatRoom.updateLastReadTime();
 
         Page<ChatMessage> chatMessageList = chatMessageRepository.findByChatRoomIdOrderByIdDesc(chatRoomId, pageable);
         return chatMessageConverter.toPagedChatMessageInfo(chatMessageList);
