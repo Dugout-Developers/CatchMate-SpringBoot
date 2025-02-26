@@ -175,11 +175,11 @@ public class FCMService {
         BatchResponse response = FirebaseMessaging.getInstance().sendEachForMulticast(message);
 
         // 전송 결과 확인
-        if (response.getFailureCount() > 0) {
-            log.error("일부 메시지 전송에 실패했습니다. 성공한 메시지 수: {}, 실패한 메시지 수: {}",
-                    response.getSuccessCount(), response.getFailureCount());
-            throw new BaseException(ErrorCode.FCM_TOKEN_SEND_BAD_REQUEST);
-        }
+//        if (response.getFailureCount() > 0) {
+//            log.error("일부 메시지 전송에 실패했습니다. 성공한 메시지 수: {}, 실패한 메시지 수: {}",
+//                    response.getSuccessCount(), response.getFailureCount());
+//            throw new BaseException(ErrorCode.FCM_TOKEN_SEND_BAD_REQUEST);
+//        }
 
         log.info("FCM 응답: {}개의 메시지가 성공적으로 전송되었습니다.", response.getSuccessCount());
     }

@@ -45,7 +45,10 @@ public class UserChatRoom extends BaseTimeEntity {
 
     private LocalDateTime lastReadTime;  // 마지막으로 채팅방을 읽은 시간
 
+    private Boolean isNewChatRoom;  // 마지막으로 채팅방을 읽은 시간
+
     public void updateLastReadTime() {
         this.lastReadTime = LocalDateTime.now();
+        this.isNewChatRoom = false;  // 조회 시 새로운 채팅방이 아니게 변경
     }
 }
