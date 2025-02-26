@@ -23,6 +23,7 @@ public class UserChatRoomConverter {
                 .chatRoom(chatRoom)
                 .joinedAt(LocalDateTime.now())
                 .lastReadTime(LocalDateTime.now())
+                .isNewChatRoom(true)
                 .build();
     }
 

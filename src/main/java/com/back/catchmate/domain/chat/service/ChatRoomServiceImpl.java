@@ -54,7 +54,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                     ChatRoom chatRoom = userChatRoom.getChatRoom();
                     Board board = chatRoom.getBoard();
                     int unreadMessageCount = (int) getUnreadMessageCount(userId, chatRoom.getId());
-                    return chatRoomConverter.toChatRoomInfo(chatRoom, board, unreadMessageCount);
+                    return chatRoomConverter.toChatRoomInfo(chatRoom, board, unreadMessageCount, userChatRoom.getIsNewChatRoom());
                 })
                 .collect(Collectors.toList());
 
@@ -87,8 +87,12 @@ public class ChatRoomServiceImpl implements ChatRoomService {
             throw new BaseException(ErrorCode.USER_CHATROOM_NOT_FOUND);
         }
 
+        UserChatRoom userChatRoom = userChatRoomRepository.findByUserIdAndChatRoomIdAndDeletedAtIsNull(userId, chatRoomId)
+                .orElseThrow(() -> new BaseException(ErrorCode.USER_CHATROOM_NOT_FOUND));
+
+
         int unreadMessageCount = (int) getUnreadMessageCount(userId, chatRoomId);
-        return chatRoomConverter.toChatRoomInfo(chatRoom, chatRoom.getBoard(), unreadMessageCount);
+        return chatRoomConverter.toChatRoomInfo(chatRoom, chatRoom.getBoard(), unreadMessageCount, userChatRoom.getIsNewChatRoom());
     }
 
     @Override
