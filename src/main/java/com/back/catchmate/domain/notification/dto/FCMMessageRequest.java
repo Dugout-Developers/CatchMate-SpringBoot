@@ -34,6 +34,7 @@ public class FCMMessageRequest {
     @AllArgsConstructor
     public static class Data {
         private String boardId;
+        private String chatRoomId;
         private AcceptStatus acceptStatus;
     }
 }

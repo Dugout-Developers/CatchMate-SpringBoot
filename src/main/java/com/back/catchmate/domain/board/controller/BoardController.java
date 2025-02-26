@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDate;
 import java.util.List;
 
-@Tag(name = "게시글 관련 API")
+@Tag(name = "[사용자] 게시글 관련 API")
 @RestController
 @RequestMapping("/boards")
 @RequiredArgsConstructor

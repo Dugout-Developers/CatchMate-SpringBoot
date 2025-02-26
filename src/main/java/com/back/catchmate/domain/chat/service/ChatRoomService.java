@@ -18,4 +18,6 @@ public interface ChatRoomService {
     StateResponse updateChatRoomImage(Long userId, Long chatRoomId, MultipartFile image) throws IOException;
 
     StateResponse kickUserFromChatRoom(Long adminId, Long chatRoomId, Long userId);
+
+    long getUnreadMessageCount(Long userId, Long chatRoomId);
 }

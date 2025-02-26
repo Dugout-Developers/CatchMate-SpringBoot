@@ -3,6 +3,8 @@ package com.back.catchmate.domain.notification.service;
 import com.back.catchmate.domain.board.entity.Board;
 import com.back.catchmate.domain.board.repository.BoardRepository;
 import com.back.catchmate.domain.enroll.entity.AcceptStatus;
+import com.back.catchmate.domain.inquiry.entity.Inquiry;
+import com.back.catchmate.domain.inquiry.repository.InquiryRepository;
 import com.back.catchmate.domain.notification.converter.NotificationConverter;
 import com.back.catchmate.domain.notification.dto.NotificationResponse.NotificationInfo;
 import com.back.catchmate.domain.notification.dto.NotificationResponse.PagedNotificationInfo;
@@ -25,6 +27,7 @@ public class NotificationServiceImpl implements NotificationService {
     private final UserRepository userRepository;
     private final BoardRepository boardRepository;
     private final NotificationRepository notificationRepository;
+    private final InquiryRepository inquiryRepository;
     private final NotificationConverter notificationConverter;
 
     @Override
@@ -37,6 +40,19 @@ public class NotificationServiceImpl implements NotificationService {
                 .orElseThrow(() -> new BaseException(ErrorCode.BOARD_NOT_FOUND));
 
         Notification notification = notificationConverter.toEntity(user, board, senderProfileImageUrl, title, body, acceptStatus);
+        notificationRepository.save(notification);
+    }
+
+    @Override
+    @Transactional
+    public void createNotification(String title, String body, String senderProfileImageUrl, Long inquiryId, Long userId) {
+        User user = userRepository.findByIdAndDeletedAtIsNull(userId)
+                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+
+        Inquiry inquiry = inquiryRepository.findByIdAndDeletedAtIsNull(inquiryId)
+                .orElseThrow(() -> new BaseException(ErrorCode.BOARD_NOT_FOUND));
+
+        Notification notification = notificationConverter.toEntity(user, inquiry, senderProfileImageUrl, title, body);
         notificationRepository.save(notification);
     }
 

@@ -12,7 +12,10 @@ import com.back.catchmate.domain.chat.entity.UserChatRoom;
 import com.back.catchmate.domain.chat.repository.UserChatRoomRepository;
 import com.back.catchmate.domain.inquiry.entity.Inquiry;
 import com.back.catchmate.domain.inquiry.repository.InquiryRepository;
+import com.back.catchmate.domain.notice.entity.Notice;
+import com.back.catchmate.domain.notice.repository.NoticeRepository;
 import com.back.catchmate.domain.notification.service.FCMService;
+import com.back.catchmate.domain.notification.service.NotificationService;
 import com.back.catchmate.domain.report.entity.Report;
 import com.back.catchmate.domain.report.repository.ReportRepository;
 import com.back.catchmate.domain.user.entity.User;
@@ -27,21 +30,29 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.back.catchmate.domain.notification.message.NotificationMessages.INQUIRY_ANSWER_BODY;
+import static com.back.catchmate.domain.notification.message.NotificationMessages.INQUIRY_ANSWER_TITLE;
+
 @Service
 @RequiredArgsConstructor
 public class AdminServiceImpl implements AdminService {
     private final FCMService fcmService;
+    private final NotificationService notificationService;
     private final UserRepository userRepository;
     private final BoardRepository boardRepository;
     private final ReportRepository reportRepository;
     private final InquiryRepository inquiryRepository;
-    private final AdminConverter adminConverter;
     private final UserChatRoomRepository userChatRoomRepository;
+    private final AdminConverter adminConverter;
+    private final NoticeRepository noticeRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -198,9 +209,11 @@ public class AdminServiceImpl implements AdminService {
 
         inquiry.updateAnswer(request.getAnswer(), user);
 
-        String title = "문의 답변 안내 문자";
-        String body = "문의 답변이 도착했어요.";
+        String title = INQUIRY_ANSWER_TITLE;
+        String body = INQUIRY_ANSWER_BODY;
+
         fcmService.sendMessageByToken(inquiry.getUser().getFcmToken(), title, body, inquiryId);
+        notificationService.createNotification(title, body, null, inquiryId, userId);
 
         return new StateResponse(true);
     }
@@ -219,6 +232,7 @@ public class AdminServiceImpl implements AdminService {
         Report report = reportRepository.findById(reportId)
                 .orElseThrow(() -> new BaseException(ErrorCode.REPORT_NOT_FOUND));
 
+        // 신고 유저 처리 로직
         return adminConverter.toReportInfo(report);
     }
 
@@ -229,6 +243,65 @@ public class AdminServiceImpl implements AdminService {
                 .orElseThrow(() -> new BaseException(ErrorCode.REPORT_NOT_FOUND));
 
         report.updateReport();
+        return new StateResponse(true);
+    }
+
+    @Override
+    @Transactional
+    public AdminResponse.NoticeInfo createNotice(Long userId, AdminRequest.CreateNoticeRequest noticeRequest) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+
+        Notice notice = adminConverter.toEntity(user, noticeRequest);
+        notice = noticeRepository.save(notice);
+
+        return adminConverter.toNoticeInfo(notice);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public AdminResponse.NoticeInfo getNotice(Long noticeId) {
+        Notice notice = noticeRepository.findByIdAndDeletedAtIsNull(noticeId)
+                .orElseThrow(() -> new BaseException(ErrorCode.NOTICE_NOT_FOUND));
+
+        return adminConverter.toNoticeInfo(notice);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public AdminResponse.PagedNoticeInfo getNoticeList(LocalDate startDate, LocalDate endDate, Pageable pageable) {
+        LocalDateTime startDateTime = (startDate != null) ? startDate.atStartOfDay() : null;
+        LocalDateTime endDateTime = (endDate != null) ? endDate.atTime(LocalTime.MAX) : null;
+
+        Page<Notice> notices = noticeRepository.findNoticesWithinDateRange(startDateTime, endDateTime, pageable);
+        return adminConverter.toPagedNoticeInfo(notices);
+    }
+
+    @Override
+    @Transactional
+    public AdminResponse.NoticeInfo updateNotice(Long userId, Long noticeId, AdminRequest.UpdateNoticeRequest request) {
+        Notice notice = noticeRepository.findById(noticeId)
+                .orElseThrow(() -> new BaseException(ErrorCode.NOTICE_NOT_FOUND));
+
+//        if (!notice.getUser().getId().equals(userId)) {
+//            throw new BaseException(ErrorCode.FORBIDDEN);
+//        }
+
+        notice.updateNotice(request.getTitle(), request.getContent());
+        return adminConverter.toNoticeInfo(notice);
+    }
+
+    @Override
+    @Transactional
+    public StateResponse deleteNotice(Long userId, Long noticeId) {
+        Notice notice = noticeRepository.findById(noticeId)
+                .orElseThrow(() -> new BaseException(ErrorCode.NOTICE_NOT_FOUND));
+
+//        if (!notice.getUser().getId().equals(userId)) {
+//            throw new BaseException(ErrorCode.FORBIDDEN);
+//        }
+
+        notice.delete();
         return new StateResponse(true);
     }
 }

@@ -9,6 +9,8 @@ import org.springframework.data.domain.Pageable;
 public interface NotificationService {
     void createNotification(String title, String body, String senderProfileImageUrl, Long boardId, Long userId, AcceptStatus acceptStatus);
 
+    void createNotification(String title, String body, String senderProfileImageUrl, Long inquiryId, Long userId);
+
     PagedNotificationInfo getNotificationList(Long userId, Pageable pageable);
 
     NotificationInfo getNotification(Long userId, Long notificationId);

@@ -7,7 +7,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -17,6 +16,12 @@ public interface EnrollRepository extends JpaRepository<Enroll, Long> {
     Optional<Enroll> findByIdAndDeletedAtIsNull(Long enrollId);
 
     Optional<Enroll> findByUserIdAndBoardIdAndDeletedAtIsNull(Long userId, Long boardId);
+
+    Optional<Enroll> findFirstByUserIdAndBoardIdAndDeletedAtIsNullOrderByCreatedAtDesc(Long userId, Long boardId);
+
+    Optional<Enroll> findByUserIdAndBoardIdAndDeletedAtIsNullAndAcceptStatusIsNot(Long userId, Long boardId, AcceptStatus acceptStatus);
+
+    Optional<Enroll> findFirstByUserIdAndBoardIdAndDeletedAtIsNullAndAcceptStatusIs(Long userId, Long boardId, AcceptStatus acceptStatus);
 
     Page<Enroll> findByUserIdAndDeletedAtIsNull(Long userId, Pageable pageable);
 
@@ -35,12 +40,6 @@ public interface EnrollRepository extends JpaRepository<Enroll, Long> {
 
     @Query("SELECT COUNT(e) FROM Enroll e JOIN e.board b WHERE e.isNew = true AND b.user.id = :userId AND e.deletedAt IS NULL")
     int countNewEnrollListByUserId(@Param("userId") Long userId);
-
-    boolean existsByUserIdAndBoardIdAndDeletedAtIsNull(Long userId, Long boardId);
-
-    @Modifying
-    @Query("UPDATE Enroll e SET e.acceptStatus = :status WHERE e.id = :enrollId AND e.acceptStatus = 'PENDING'")
-    int updateEnrollStatus(@Param("enrollId") Long enrollId, @Param("status") AcceptStatus status);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT e FROM Enroll e WHERE e.id = :enrollId")

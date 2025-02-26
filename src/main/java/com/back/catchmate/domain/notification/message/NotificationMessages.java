@@ -8,4 +8,7 @@ public class NotificationMessages {
 
     public static final String ENROLLMENT_NOTIFICATION_TITLE = "직관 신청 안내 문자";
     public static final String ENROLLMENT_NOTIFICATION_BODY = "%s님의 직관 신청이 도착했어요!";
+
+    public static final String INQUIRY_ANSWER_TITLE = "문의 답변 안내 문자";
+    public static final String INQUIRY_ANSWER_BODY = "문의 답변이 도착했어요.";
 }

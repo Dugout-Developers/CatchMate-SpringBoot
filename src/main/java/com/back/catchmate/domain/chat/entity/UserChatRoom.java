@@ -42,4 +42,10 @@ public class UserChatRoom extends BaseTimeEntity {
     // 채팅방에 참여한 시간
     @Column(nullable = false)
     private LocalDateTime joinedAt;
+
+    private LocalDateTime lastReadTime;  // 마지막으로 채팅방을 읽은 시간
+
+    public void updateLastReadTime() {
+        this.lastReadTime = LocalDateTime.now();
+    }
 }

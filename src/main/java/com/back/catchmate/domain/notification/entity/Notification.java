@@ -2,6 +2,7 @@ package com.back.catchmate.domain.notification.entity;
 
 import com.back.catchmate.domain.board.entity.Board;
 import com.back.catchmate.domain.enroll.entity.AcceptStatus;
+import com.back.catchmate.domain.inquiry.entity.Inquiry;
 import com.back.catchmate.domain.user.entity.User;
 import com.back.catchmate.global.entity.BaseTimeEntity;
 import jakarta.persistence.Table;
@@ -38,10 +39,13 @@ public class Notification extends BaseTimeEntity {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "board_id", nullable = false)
+    @JoinColumn(name = "board_id")
     private Board board;
 
-    @Column(nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "inquiry_id")
+    private Inquiry inquiry;
+
     private String senderProfileImageUrl;
 
     @Column(nullable = false)
@@ -54,7 +58,6 @@ public class Notification extends BaseTimeEntity {
     private boolean isRead;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private AcceptStatus acceptStatus;
 
     // 알림 수신 여부 설정 메서드
@@ -64,5 +67,9 @@ public class Notification extends BaseTimeEntity {
 
     public boolean isNotRead() {
         return !this.isRead;
+    }
+
+    public void updateAcceptStatus(AcceptStatus acceptStatus) {
+        this.acceptStatus = acceptStatus;
     }
 }

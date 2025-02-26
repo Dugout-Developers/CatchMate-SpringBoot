@@ -1,4 +1,4 @@
-package com.back.catchmate.domain.admin.notice.entity;
+package com.back.catchmate.domain.notice.entity;
 
 import com.back.catchmate.domain.user.entity.User;
 import com.back.catchmate.global.entity.BaseTimeEntity;
@@ -44,8 +44,8 @@ public class Notice extends BaseTimeEntity {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    // 💡 삭제 여부 확인
-    public boolean isDeleted() {
-        return this.deletedAt != null;
+    public void updateNotice(String title, String content) {
+        this.title = title;
+        this.content = content;
     }
 }

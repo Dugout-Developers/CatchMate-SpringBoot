@@ -18,6 +18,8 @@ import com.back.catchmate.domain.chat.repository.ChatRoomRepository;
 import com.back.catchmate.domain.chat.repository.UserChatRoomRepository;
 import com.back.catchmate.domain.club.entity.Club;
 import com.back.catchmate.domain.club.repository.ClubRepository;
+import com.back.catchmate.domain.enroll.entity.AcceptStatus;
+import com.back.catchmate.domain.enroll.entity.Enroll;
 import com.back.catchmate.domain.enroll.repository.EnrollRepository;
 import com.back.catchmate.domain.game.converter.GameConverter;
 import com.back.catchmate.domain.game.dto.GameRequest.CreateGameRequest;
@@ -179,22 +181,28 @@ public class BoardServiceImpl implements BoardService {
         }
 
         boolean isBookMarked = bookMarkRepository.existsByUserIdAndBoardIdAndDeletedAtIsNull(user.getId(), board.getId());
-
-        // 타 유저 게시물 여부 확인
         boolean isOwnBoard = board.isWriterSameAsLoginUser(user);
 
-        // 신청 여부 확인 (타 유저 게시물일 경우)
-        boolean isApplied = enrollRepository.existsByUserIdAndBoardIdAndDeletedAtIsNull(user.getId(), board.getId());
+        // 신청 정보 가져오기
+        Optional<Enroll> enroll = enrollRepository.findFirstByUserIdAndBoardIdAndDeletedAtIsNullOrderByCreatedAtDesc(user.getId(), board.getId());
 
-        // 버튼 상태 판단
+        boolean isAccepted = enroll.map(e -> e.getAcceptStatus() == AcceptStatus.ACCEPTED).orElse(false);
+        boolean isPending = enroll.map(e -> e.getAcceptStatus() == AcceptStatus.PENDING).orElse(false);
+        boolean isRejected = enroll.map(e -> e.getAcceptStatus() == AcceptStatus.REJECTED).orElse(false);
+        boolean isInChatRoom = userChatRoomRepository.existsByUserIdAndChatRoomIdAndDeletedAtIsNull(user.getId(), board.getChatRoom().getId());
+
         String buttonStatus;
         if (isOwnBoard) {
             buttonStatus = "VIEW CHAT"; // 본인 게시물
         } else {
-            if (isApplied) {
-                buttonStatus = "APPLIED"; // 타 유저 게시물, 신청 후
+            if (isInChatRoom && isAccepted) {
+                buttonStatus = "VIEW CHAT"; // 채팅방 참여 중
+            } else if (isPending) {
+                buttonStatus = "APPLIED"; // 신청 승인됨
+            } else if (isRejected) {
+                buttonStatus = "APPLY"; // 거절된 경우 다시 신청 가능
             } else {
-                buttonStatus = "APPLY"; // 타 유저 게시물, 신청 전
+                buttonStatus = "APPLY"; // 미신청 상태
             }
         }
 

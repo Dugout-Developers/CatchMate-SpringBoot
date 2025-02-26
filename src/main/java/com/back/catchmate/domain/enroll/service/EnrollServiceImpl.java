@@ -20,6 +20,8 @@ import com.back.catchmate.domain.enroll.dto.EnrollResponse.UpdateEnrollInfo;
 import com.back.catchmate.domain.enroll.entity.AcceptStatus;
 import com.back.catchmate.domain.enroll.entity.Enroll;
 import com.back.catchmate.domain.enroll.repository.EnrollRepository;
+import com.back.catchmate.domain.notification.entity.Notification;
+import com.back.catchmate.domain.notification.repository.NotificationRepository;
 import com.back.catchmate.domain.notification.service.FCMService;
 import com.back.catchmate.domain.notification.service.NotificationService;
 import com.back.catchmate.domain.user.entity.User;
@@ -49,6 +51,7 @@ public class EnrollServiceImpl implements EnrollService {
     private final BoardRepository boardRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final UserChatRoomRepository userChatRoomRepository;
+    private final NotificationRepository notificationRepository;
     private final EnrollConverter enrollConverter;
     private final UserChatRoomConverter userChatRoomConverter;
 
@@ -65,7 +68,7 @@ public class EnrollServiceImpl implements EnrollService {
             throw new BaseException(ErrorCode.ENROLL_BAD_REQUEST);
         }
 
-        enrollRepository.findByUserIdAndBoardIdAndDeletedAtIsNull(user.getId(), board.getId())
+        enrollRepository.findByUserIdAndBoardIdAndDeletedAtIsNullAndAcceptStatusIsNot(user.getId(), board.getId(), AcceptStatus.REJECTED)
                 .ifPresent(enroll -> {
                     throw new BaseException(ErrorCode.ENROLL_ALREADY_EXIST);
                 });
@@ -80,7 +83,7 @@ public class EnrollServiceImpl implements EnrollService {
         User boardWriter = userRepository.findById(board.getUser().getId())
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
         // 게시글 작성자에게 푸시 알림 메세지 전송
-        fcmService.sendMessageByToken(boardWriter.getFcmToken(), title, body, boardId, AcceptStatus.PENDING);
+        fcmService.sendMessageByToken(boardWriter.getFcmToken(), title, body, boardId, AcceptStatus.PENDING, null);
 
         // 데이터베이스에 저장
         notificationService.createNotification(title, body, enroll.getUser().getProfileImageUrl(), boardId, boardWriter.getId(), AcceptStatus.PENDING);
@@ -194,7 +197,7 @@ public class EnrollServiceImpl implements EnrollService {
         String title = ENROLLMENT_ACCEPT_TITLE;
         String body = ENROLLMENT_ACCEPT_BODY;
 
-        fcmService.sendMessageByToken(enrollApplicant.getFcmToken(), title, body, enroll.getBoard().getId(), AcceptStatus.ACCEPTED);
+        fcmService.sendMessageByToken(enrollApplicant.getFcmToken(), title, body, enroll.getBoard().getId(), AcceptStatus.ACCEPTED, board.getChatRoom().getId());
         notificationService.createNotification(title, body, boardWriter.getProfileImageUrl(), enroll.getBoard().getId(), enrollApplicant.getId(), AcceptStatus.ACCEPTED);
 
         return enrollConverter.toUpdateEnrollInfo(enroll, AcceptStatus.ACCEPTED);
@@ -233,15 +236,22 @@ public class EnrollServiceImpl implements EnrollService {
         String title = ENROLLMENT_REJECT_TITLE;
         String body = ENROLLMENT_REJECT_BODY;
 
-        fcmService.sendMessageByToken(enrollApplicant.getFcmToken(), title, body, enroll.getBoard().getId(), AcceptStatus.REJECTED);
+        Notification notification = notificationRepository.findByUserIdAndBoardIdAndAcceptStatusAndDeletedAtIsNull(enroll.getBoard().getUser().getId(), enroll.getBoard().getId(), AcceptStatus.PENDING)
+                .orElseThrow(() -> new BaseException(ErrorCode.NOTIFICATION_NOT_FOUND));
+
+        notification.updateAcceptStatus(AcceptStatus.ALREADY_REJECTED);
+
+        fcmService.sendMessageByToken(enrollApplicant.getFcmToken(), title, body, enroll.getBoard().getId(), AcceptStatus.REJECTED, null);
         notificationService.createNotification(title, body, boardWriter.getProfileImageUrl(), enroll.getBoard().getId(), enrollApplicant.getId(), AcceptStatus.REJECTED);
 
         enroll.respondToEnroll(AcceptStatus.REJECTED);
+        enroll.delete();
         return enrollConverter.toUpdateEnrollInfo(enroll, AcceptStatus.REJECTED);
     }
 
 
     @Override
+    @Transactional(readOnly = true)
     public EnrollDescriptionInfo getEnrollDescriptionById(Long boardId, Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));

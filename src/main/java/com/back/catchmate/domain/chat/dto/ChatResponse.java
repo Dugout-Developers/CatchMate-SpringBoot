@@ -47,6 +47,7 @@ public abstract class ChatResponse {
         private LocalDateTime lastMessageAt;
         private String lastMessageContent;
         private String chatRoomImage;
+        private Integer unreadMessageCount;
     }
 
     @Getter

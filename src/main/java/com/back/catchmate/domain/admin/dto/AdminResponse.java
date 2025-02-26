@@ -6,7 +6,6 @@ import com.back.catchmate.domain.inquiry.entity.InquiryType;
 import com.back.catchmate.domain.report.entity.ReportType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -143,6 +142,30 @@ public abstract class AdminResponse {
     @AllArgsConstructor
     public static class PagedReportInfo {
         private List<ReportInfo> reportInfoList;
+        private Integer totalPages;
+        private Long totalElements;
+        private Boolean isFirst;
+        private Boolean isLast;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class NoticeInfo {
+        private Long noticeId;
+        private String title;
+        private String content;
+        private AdminResponse.UserInfo userInfo;
+        private LocalDateTime createdAt;
+        private LocalDateTime updatedAt;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    public static class PagedNoticeInfo {
+        private List<NoticeInfo> notices;
         private Integer totalPages;
         private Long totalElements;
         private Boolean isFirst;
