@@ -50,10 +50,12 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
             builder.and(board.game.gameStartDate.lt(gameDate.plusDays(1).atStartOfDay()));
         }
 
-        // 차단된 유저의 게시글 제외
-        List<Long> blockedUserIds = blockedUserRepository.findBlockedUserIdListByUserId(userId);
-        if (!blockedUserIds.isEmpty()) {
-            builder.and(board.user.id.notIn(blockedUserIds));
+        // 차단된 유저의 게시글 제외 (비회원일 경우 필터링 X)
+        if (userId != null) {
+            List<Long> blockedUserIds = blockedUserRepository.findBlockedUserIdListByUserId(userId);
+            if (!blockedUserIds.isEmpty()) {
+                builder.and(board.user.id.notIn(blockedUserIds));
+            }
         }
 
         // 쿼리 실행

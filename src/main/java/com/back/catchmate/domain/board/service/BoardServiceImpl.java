@@ -212,10 +212,15 @@ public class BoardServiceImpl implements BoardService {
     @Override
     @Transactional(readOnly = true)
     public PagedBoardInfo getBoardList(Long userId, LocalDate gameStartDate, Integer maxPerson, List<Long> preferredTeamIdList, Pageable pageable) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+        Long filteredUserId = null;
 
-        Page<Board> boardList = boardRepository.findFilteredBoards(user.getId(), gameStartDate, maxPerson, preferredTeamIdList, pageable);
+        if (userId != null) {
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+            filteredUserId = user.getId();
+        }
+
+        Page<Board> boardList = boardRepository.findFilteredBoards(filteredUserId, gameStartDate, maxPerson, preferredTeamIdList, pageable);
         return boardConverter.toPagedBoardInfoFromBoardList(boardList);
     }
 

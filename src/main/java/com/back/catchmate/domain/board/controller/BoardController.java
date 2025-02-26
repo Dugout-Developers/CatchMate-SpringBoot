@@ -10,6 +10,7 @@ import com.back.catchmate.domain.board.service.BoardService;
 import com.back.catchmate.domain.board.service.BookMarkService;
 import com.back.catchmate.global.dto.StateResponse;
 import com.back.catchmate.global.jwt.JwtValidation;
+import com.back.catchmate.global.jwt.OptionalJwtValidation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -56,7 +57,7 @@ public class BoardController {
 
     @GetMapping("/list")
     @Operation(summary = "게시글 리스트 전체 조회 API", description = "게시글 리스트를 전체 조회하는 API 입니다.")
-    public PagedBoardInfo getBoardList(@JwtValidation Long userId,
+    public PagedBoardInfo getBoardList(@OptionalJwtValidation Long userId,
                                        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate gameStartDate,
                                        @RequestParam(required = false) Integer maxPerson,
                                        @RequestParam(required = false) List<Long> preferredTeamIdList,

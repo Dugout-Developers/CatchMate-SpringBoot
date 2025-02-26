@@ -23,7 +23,7 @@ public class ChatRoomConverter {
                 .build();
     }
 
-    public ChatRoomInfo toChatRoomInfo(ChatRoom chatRoom, Board board, int unreadMessageCount) {
+    public ChatRoomInfo toChatRoomInfo(ChatRoom chatRoom, Board board, int unreadMessageCount, boolean isNewChatRoom) {
         BoardInfo boardInfo = boardConverter.toBoardInfo(board, board.getGame());
 
         return ChatRoomInfo.builder()
@@ -34,6 +34,7 @@ public class ChatRoomConverter {
                 .lastMessageContent(chatRoom.getLastMessageContent())
                 .chatRoomImage(chatRoom.getChatRoomImage())
                 .unreadMessageCount(unreadMessageCount)
+                .isNewChatRoom(isNewChatRoom)
                 .build();
     }
 }
