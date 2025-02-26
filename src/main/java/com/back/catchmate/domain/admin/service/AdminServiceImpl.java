@@ -117,7 +117,7 @@ public class AdminServiceImpl implements AdminService {
     private Map<String, Long> createCheerStyleCountMap(List<Object[]> results) {
         return results.stream()
                 .collect(Collectors.toMap(
-                        result -> (String) result[0],
+                        result -> result[0] != null ? (String) result[0] : "선택 안함",
                         result -> (Long) result[1]
                 ));
     }
