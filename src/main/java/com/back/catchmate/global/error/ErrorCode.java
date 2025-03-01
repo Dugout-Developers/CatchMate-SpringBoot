@@ -75,6 +75,8 @@ public enum ErrorCode {
     // 신고
     REPORT_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 신고입니다."),
 
+    SOCKET_CONNECT_FAILED(HttpStatus.UNAUTHORIZED, "소켓 연결에 실패했습니다."),
+
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
     BAD_REQUEST(HttpStatus.BAD_REQUEST, "클라이언트 에러입니다"),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 에러입니다."),
