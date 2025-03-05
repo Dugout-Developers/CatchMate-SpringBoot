@@ -32,7 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
-@Tag(name = "[사용자] 사용자 관련 API")
+@Tag(name = "[유저] 유저 관련 API")
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
@@ -53,7 +53,7 @@ public class UserController {
     }
 
     @GetMapping("/profile/{profileUserId}")
-    @Operation(summary = "사용자 정보 조회 API", description = "다른 사용자의 정보를 조회하는 API 입니다.")
+    @Operation(summary = "유저 정보 조회 API", description = "다른 유저의 정보를 조회하는 API 입니다.")
     public UserInfo getOtherUserProfile(@JwtValidation Long userId,
                                         @PathVariable Long profileUserId) {
         return userService.getOtherUserProfile(userId, profileUserId);
@@ -95,5 +95,11 @@ public class UserController {
                                          @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
                                          @Parameter(hidden = true) Pageable pageable) {
         return blockedUserService.getBlockedUserList(userId, pageable);
+    }
+
+    @DeleteMapping("/withdraw")
+    @Operation(summary = "유저 탈퇴 API", description = "유저가 해당 서비스를 탈퇴하는 API 입니다.")
+    public StateResponse deleteUser(@JwtValidation Long userId) {
+        return userService.deleteUser(userId);
     }
 }

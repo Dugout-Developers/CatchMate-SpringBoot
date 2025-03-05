@@ -1,6 +1,7 @@
 package com.back.catchmate.domain.chat.controller;
 
 import com.back.catchmate.domain.chat.dto.ChatRequest.ChatMessageRequest;
+import com.back.catchmate.domain.chat.dto.ChatRequest.ReadChatMessageRequest;
 import com.back.catchmate.domain.chat.dto.ChatResponse.PagedChatMessageInfo;
 import com.back.catchmate.domain.chat.service.ChatService;
 import com.back.catchmate.global.jwt.JwtValidation;
@@ -13,10 +14,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,11 +31,16 @@ import java.io.IOException;
 public class ChatController {
     private final ChatService chatService;
 
-    @MessageMapping("/chat.{chatRoomId}")
     @SendTo("/topic/chat.{chatRoomId}")
+    @MessageMapping("/chat.{chatRoomId}")
     public void sendMessage(@DestinationVariable Long chatRoomId,
-                            @RequestBody ChatMessageRequest request) throws IOException, FirebaseMessagingException {
+                            @Payload ChatMessageRequest request) throws IOException, FirebaseMessagingException {
         chatService.sendChatMessage(chatRoomId, request);
+    }
+
+    @MessageMapping("/chat/read")
+    public void updateLastReadTime(@Payload ReadChatMessageRequest request) {
+        chatService.updateLastReadTime(request);
     }
 
     @GetMapping("/{chatRoomId}")

@@ -21,4 +21,6 @@ public interface UserService {
     StateResponse updateProfile(UserProfileUpdateRequest request, MultipartFile profileImage, Long userId) throws IOException, IOException;
 
     UpdateAlarmInfo updateAlarm(Long userId, AlarmType alarmType, char isEnabled);
+
+    StateResponse deleteUser(Long userId);
 }

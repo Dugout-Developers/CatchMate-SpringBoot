@@ -148,4 +148,15 @@ public class User extends BaseTimeEntity {
     public boolean isDifferentUserFrom(User boardWriter) {
         return !this.id.equals(boardWriter.getId());
     }
+
+    public void deleteUser() {
+        this.delete();
+
+        // 탈퇴 후 관련된 데이터 처리
+        for (Board board : boardList) {
+            board.deleteBoard();
+        }
+
+        this.deleteFcmToken();
+    }
 }

@@ -38,7 +38,7 @@ public class AuthServiceImpl implements AuthService {
         String providerIdWithProvider = loginRequest.getProviderId() + PROVIDER_ID_SEPARATOR + loginRequest.getProvider();
 
         // 결합한 문자열로 사용자 조회
-        Optional<User> findUserOptional = userRepository.findByProviderId(providerIdWithProvider);
+        Optional<User> findUserOptional = userRepository.findByProviderIdAndDeletedAtIsNull(providerIdWithProvider);
         boolean isFirstLogin = false;
         AuthInfo authInfo;
 
