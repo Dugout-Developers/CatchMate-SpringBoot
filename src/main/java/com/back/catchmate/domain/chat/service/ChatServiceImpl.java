@@ -1,6 +1,7 @@
 package com.back.catchmate.domain.chat.service;
 
 import com.back.catchmate.domain.chat.converter.ChatMessageConverter;
+import com.back.catchmate.domain.chat.dto.ChatRequest;
 import com.back.catchmate.domain.chat.dto.ChatRequest.ChatMessageRequest;
 import com.back.catchmate.domain.chat.dto.ChatResponse.PagedChatMessageInfo;
 import com.back.catchmate.domain.chat.entity.ChatMessage;
@@ -23,7 +24,6 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -44,7 +44,7 @@ public class ChatServiceImpl implements ChatService {
     // 메시지를 특정 채팅방으로 전송
     @Override
     @Transactional
-    public void sendChatMessage(Long chatRoomId, ChatMessageRequest request) throws IOException, FirebaseMessagingException {
+    public void sendChatMessage(Long chatRoomId, ChatMessageRequest request) throws FirebaseMessagingException {
         User user = userRepository.findById(request.getSenderId())
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
@@ -58,13 +58,20 @@ public class ChatServiceImpl implements ChatService {
                 chatMessageRepository.insert(dateMessage);
             }
 
+            // 채팅 메시지 저장 및 전송
             ChatMessage chatMessage = chatMessageConverter.toChatMessage(chatRoomId, request.getContent(), request.getSenderId(), MessageType.TALK);
             chatMessageRepository.insert(chatMessage);
+            messagingTemplate.convertAndSend(destination, chatMessage);
 
+            // 채팅방 정보 업데이트
             ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
                     .orElseThrow(() -> new BaseException(ErrorCode.CHATROOM_NOT_FOUND));
             chatRoom.updateLastMessageContent(request.getContent());
             chatRoom.updateLastMessageTime();
+
+            // 채팅방 목록 실시간 업데이트
+            ChatRequest.LastChatMessageUpdateRequest lastMessageUpdate = new ChatRequest.LastChatMessageUpdateRequest(chatRoomId, request.getContent(), LocalDateTime.now());
+            messagingTemplate.convertAndSend("/topic/chatList", lastMessageUpdate);
 
             // 채팅방에 참여한 사용자 수 확인
             if (chatRoom.getParticipantCount() > 1) {
@@ -74,7 +81,6 @@ public class ChatServiceImpl implements ChatService {
         }
 
         log.info("Sending message to: {}", destination);
-        messagingTemplate.convertAndSend(destination, request);
     }
 
     private boolean isNewDateMessageNeeded(Long chatRoomId, LocalDateTime newMessageTime) {
@@ -87,6 +93,16 @@ public class ChatServiceImpl implements ChatService {
             LocalDate localDate = chatMessage.getSendTime().toLocalDate();
             return !localDate.equals(newDate);
         }
+    }
+
+    @Override
+    @Transactional
+    public void updateLastReadTime(ChatRequest.ReadChatMessageRequest request) {
+        UserChatRoom userChatRoom = userChatRoomRepository.findByUserIdAndChatRoomIdAndDeletedAtIsNull(request.getUserId(), request.getChatRoomId())
+                .orElseThrow(() -> new BaseException(ErrorCode.USER_CHATROOM_NOT_FOUND));
+
+        userChatRoom.updateLastReadTime();
+        userChatRoomRepository.save(userChatRoom);
     }
 
     @Override
