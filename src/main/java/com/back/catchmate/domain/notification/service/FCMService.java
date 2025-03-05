@@ -154,7 +154,7 @@ public class FCMService {
 
     // 특정 채팅방의 모든 사용자에게 FCM 메시지 전송
     @Async("asyncTask")
-    public void sendMessagesByTokens(Long chatRoomId, String title, String body, String senderToken) throws IOException, FirebaseMessagingException {
+    public void sendMessagesByTokens(Long chatRoomId, String title, String body, String senderToken) throws FirebaseMessagingException {
         List<String> targetTokenList = userChatRoomRepository.findByChatRoomIdAndDeletedAtIsNull(chatRoomId)
                 .stream()
                 .map(userChatRoom -> userChatRoom.getUser().getFcmToken()) // User 엔티티에서 FCM 토큰 가져오기
@@ -173,13 +173,6 @@ public class FCMService {
 
         // FCM에 메시지 전송
         BatchResponse response = FirebaseMessaging.getInstance().sendEachForMulticast(message);
-
-        // 전송 결과 확인
-//        if (response.getFailureCount() > 0) {
-//            log.error("일부 메시지 전송에 실패했습니다. 성공한 메시지 수: {}, 실패한 메시지 수: {}",
-//                    response.getSuccessCount(), response.getFailureCount());
-//            throw new BaseException(ErrorCode.FCM_TOKEN_SEND_BAD_REQUEST);
-//        }
 
         log.info("FCM 응답: {}개의 메시지가 성공적으로 전송되었습니다.", response.getSuccessCount());
     }

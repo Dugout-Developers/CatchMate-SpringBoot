@@ -63,9 +63,6 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                 userChatRoomList.isLast());
     }
 
-
-    @Override
-    @Transactional(readOnly = true)
     public long getUnreadMessageCount(Long userId, Long chatRoomId) {
         // 사용자의 마지막 읽은 시간 조회
         UserChatRoom userChatRoom = userChatRoomRepository.findByUserIdAndChatRoomIdAndDeletedAtIsNull(userId, chatRoomId)
@@ -125,7 +122,6 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                     .orElseThrow(() -> new BaseException(ErrorCode.ENROLL_NOT_FOUND));
 
             enroll.delete();
-
 
             // 퇴장 메시지 보내기
             String content = user.getNickName() + " 님이 채팅을 떠났어요";  // 퇴장 메시지 내용
