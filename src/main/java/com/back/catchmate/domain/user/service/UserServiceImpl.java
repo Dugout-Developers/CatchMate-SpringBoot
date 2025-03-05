@@ -47,7 +47,7 @@ public class UserServiceImpl implements UserService{
         User user = userConverter.toEntity(request, favoreiteClub, providerIdWithProvider);
 
         // 이미 가입된 유저의 경우 예외 처리
-        if (userRepository.existsByProviderId(providerIdWithProvider)) {
+        if (userRepository.existsByProviderIdAndDeletedAtIsNull(providerIdWithProvider)) {
             throw new BaseException(ErrorCode.USER_ALREADY_EXIST);
         }
 
@@ -66,7 +66,7 @@ public class UserServiceImpl implements UserService{
     @Override
     @Transactional(readOnly = true)
     public UserInfo getMyProfile(Long userId) {
-        User user = userRepository.findById(userId)
+        User user = userRepository.findByIdAndDeletedAtIsNull(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
         return userConverter.toUserInfo(user);
@@ -76,7 +76,7 @@ public class UserServiceImpl implements UserService{
     @Override
     @Transactional(readOnly = true)
     public UserInfo getOtherUserProfile(Long userId, Long profileUserId) {
-        User user = userRepository.findById(profileUserId)
+        User user = userRepository.findByIdAndDeletedAtIsNull(profileUserId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
         return userConverter.toUserInfo(user);
@@ -105,5 +105,15 @@ public class UserServiceImpl implements UserService{
 
         user.updateAlarmSetting(alarmType, isEnabled);
         return userConverter.toUpdateAlarmInfo(user, alarmType, isEnabled);
+    }
+
+    @Override
+    @Transactional
+    public StateResponse deleteUser(Long userId) {
+        User user = userRepository.findByIdAndDeletedAtIsNull(userId)
+                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+
+        user.deleteUser();
+        return new StateResponse(true);
     }
 }
