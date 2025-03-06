@@ -3,6 +3,8 @@ package com.back.catchmate.domain.chat.service;
 import com.back.catchmate.domain.chat.converter.ChatMessageConverter;
 import com.back.catchmate.domain.chat.dto.ChatRequest;
 import com.back.catchmate.domain.chat.dto.ChatRequest.ChatMessageRequest;
+import com.back.catchmate.domain.chat.dto.ChatResponse;
+import com.back.catchmate.domain.chat.dto.ChatResponse.LastChatMessageUpdateInfo;
 import com.back.catchmate.domain.chat.dto.ChatResponse.PagedChatMessageInfo;
 import com.back.catchmate.domain.chat.entity.ChatMessage;
 import com.back.catchmate.domain.chat.entity.ChatRoom;
@@ -70,7 +72,7 @@ public class ChatServiceImpl implements ChatService {
             chatRoom.updateLastMessageTime();
 
             // 채팅방 목록 실시간 업데이트
-            ChatRequest.LastChatMessageUpdateRequest lastMessageUpdate = new ChatRequest.LastChatMessageUpdateRequest(chatRoomId, request.getContent(), LocalDateTime.now());
+            LastChatMessageUpdateInfo lastMessageUpdate = chatMessageConverter.toLastChatMessageUpdateRequest(chatRoomId, request.getContent(), LocalDateTime.now());
             messagingTemplate.convertAndSend("/topic/chatList", lastMessageUpdate);
 
             // 채팅방에 참여한 사용자 수 확인

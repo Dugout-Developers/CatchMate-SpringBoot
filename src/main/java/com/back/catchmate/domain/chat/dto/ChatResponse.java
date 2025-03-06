@@ -62,4 +62,14 @@ public abstract class ChatResponse {
         private Boolean isFirst;
         private Boolean isLast;
     }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class LastChatMessageUpdateInfo {
+        private Long chatRoomId;   // 채팅방 ID
+        private String content;     // 마지막 메시지 내용
+        private LocalDateTime sendTime; // 메시지 전송 시간
+    }
 }
