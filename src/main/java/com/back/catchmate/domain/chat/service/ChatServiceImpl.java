@@ -54,7 +54,7 @@ public class ChatServiceImpl implements ChatService {
 
         if (request.getMessageType() == MessageType.TALK) {
             // 날짜 메시지가 필요한지 확인
-            if (isNewDateMessageNeeded(chatRoomId, LocalDateTime.now())) {
+            if (isNewDateMessageNeeded(chatRoomId, LocalDateTime.now(ZoneId.of("Asia/Seoul")))) {
                 ChatMessage dateMessage = chatMessageConverter.toDateMessage(chatRoomId, LocalDateTime.now());
                 messagingTemplate.convertAndSend(destination, dateMessage);
                 chatMessageRepository.insert(dateMessage);
@@ -86,9 +86,6 @@ public class ChatServiceImpl implements ChatService {
     }
 
     private boolean isNewDateMessageNeeded(Long chatRoomId, LocalDateTime newMessageTime) {
-        // 서울 시간대 기준으로 LocalDateTime 객체 생성
-        LocalDateTime currentDateTimeInSeoul = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
-
         // 메시지의 날짜 비교를 위한 LocalDateTime으로 변환
         LocalDate newDate = newMessageTime.toLocalDate();
         ChatMessage chatMessage = chatMessageRepository.findFirstByChatRoomIdOrderBySendTimeDesc(chatRoomId);
@@ -96,7 +93,7 @@ public class ChatServiceImpl implements ChatService {
         if (chatMessage == null) {
             return true;
         } else {
-            LocalDateTime sendTimeInSeoul = chatMessage.getSendTime().atZone(ZoneId.of("Asia/Seoul")).toLocalDateTime();
+            LocalDateTime sendTimeInSeoul = chatMessage.getSendTime();
             LocalDate localDate = sendTimeInSeoul.toLocalDate();
             return !localDate.equals(newDate);
         }
