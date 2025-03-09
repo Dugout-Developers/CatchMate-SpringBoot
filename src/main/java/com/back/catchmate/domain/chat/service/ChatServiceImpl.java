@@ -100,7 +100,7 @@ public class ChatServiceImpl implements ChatService {
             LocalDate localDate = sendTimeInSeoul.toLocalDate();
             return !localDate.equals(newDate);
         }
-    }dd
+    }
 
     @Override
     @Transactional
