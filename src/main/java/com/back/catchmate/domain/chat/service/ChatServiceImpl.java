@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 import static com.back.catchmate.domain.chat.dto.ChatRequest.ChatMessageRequest.MessageType;
 
@@ -85,16 +86,21 @@ public class ChatServiceImpl implements ChatService {
     }
 
     private boolean isNewDateMessageNeeded(Long chatRoomId, LocalDateTime newMessageTime) {
+        // 서울 시간대 기준으로 LocalDateTime 객체 생성
+        LocalDateTime currentDateTimeInSeoul = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
+
+        // 메시지의 날짜 비교를 위한 LocalDateTime으로 변환
         LocalDate newDate = newMessageTime.toLocalDate();
         ChatMessage chatMessage = chatMessageRepository.findFirstByChatRoomIdOrderBySendTimeDesc(chatRoomId);
 
         if (chatMessage == null) {
             return true;
         } else {
-            LocalDate localDate = chatMessage.getSendTime().toLocalDate();
+            LocalDateTime sendTimeInSeoul = chatMessage.getSendTime().atZone(ZoneId.of("Asia/Seoul")).toLocalDateTime();
+            LocalDate localDate = sendTimeInSeoul.toLocalDate();
             return !localDate.equals(newDate);
         }
-    }
+    }dd
 
     @Override
     @Transactional
