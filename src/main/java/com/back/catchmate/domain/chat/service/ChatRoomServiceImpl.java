@@ -54,13 +54,15 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                     ChatRoom chatRoom = userChatRoom.getChatRoom();
                     Board board = chatRoom.getBoard();
                     int unreadMessageCount = (int) getUnreadMessageCount(userId, chatRoom.getId());
+                    System.out.println("unreadMessageCount = " + unreadMessageCount);
                     return chatRoomConverter.toChatRoomInfo(chatRoom, board, unreadMessageCount, userChatRoom.getIsNewChatRoom());
                 })
                 .collect(Collectors.toList());
 
         return new PagedChatRoomInfo(chatRoomInfoList, userChatRoomList.getTotalPages(),
                 userChatRoomList.getTotalElements(), userChatRoomList.isFirst(),
-                userChatRoomList.isLast());
+                userChatRoomList.isLast()
+        );
     }
 
     public long getUnreadMessageCount(Long userId, Long chatRoomId) {

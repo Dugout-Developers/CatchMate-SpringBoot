@@ -3,7 +3,6 @@ package com.back.catchmate.domain.chat.service;
 import com.back.catchmate.domain.chat.converter.ChatMessageConverter;
 import com.back.catchmate.domain.chat.dto.ChatRequest;
 import com.back.catchmate.domain.chat.dto.ChatRequest.ChatMessageRequest;
-import com.back.catchmate.domain.chat.dto.ChatResponse;
 import com.back.catchmate.domain.chat.dto.ChatResponse.LastChatMessageUpdateInfo;
 import com.back.catchmate.domain.chat.dto.ChatResponse.PagedChatMessageInfo;
 import com.back.catchmate.domain.chat.entity.ChatMessage;
@@ -104,7 +103,6 @@ public class ChatServiceImpl implements ChatService {
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_CHATROOM_NOT_FOUND));
 
         userChatRoom.updateLastReadTime();
-        userChatRoomRepository.save(userChatRoom);
     }
 
     @Override
