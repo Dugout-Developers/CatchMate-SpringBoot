@@ -175,4 +175,14 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         chatService.sendEnterLeaveMessage(chatRoomId, content, userId, MessageType.LEAVE);
         return new StateResponse(true);
     }
+
+    @Override
+    @Transactional
+    public StateResponse updateNotificationSetting(Long userId, Long chatRoomId, boolean enable) {
+        UserChatRoom userChatRoom = userChatRoomRepository.findByUserIdAndChatRoomIdAndDeletedAtIsNull(userId, chatRoomId)
+                .orElseThrow(() -> new BaseException(ErrorCode.USER_CHATROOM_NOT_FOUND));
+
+        userChatRoom.updateIsNotificationEnabled(enable);
+        return new StateResponse(true);
+    }
 }

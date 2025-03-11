@@ -1,10 +1,13 @@
 package com.back.catchmate.domain.chat.controller;
 
 import com.back.catchmate.domain.chat.dto.ChatResponse;
+import com.back.catchmate.domain.chat.entity.UserChatRoom;
 import com.back.catchmate.domain.chat.service.ChatRoomService;
 import com.back.catchmate.domain.chat.service.UserChatRoomService;
 import com.back.catchmate.domain.user.dto.UserResponse.UserInfoList;
 import com.back.catchmate.global.dto.StateResponse;
+import com.back.catchmate.global.error.ErrorCode;
+import com.back.catchmate.global.error.exception.BaseException;
 import com.back.catchmate.global.jwt.JwtValidation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -13,10 +16,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -75,5 +80,12 @@ public class ChatRoomController {
                                               @PathVariable Long chatRoomId,
                                               @PathVariable Long userId) {
         return chatRoomService.kickUserFromChatRoom(loginUserId, chatRoomId, userId);
+    }
+
+    @PutMapping("/{chatRoomId}/notification")
+    public StateResponse updateNotificationSetting(@JwtValidation Long userId,
+                                                   @PathVariable Long chatRoomId,
+                                                   @RequestParam boolean enable) {
+        return chatRoomService.updateNotificationSetting(userId, chatRoomId, enable);
     }
 }

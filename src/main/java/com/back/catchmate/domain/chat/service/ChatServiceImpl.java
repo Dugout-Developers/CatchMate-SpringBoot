@@ -28,6 +28,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.List;
+import java.util.Objects;
 
 import static com.back.catchmate.domain.chat.dto.ChatRequest.ChatMessageRequest.MessageType;
 
@@ -37,6 +39,7 @@ import static com.back.catchmate.domain.chat.dto.ChatRequest.ChatMessageRequest.
 public class ChatServiceImpl implements ChatService {
     private final SimpMessagingTemplate messagingTemplate;
     private final FCMService fcmService;
+    private final ChatSessionService chatSessionService;
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final UserChatRoomRepository userChatRoomRepository;
@@ -75,10 +78,20 @@ public class ChatServiceImpl implements ChatService {
             LastChatMessageUpdateInfo lastMessageUpdate = chatMessageConverter.toLastChatMessageUpdateRequest(chatRoomId, request.getContent(), LocalDateTime.now());
             messagingTemplate.convertAndSend("/topic/chatList", lastMessageUpdate);
 
-            // 채팅방에 참여한 사용자 수 확인
+            // 채팅방 참여자가 2명 이상일 경우 알림 전송 로직 수행
             if (chatRoom.getParticipantCount() > 1) {
-                // 자신을 제외한 채팅방에 FCM 알림 전송
-                fcmService.sendMessagesByTokens(chatRoomId, chatRoom.getBoard().getTitle(), request.getContent(), user.getFcmToken());
+                // 채팅방에 참여한 사용자 중 접속 중이지 않은 사용자 필터링
+                List<String> targetTokens = chatRoom.getUserChatRoomList().stream()
+                        .filter(userChatRoom -> !chatSessionService.isUserInChatRoom(chatRoomId, userChatRoom.getUser().getId())) // 접속 중이지 않은 사용자
+                        .filter(UserChatRoom::isNotificationEnabled)
+                        .map(userChatRoom -> userChatRoom.getUser().getFcmToken()) // FCM 토큰 추출
+                        .filter(Objects::nonNull) // FCM 토큰이 있는 사용자만 포함
+                        .toList();
+
+                // FCM 알림 전송
+                if (!targetTokens.isEmpty()) {
+                    fcmService.sendMessagesByTokens(chatRoomId, chatRoom.getBoard().getTitle(), request.getContent(), user.getFcmToken());
+                }
             }
         }
 
