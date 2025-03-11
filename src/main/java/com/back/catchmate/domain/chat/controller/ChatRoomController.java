@@ -83,6 +83,7 @@ public class ChatRoomController {
     }
 
     @PutMapping("/{chatRoomId}/notification")
+    @Operation(summary = "채팅방 알림 설정 API", description = "채팅방 알람을 설정하는 API 입니다.")
     public StateResponse updateNotificationSetting(@JwtValidation Long userId,
                                                    @PathVariable Long chatRoomId,
                                                    @RequestParam boolean enable) {
