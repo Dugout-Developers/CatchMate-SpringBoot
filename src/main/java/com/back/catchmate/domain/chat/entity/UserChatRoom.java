@@ -16,10 +16,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 
 @Entity
 @Getter
@@ -50,9 +49,14 @@ public class UserChatRoom extends BaseTimeEntity {
 
     private Boolean isNewChatRoom;  // 마지막으로 채팅방을 읽은 시간
 
+    private boolean isNotificationEnabled = true;
+
     public void updateLastReadTime() {
         this.lastReadTime = LocalDateTime.now(ZoneId.of("Asia/Seoul")); // KST(UTC+9) 기준으로 저장
         this.isNewChatRoom = false;  // 조회 시 새로운 채팅방이 아니게 변경
     }
 
+    public void updateIsNotificationEnabled(boolean enable) {
+        this.isNotificationEnabled = enable;
+    }
 }

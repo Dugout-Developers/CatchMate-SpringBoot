@@ -20,4 +20,6 @@ public interface ChatRoomService {
     StateResponse kickUserFromChatRoom(Long adminId, Long chatRoomId, Long userId);
 
     long getUnreadMessageCount(Long userId, Long chatRoomId);
+
+    StateResponse updateNotificationSetting(Long userId, Long chatRoomId, boolean enable);
 }
