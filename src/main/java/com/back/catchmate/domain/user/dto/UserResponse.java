@@ -71,4 +71,12 @@ public abstract class UserResponse {
         private char isEnabled;    // 알림 활성화 여부
         private LocalDateTime createdAt;
     }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    public static class UnreadStatusInfo {
+        private boolean hasUnreadChat;
+        private boolean hasUnreadNotification;
+    }
 }

@@ -95,4 +95,9 @@ public class NotificationServiceImpl implements NotificationService {
         notification.delete();
         return new StateResponse(true);
     }
+
+    @Override
+    public Boolean hasUnreadNotification(Long userId) {
+        return notificationRepository.existsByUserIdAndReadFalseAndDeletedAtIsNull(userId);
+    }
 }
