@@ -24,6 +24,7 @@ public class SwaggerConfig {
 
         Server server = new Server();
         server.setUrl("https://catchmate.site");
+        server.setUrl("http://localhost:8080");
 
         return new OpenAPI()
                 .components(new Components().addSecuritySchemes("AccessToken", securityScheme))

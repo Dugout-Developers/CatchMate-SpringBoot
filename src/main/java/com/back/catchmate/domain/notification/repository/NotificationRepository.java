@@ -15,5 +15,5 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     Optional<Notification> findByUserIdAndBoardIdAndAcceptStatusAndDeletedAtIsNull(Long userId, Long boardId, AcceptStatus acceptStatus);
 
-    Boolean existsByUserIdAndReadFalseAndDeletedAtIsNull(Long userId);
+    Boolean existsByUserIdAndIsReadFalseAndDeletedAtIsNull(Long userId);
 }
