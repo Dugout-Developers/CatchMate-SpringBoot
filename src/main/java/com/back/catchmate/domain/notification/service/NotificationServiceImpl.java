@@ -98,6 +98,6 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public Boolean hasUnreadNotification(Long userId) {
-        return notificationRepository.existsByUserIdAndReadFalseAndDeletedAtIsNull(userId);
+        return notificationRepository.existsByUserIdAndIsReadFalseAndDeletedAtIsNull(userId);
     }
 }

@@ -34,9 +34,6 @@ import java.io.IOException;
 public class UserController {
     private final UserService userService;
     private final BlockedUserService blockedUserService;
-    private final NotificationService notificationService;
-    private final UserChatRoomService userChatRoomService;
-    private final UserConverter userConverter;
 
     @PostMapping("/additional-info")
     @Operation(summary = "추가 정보 입력 API", description = "최초 로그인시, 추가 정보를 입력하는 API 입니다.")
@@ -99,14 +96,6 @@ public class UserController {
     @Operation(summary = "유저 탈퇴 API", description = "유저가 해당 서비스를 탈퇴하는 API 입니다.")
     public StateResponse deleteUser(@JwtValidation Long userId) {
         return userService.deleteUser(userId);
-    }
-
-    @GetMapping("/block")
-    @Operation(summary = "차단한 유저 목록 API", description = "내가 차단한 유저 목록을 조회하는 API 입니다.")
-    public PagedUserInfo getBlockedUsers(@JwtValidation Long userId,
-                                         @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
-                                         @Parameter(hidden = true) Pageable pageable) {
-        return blockedUserService.getBlockedUserList(userId, pageable);
     }
 
     @GetMapping("/has-unread")
