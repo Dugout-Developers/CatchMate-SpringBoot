@@ -123,6 +123,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
+    @Transactional(readOnly = true)
     public UserResponse.UnreadStatusInfo hasUnreadMessagesOrNotifications(Long userId) {
         Boolean hasUnreadNotification = notificationService.hasUnreadNotification(userId);
         Boolean hasUnreadChat = userChatRoomService.hasUnreadChat(userId);
