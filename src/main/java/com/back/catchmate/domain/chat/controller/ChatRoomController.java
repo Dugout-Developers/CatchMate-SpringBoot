@@ -1,13 +1,12 @@
 package com.back.catchmate.domain.chat.controller;
 
 import com.back.catchmate.domain.chat.dto.ChatResponse;
-import com.back.catchmate.domain.chat.entity.UserChatRoom;
+import com.back.catchmate.domain.chat.dto.ChatResponse.ChatRoomInfo;
+import com.back.catchmate.domain.chat.dto.ChatResponse.PagedChatRoomInfo;
 import com.back.catchmate.domain.chat.service.ChatRoomService;
 import com.back.catchmate.domain.chat.service.UserChatRoomService;
 import com.back.catchmate.domain.user.dto.UserResponse.UserInfoList;
 import com.back.catchmate.global.dto.StateResponse;
-import com.back.catchmate.global.error.ErrorCode;
-import com.back.catchmate.global.error.exception.BaseException;
 import com.back.catchmate.global.jwt.JwtValidation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -16,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -39,7 +37,7 @@ public class ChatRoomController {
 
     @GetMapping("/list")
     @Operation(summary = "내가 속한 채팅방 조회 API", description = "내가 속해있는 채팅방을 조회하는 API 입니다.")
-    public ChatResponse.PagedChatRoomInfo getChatRoomList(@JwtValidation Long userId,
+    public PagedChatRoomInfo getChatRoomList(@JwtValidation Long userId,
                                                           @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
                                                           @Parameter(hidden = true) Pageable pageable) {
         return chatRoomService.getChatRoomList(userId, pageable);
@@ -47,7 +45,7 @@ public class ChatRoomController {
 
     @GetMapping("/{chatRoomId}")
     @Operation(summary = "채팅방 정보 조회 API", description = "체팅방 정보를 조회하는 API 입니다.")
-    public ChatResponse.ChatRoomInfo getChatRoom(@JwtValidation Long userId,
+    public ChatRoomInfo getChatRoom(@JwtValidation Long userId,
                                                  @PathVariable Long chatRoomId) {
         return chatRoomService.getChatRoom(userId, chatRoomId);
     }

@@ -49,6 +49,7 @@ public abstract class ChatResponse {
         private String chatRoomImage;
         private Integer unreadMessageCount;
         private Boolean isNewChatRoom;
+        private Boolean isNotificationEnabled;
     }
 
     @Getter

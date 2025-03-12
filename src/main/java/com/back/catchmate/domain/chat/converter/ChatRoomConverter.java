@@ -5,6 +5,7 @@ import com.back.catchmate.domain.board.dto.BoardResponse.BoardInfo;
 import com.back.catchmate.domain.board.entity.Board;
 import com.back.catchmate.domain.chat.dto.ChatResponse.ChatRoomInfo;
 import com.back.catchmate.domain.chat.entity.ChatRoom;
+import com.back.catchmate.domain.chat.entity.UserChatRoom;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -23,7 +24,7 @@ public class ChatRoomConverter {
                 .build();
     }
 
-    public ChatRoomInfo toChatRoomInfo(ChatRoom chatRoom, Board board, int unreadMessageCount, boolean isNewChatRoom) {
+    public ChatRoomInfo toChatRoomInfo(ChatRoom chatRoom, UserChatRoom userChatRoom, Board board, int unreadMessageCount) {
         BoardInfo boardInfo = boardConverter.toBoardInfo(board, board.getGame());
 
         return ChatRoomInfo.builder()
@@ -34,7 +35,8 @@ public class ChatRoomConverter {
                 .lastMessageContent(chatRoom.getLastMessageContent())
                 .chatRoomImage(chatRoom.getChatRoomImage())
                 .unreadMessageCount(unreadMessageCount)
-                .isNewChatRoom(isNewChatRoom)
+                .isNewChatRoom(userChatRoom.getIsNewChatRoom())
+                .isNotificationEnabled(userChatRoom.isNotificationEnabled())
                 .build();
     }
 }

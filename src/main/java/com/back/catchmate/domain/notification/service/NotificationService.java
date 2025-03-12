@@ -16,4 +16,6 @@ public interface NotificationService {
     NotificationInfo getNotification(Long userId, Long notificationId);
 
     StateResponse deleteNotification(Long userId, Long notificationId);
+
+    Boolean hasUnreadNotification(Long userId);
 }

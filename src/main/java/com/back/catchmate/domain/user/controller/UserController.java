@@ -1,8 +1,12 @@
 package com.back.catchmate.domain.user.controller;
 
+import com.back.catchmate.domain.chat.service.UserChatRoomService;
+import com.back.catchmate.domain.notification.service.NotificationService;
+import com.back.catchmate.domain.user.converter.UserConverter;
 import com.back.catchmate.domain.user.dto.UserRequest;
 import com.back.catchmate.domain.user.dto.UserResponse.LoginInfo;
 import com.back.catchmate.domain.user.dto.UserResponse.PagedUserInfo;
+import com.back.catchmate.domain.user.dto.UserResponse.UnreadStatusInfo;
 import com.back.catchmate.domain.user.dto.UserResponse.UpdateAlarmInfo;
 import com.back.catchmate.domain.user.dto.UserResponse.UserInfo;
 import com.back.catchmate.domain.user.entity.AlarmType;
@@ -18,16 +22,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -39,6 +34,9 @@ import java.io.IOException;
 public class UserController {
     private final UserService userService;
     private final BlockedUserService blockedUserService;
+    private final NotificationService notificationService;
+    private final UserChatRoomService userChatRoomService;
+    private final UserConverter userConverter;
 
     @PostMapping("/additional-info")
     @Operation(summary = "추가 정보 입력 API", description = "최초 로그인시, 추가 정보를 입력하는 API 입니다.")
@@ -91,7 +89,7 @@ public class UserController {
 
     @GetMapping("/block")
     @Operation(summary = "차단한 유저 목록 API", description = "내가 차단한 유저 목록을 조회하는 API 입니다.")
-    public PagedUserInfo getBlockedUsers(@JwtValidation Long userId,
+    public PagedUserInfo getBlockedUserList(@JwtValidation Long userId,
                                          @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
                                          @Parameter(hidden = true) Pageable pageable) {
         return blockedUserService.getBlockedUserList(userId, pageable);
@@ -101,5 +99,19 @@ public class UserController {
     @Operation(summary = "유저 탈퇴 API", description = "유저가 해당 서비스를 탈퇴하는 API 입니다.")
     public StateResponse deleteUser(@JwtValidation Long userId) {
         return userService.deleteUser(userId);
+    }
+
+    @GetMapping("/block")
+    @Operation(summary = "차단한 유저 목록 API", description = "내가 차단한 유저 목록을 조회하는 API 입니다.")
+    public PagedUserInfo getBlockedUsers(@JwtValidation Long userId,
+                                         @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
+                                         @Parameter(hidden = true) Pageable pageable) {
+        return blockedUserService.getBlockedUserList(userId, pageable);
+    }
+
+    @GetMapping("/has-unread")
+    @Operation(summary = "읽지 않은 채팅 & 알림 여부 조회 API", description = "읽지 않은 채팅 & 알림 여부 조회하는 API 입니다.")
+    public UnreadStatusInfo hasUnreadMessagesOrNotifications(@JwtValidation Long userId) {
+        return userService.hasUnreadMessagesOrNotifications(userId);
     }
 }

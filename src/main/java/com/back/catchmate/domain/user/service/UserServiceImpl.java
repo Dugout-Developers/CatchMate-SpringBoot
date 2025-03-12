@@ -1,10 +1,13 @@
 package com.back.catchmate.domain.user.service;
 
+import com.back.catchmate.domain.chat.service.UserChatRoomService;
 import com.back.catchmate.domain.club.entity.Club;
 import com.back.catchmate.domain.club.repository.ClubRepository;
+import com.back.catchmate.domain.notification.service.NotificationService;
 import com.back.catchmate.domain.user.converter.UserConverter;
 import com.back.catchmate.domain.user.dto.UserRequest.UserJoinRequest;
 import com.back.catchmate.domain.user.dto.UserRequest.UserProfileUpdateRequest;
+import com.back.catchmate.domain.user.dto.UserResponse;
 import com.back.catchmate.domain.user.dto.UserResponse.LoginInfo;
 import com.back.catchmate.domain.user.dto.UserResponse.UpdateAlarmInfo;
 import com.back.catchmate.domain.user.dto.UserResponse.UserInfo;
@@ -32,6 +35,8 @@ import static com.back.catchmate.global.auth.service.AuthServiceImpl.PROVIDER_ID
 public class UserServiceImpl implements UserService{
     private final JwtService jwtService;
     private final S3Service s3Service;
+    private final NotificationService notificationService;
+    private final UserChatRoomService userChatRoomService;
     private final UserRepository userRepository;
     private final ClubRepository clubRepository;
     private final RefreshTokenRepository refreshTokenRepository;
@@ -115,5 +120,13 @@ public class UserServiceImpl implements UserService{
 
         user.deleteUser();
         return new StateResponse(true);
+    }
+
+    @Override
+    public UserResponse.UnreadStatusInfo hasUnreadMessagesOrNotifications(Long userId) {
+        Boolean hasUnreadNotification = notificationService.hasUnreadNotification(userId);
+        Boolean hasUnreadChat = userChatRoomService.hasUnreadChat(userId);
+
+        return userConverter.toUnreadStatusInfo(hasUnreadNotification, hasUnreadChat);
     }
 }

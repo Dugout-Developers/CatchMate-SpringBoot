@@ -15,6 +15,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class UserChatRoomServiceImpl implements UserChatRoomService {
+    private final ChatRoomService chatRoomService;
     private final UserChatRoomRepository userChatRoomRepository;
     private final UserChatRoomConverter userChatRoomConverter;
 
@@ -27,5 +28,13 @@ public class UserChatRoomServiceImpl implements UserChatRoomService {
 
         List<UserChatRoom> userChatRoomList = userChatRoomRepository.findByChatRoomIdAndDeletedAtIsNull(chatRoomId);
         return userChatRoomConverter.toUserInfoList(userChatRoomList);
+    }
+
+    @Transactional(readOnly = true)
+    public Boolean hasUnreadChat(Long userId) {
+        List<UserChatRoom> userChatRoomList = userChatRoomRepository.findByUserIdAndDeletedAtIsNull(userId);
+
+        return userChatRoomList.stream()
+                .anyMatch(userChatRoom -> chatRoomService.getUnreadMessageCount(userId, userChatRoom.getChatRoom().getId()) > 0);
     }
 }
