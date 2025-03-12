@@ -11,6 +11,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
+import static com.back.catchmate.domain.user.dto.UserResponse.UnreadStatusInfo;
+
 public interface UserService {
     LoginInfo joinUser(UserRequest.UserJoinRequest request);
 
@@ -23,4 +25,6 @@ public interface UserService {
     UpdateAlarmInfo updateAlarm(Long userId, AlarmType alarmType, char isEnabled);
 
     StateResponse deleteUser(Long userId);
+
+    UnreadStatusInfo hasUnreadMessagesOrNotifications(Long userId);
 }

@@ -54,15 +54,18 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                     ChatRoom chatRoom = userChatRoom.getChatRoom();
                     Board board = chatRoom.getBoard();
                     int unreadMessageCount = (int) getUnreadMessageCount(userId, chatRoom.getId());
-                    return chatRoomConverter.toChatRoomInfo(chatRoom, board, unreadMessageCount, userChatRoom.getIsNewChatRoom());
+                    System.out.println("unreadMessageCount = " + unreadMessageCount);
+                    return chatRoomConverter.toChatRoomInfo(chatRoom, userChatRoom, board, unreadMessageCount);
                 })
                 .collect(Collectors.toList());
 
         return new PagedChatRoomInfo(chatRoomInfoList, userChatRoomList.getTotalPages(),
                 userChatRoomList.getTotalElements(), userChatRoomList.isFirst(),
-                userChatRoomList.isLast());
+                userChatRoomList.isLast()
+        );
     }
 
+    @Transactional(readOnly = true)
     public long getUnreadMessageCount(Long userId, Long chatRoomId) {
         // 사용자의 마지막 읽은 시간 조회
         UserChatRoom userChatRoom = userChatRoomRepository.findByUserIdAndChatRoomIdAndDeletedAtIsNull(userId, chatRoomId)
@@ -89,7 +92,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
 
         int unreadMessageCount = (int) getUnreadMessageCount(userId, chatRoomId);
-        return chatRoomConverter.toChatRoomInfo(chatRoom, chatRoom.getBoard(), unreadMessageCount, userChatRoom.getIsNewChatRoom());
+        return chatRoomConverter.toChatRoomInfo(chatRoom, userChatRoom, chatRoom.getBoard(), unreadMessageCount);
     }
 
     @Override
@@ -171,6 +174,16 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
         String content = "방장의 결정으로 " + user.getNickName() + " 님이 채팅방에서 나갔습니다.";
         chatService.sendEnterLeaveMessage(chatRoomId, content, userId, MessageType.LEAVE);
+        return new StateResponse(true);
+    }
+
+    @Override
+    @Transactional
+    public StateResponse updateNotificationSetting(Long userId, Long chatRoomId, boolean enable) {
+        UserChatRoom userChatRoom = userChatRoomRepository.findByUserIdAndChatRoomIdAndDeletedAtIsNull(userId, chatRoomId)
+                .orElseThrow(() -> new BaseException(ErrorCode.USER_CHATROOM_NOT_FOUND));
+
+        userChatRoom.updateIsNotificationEnabled(enable);
         return new StateResponse(true);
     }
 }

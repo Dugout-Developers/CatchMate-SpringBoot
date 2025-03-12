@@ -2,6 +2,7 @@ package com.back.catchmate.domain.chat.converter;
 
 import com.back.catchmate.domain.chat.dto.ChatResponse;
 import com.back.catchmate.domain.chat.dto.ChatResponse.ChatMessageInfo;
+import com.back.catchmate.domain.chat.dto.ChatResponse.LastChatMessageUpdateInfo;
 import com.back.catchmate.domain.chat.entity.ChatMessage;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
@@ -72,5 +73,13 @@ public class ChatMessageConverter {
     private String formatDate(LocalDateTime dateTime) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M월 d일", Locale.KOREAN);
         return dateTime.format(formatter);
+    }
+
+    public LastChatMessageUpdateInfo toLastChatMessageUpdateRequest(Long chatRoomId, String content, LocalDateTime localDateTime) {
+        return LastChatMessageUpdateInfo.builder()
+                .chatRoomId(chatRoomId)
+                .content(content)
+                .sendTime(localDateTime)
+                .build();
     }
 }

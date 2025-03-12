@@ -3,6 +3,7 @@ package com.back.catchmate.domain.chat.service;
 import com.back.catchmate.domain.chat.converter.ChatMessageConverter;
 import com.back.catchmate.domain.chat.dto.ChatRequest;
 import com.back.catchmate.domain.chat.dto.ChatRequest.ChatMessageRequest;
+import com.back.catchmate.domain.chat.dto.ChatResponse.LastChatMessageUpdateInfo;
 import com.back.catchmate.domain.chat.dto.ChatResponse.PagedChatMessageInfo;
 import com.back.catchmate.domain.chat.entity.ChatMessage;
 import com.back.catchmate.domain.chat.entity.ChatRoom;
@@ -26,6 +27,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.List;
+import java.util.Objects;
 
 import static com.back.catchmate.domain.chat.dto.ChatRequest.ChatMessageRequest.MessageType;
 
@@ -35,6 +39,7 @@ import static com.back.catchmate.domain.chat.dto.ChatRequest.ChatMessageRequest.
 public class ChatServiceImpl implements ChatService {
     private final SimpMessagingTemplate messagingTemplate;
     private final FCMService fcmService;
+    private final ChatSessionService chatSessionService;
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final UserChatRoomRepository userChatRoomRepository;
@@ -52,7 +57,7 @@ public class ChatServiceImpl implements ChatService {
 
         if (request.getMessageType() == MessageType.TALK) {
             // 날짜 메시지가 필요한지 확인
-            if (isNewDateMessageNeeded(chatRoomId, LocalDateTime.now())) {
+            if (isNewDateMessageNeeded(chatRoomId, LocalDateTime.now(ZoneId.of("Asia/Seoul")))) {
                 ChatMessage dateMessage = chatMessageConverter.toDateMessage(chatRoomId, LocalDateTime.now());
                 messagingTemplate.convertAndSend(destination, dateMessage);
                 chatMessageRepository.insert(dateMessage);
@@ -70,13 +75,23 @@ public class ChatServiceImpl implements ChatService {
             chatRoom.updateLastMessageTime();
 
             // 채팅방 목록 실시간 업데이트
-            ChatRequest.LastChatMessageUpdateRequest lastMessageUpdate = new ChatRequest.LastChatMessageUpdateRequest(chatRoomId, request.getContent(), LocalDateTime.now());
+            LastChatMessageUpdateInfo lastMessageUpdate = chatMessageConverter.toLastChatMessageUpdateRequest(chatRoomId, request.getContent(), LocalDateTime.now());
             messagingTemplate.convertAndSend("/topic/chatList", lastMessageUpdate);
 
-            // 채팅방에 참여한 사용자 수 확인
+            // 채팅방 참여자가 2명 이상일 경우 알림 전송 로직 수행
             if (chatRoom.getParticipantCount() > 1) {
-                // 자신을 제외한 채팅방에 FCM 알림 전송
-                fcmService.sendMessagesByTokens(chatRoomId, chatRoom.getBoard().getTitle(), request.getContent(), user.getFcmToken());
+                // 채팅방에 참여한 사용자 중 접속 중이지 않은 사용자 필터링
+                List<String> targetTokens = chatRoom.getUserChatRoomList().stream()
+                        .filter(userChatRoom -> !chatSessionService.isUserInChatRoom(chatRoomId, userChatRoom.getUser().getId())) // 접속 중이지 않은 사용자
+                        .filter(UserChatRoom::isNotificationEnabled)
+                        .map(userChatRoom -> userChatRoom.getUser().getFcmToken()) // FCM 토큰 추출
+                        .filter(Objects::nonNull) // FCM 토큰이 있는 사용자만 포함
+                        .toList();
+
+                // FCM 알림 전송
+                if (!targetTokens.isEmpty()) {
+                    fcmService.sendMessagesByTokens(chatRoomId, chatRoom.getBoard().getTitle(), request.getContent(), user.getFcmToken());
+                }
             }
         }
 
@@ -84,13 +99,15 @@ public class ChatServiceImpl implements ChatService {
     }
 
     private boolean isNewDateMessageNeeded(Long chatRoomId, LocalDateTime newMessageTime) {
+        // 메시지의 날짜 비교를 위한 LocalDateTime으로 변환
         LocalDate newDate = newMessageTime.toLocalDate();
         ChatMessage chatMessage = chatMessageRepository.findFirstByChatRoomIdOrderBySendTimeDesc(chatRoomId);
 
         if (chatMessage == null) {
             return true;
         } else {
-            LocalDate localDate = chatMessage.getSendTime().toLocalDate();
+            LocalDateTime sendTimeInSeoul = chatMessage.getSendTime();
+            LocalDate localDate = sendTimeInSeoul.toLocalDate();
             return !localDate.equals(newDate);
         }
     }
@@ -102,7 +119,6 @@ public class ChatServiceImpl implements ChatService {
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_CHATROOM_NOT_FOUND));
 
         userChatRoom.updateLastReadTime();
-        userChatRoomRepository.save(userChatRoom);
     }
 
     @Override

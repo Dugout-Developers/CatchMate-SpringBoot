@@ -22,4 +22,6 @@ public interface UserChatRoomRepository extends JpaRepository<UserChatRoom, Long
     Page<UserChatRoom> findAllByUserId(Long userId, Pageable pageable);
 
     List<UserChatRoom> findByChatRoomIdAndDeletedAtIsNull(Long chatRoomId);
+
+    List<UserChatRoom> findByUserIdAndDeletedAtIsNull(Long userId);
 }
