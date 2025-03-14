@@ -3,14 +3,7 @@ package com.back.catchmate.domain.admin.controller;
 import com.back.catchmate.domain.admin.dto.AdminRequest;
 import com.back.catchmate.domain.admin.dto.AdminRequest.AnswerInquiryRequest;
 import com.back.catchmate.domain.admin.dto.AdminResponse;
-import com.back.catchmate.domain.admin.dto.AdminResponse.AdminDashboardInfo;
-import com.back.catchmate.domain.admin.dto.AdminResponse.BoardInfo;
-import com.back.catchmate.domain.admin.dto.AdminResponse.GenderRatioDto;
-import com.back.catchmate.domain.admin.dto.AdminResponse.InquiryInfo;
-import com.back.catchmate.domain.admin.dto.AdminResponse.PagedBoardInfo;
-import com.back.catchmate.domain.admin.dto.AdminResponse.PagedInquiryInfo;
-import com.back.catchmate.domain.admin.dto.AdminResponse.PagedUserInfo;
-import com.back.catchmate.domain.admin.dto.AdminResponse.UserInfo;
+import com.back.catchmate.domain.admin.dto.AdminResponse.*;
 import com.back.catchmate.domain.admin.service.AdminService;
 import com.back.catchmate.global.dto.StateResponse;
 import com.back.catchmate.global.jwt.JwtValidation;
@@ -113,14 +106,14 @@ public class AdminController {
 
     @GetMapping("/report")
     @Operation(summary = "신고 내역 조회", description = "신고 내역을 페이징하여 조회하는 API 입니다.")
-    public AdminResponse.PagedReportInfo getReportList(@PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
+    public PagedReportInfo getReportList(@PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
                                                        @Parameter(hidden = true) Pageable pageable) {
         return adminService.getReportList(pageable);
     }
 
     @GetMapping("/report/{reportId}")
     @Operation(summary = "신고 내역 단일 조회", description = "특정 신고 내역의 상세 정보를 조회하는 API 입니다.")
-    public AdminResponse.ReportInfo getReport(@PathVariable Long reportId) {
+    public ReportInfo getReport(@PathVariable Long reportId) {
         return adminService.getReport(reportId);
     }
 
@@ -132,14 +125,14 @@ public class AdminController {
 
     @PostMapping("/notice")
     @Operation(summary = "공지글 등록 API", description = "공지글을 등록하는 API 입니다.")
-    public AdminResponse.NoticeInfo createNotice(@JwtValidation Long userId,
+    public NoticeInfo createNotice(@JwtValidation Long userId,
                                                  @Valid @RequestBody AdminRequest.CreateNoticeRequest request) {
         return adminService.createNotice(userId, request);
     }
 
     @GetMapping("/notice/list")
     @Operation(summary = "공지사항 목록 조회 API", description = "공지사항 목록을 페이징하여 조회하는 API 입니다.")
-    public AdminResponse.PagedNoticeInfo getNoticeList(@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd") LocalDate startDate,
+    public PagedNoticeInfo getNoticeList(@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd") LocalDate startDate,
                                                        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd") LocalDate endDate,
                                                        @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
                                                        @Parameter(hidden = true) Pageable pageable) {
@@ -148,13 +141,13 @@ public class AdminController {
 
     @GetMapping("/notice/{noticeId}")
     @Operation(summary = "공지사항 단일 조회 API", description = "특정 공지사항을 조회하는 API 입니다.")
-    public AdminResponse.NoticeInfo getNotice(@PathVariable Long noticeId) {
+    public NoticeInfo getNotice(@PathVariable Long noticeId) {
         return adminService.getNotice(noticeId);
     }
 
     @PutMapping("/notice/{noticeId}")
     @Operation(summary = "공지사항 수정 API", description = "공지사항을 수정하는 API 입니다.")
-    public AdminResponse.NoticeInfo updateNotice(@JwtValidation Long userId,
+    public NoticeInfo updateNotice(@JwtValidation Long userId,
                                                  @PathVariable Long noticeId,
                                                  @Valid @RequestBody AdminRequest.UpdateNoticeRequest request) {
         return adminService.updateNotice(userId, noticeId, request);

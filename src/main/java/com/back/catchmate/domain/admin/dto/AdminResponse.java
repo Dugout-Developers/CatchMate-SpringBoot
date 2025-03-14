@@ -134,6 +134,7 @@ public abstract class AdminResponse {
         private UserInfo reportedUser;
         private ReportType reportType;
         private String content;
+        private Boolean isProcessed;
         private LocalDateTime createdAt;
     }
 
