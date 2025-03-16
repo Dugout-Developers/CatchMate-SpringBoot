@@ -18,7 +18,7 @@ public class BoardCleanScheduler {
     private final ChatMessageRepository chatMessageRepository;
 
     @Transactional
-    @Scheduled(cron = "0 9 13 * * ?", zone = "Asia/Seoul")
+    @Scheduled(cron = "0 0 3 * * ?", zone = "Asia/Seoul")
     public void softDeleteOldBoardsAndChats() {
         LocalDateTime deleteThreshold = LocalDateTime.now().minusDays(7);
 

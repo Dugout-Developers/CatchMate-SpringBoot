@@ -30,6 +30,7 @@ public class ChatPreHandler implements ChannelInterceptor {
     @Override
     public Message<?> preSend(@NotNull Message<?> message, @NotNull MessageChannel channel) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+        log.info("STOMP command: {}", accessor.getCommand());
 
         if (StompCommand.CONNECT.equals(accessor.getCommand())) {
             List<String> headers = accessor.getNativeHeader(ACCESS_TOKEN_HEADER);
