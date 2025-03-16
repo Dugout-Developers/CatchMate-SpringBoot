@@ -90,7 +90,6 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         UserChatRoom userChatRoom = userChatRoomRepository.findByUserIdAndChatRoomIdAndDeletedAtIsNull(userId, chatRoomId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_CHATROOM_NOT_FOUND));
 
-
         int unreadMessageCount = (int) getUnreadMessageCount(userId, chatRoomId);
         return chatRoomConverter.toChatRoomInfo(chatRoom, userChatRoom, chatRoom.getBoard(), unreadMessageCount);
     }
