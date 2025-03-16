@@ -65,6 +65,15 @@ public class ChatPreHandler implements ChannelInterceptor {
 
     private Long getChatRoomIdFromHeaders(StompHeaderAccessor accessor) {
         List<String> chatRoomHeaders = accessor.getNativeHeader("ChatRoomId");
+
+        if (chatRoomHeaders == null || chatRoomHeaders.isEmpty()) {
+            log.warn("ChatRoomId is missing in headers!");
+            return null;
+        }
+
+        Long chatRoomId = Long.valueOf(chatRoomHeaders.get(0));
+        log.info("Extracted chatRoomId from header: {}", chatRoomId);
+
         return (chatRoomHeaders != null && !chatRoomHeaders.isEmpty()) ? Long.valueOf(chatRoomHeaders.get(0)) : null;
     }
 
