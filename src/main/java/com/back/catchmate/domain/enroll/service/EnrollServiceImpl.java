@@ -191,8 +191,11 @@ public class EnrollServiceImpl implements EnrollService {
         }
 
         enroll.respondToEnroll(AcceptStatus.ACCEPTED);
-
         enterChatRoom(enrollApplicant, board);
+
+        Notification notification = notificationRepository.findByUserIdAndBoardIdAndAcceptStatusAndDeletedAtIsNull(enroll.getBoard().getUser().getId(), enroll.getBoard().getId(), AcceptStatus.PENDING)
+                .orElseThrow(() -> new BaseException(ErrorCode.NOTIFICATION_NOT_FOUND));
+        notification.updateAcceptStatus(AcceptStatus.ALREADY_ACCEPTED);
 
         String title = ENROLLMENT_ACCEPT_TITLE;
         String body = ENROLLMENT_ACCEPT_BODY;
@@ -233,13 +236,12 @@ public class EnrollServiceImpl implements EnrollService {
             throw new BaseException(ErrorCode.ENROLL_REJECT_INVALID);
         }
 
-        String title = ENROLLMENT_REJECT_TITLE;
-        String body = ENROLLMENT_REJECT_BODY;
-
         Notification notification = notificationRepository.findByUserIdAndBoardIdAndAcceptStatusAndDeletedAtIsNull(enroll.getBoard().getUser().getId(), enroll.getBoard().getId(), AcceptStatus.PENDING)
                 .orElseThrow(() -> new BaseException(ErrorCode.NOTIFICATION_NOT_FOUND));
-
         notification.updateAcceptStatus(AcceptStatus.ALREADY_REJECTED);
+
+        String title = ENROLLMENT_REJECT_TITLE;
+        String body = ENROLLMENT_REJECT_BODY;
 
         fcmService.sendMessageByToken(enrollApplicant.getFcmToken(), title, body, enroll.getBoard().getId(), AcceptStatus.REJECTED, null);
         notificationService.createNotification(title, body, boardWriter.getProfileImageUrl(), enroll.getBoard().getId(), enrollApplicant.getId(), AcceptStatus.REJECTED);
