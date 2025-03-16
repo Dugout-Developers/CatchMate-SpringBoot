@@ -24,6 +24,7 @@ public class UserChatRoomConverter {
                 .joinedAt(LocalDateTime.now())
                 .lastReadTime(LocalDateTime.now())
                 .isNewChatRoom(true)
+                .isNotificationEnabled(true)
                 .build();
     }
 
