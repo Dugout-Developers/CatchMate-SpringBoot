@@ -13,4 +13,6 @@ public interface ChatMessageRepository extends MongoRepository<ChatMessage, Stri
     ChatMessage findFirstByChatRoomIdOrderBySendTimeDesc(Long roomId);
 
     long countByChatRoomIdAndSendTimeGreaterThanAndMessageType(Long chatRoomId, LocalDateTime lastReadTime, String messageType);
+
+    void deleteAllByChatRoomId(Long chatRoomId);
 }
