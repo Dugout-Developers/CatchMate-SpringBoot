@@ -34,6 +34,8 @@ public class ChatPreHandler implements ChannelInterceptor {
 
         if (StompCommand.CONNECT.equals(accessor.getCommand())) {
             List<String> headers = accessor.getNativeHeader(ACCESS_TOKEN_HEADER);
+
+            System.out.println("headers = " + headers);
             try {
                 if (!CollectionUtils.isEmpty(headers)) {
                     Long userId = jwtService.parseJwtToken(headers.get(0));
