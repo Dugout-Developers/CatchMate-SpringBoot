@@ -38,15 +38,15 @@ public class ChatRoomController {
     @GetMapping("/list")
     @Operation(summary = "내가 속한 채팅방 조회 API", description = "내가 속해있는 채팅방을 조회하는 API 입니다.")
     public PagedChatRoomInfo getChatRoomList(@JwtValidation Long userId,
-                                                          @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
-                                                          @Parameter(hidden = true) Pageable pageable) {
+                                             @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
+                                             @Parameter(hidden = true) Pageable pageable) {
         return chatRoomService.getChatRoomList(userId, pageable);
     }
 
     @GetMapping("/{chatRoomId}")
     @Operation(summary = "채팅방 정보 조회 API", description = "체팅방 정보를 조회하는 API 입니다.")
     public ChatRoomInfo getChatRoom(@JwtValidation Long userId,
-                                                 @PathVariable Long chatRoomId) {
+                                    @PathVariable Long chatRoomId) {
         return chatRoomService.getChatRoom(userId, chatRoomId);
     }
 

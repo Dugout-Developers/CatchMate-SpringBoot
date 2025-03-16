@@ -180,6 +180,7 @@ public class AdminConverter {
                 .reportedUser(reportedUser)
                 .reportType(report.getReportType())
                 .content(report.getContent())
+                .isProcessed(report.getIsProcessed())
                 .createdAt(report.getCreatedAt())
                 .build();
     }

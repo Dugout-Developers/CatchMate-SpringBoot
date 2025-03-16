@@ -30,6 +30,7 @@ public class ChatPreHandler implements ChannelInterceptor {
     @Override
     public Message<?> preSend(@NotNull Message<?> message, @NotNull MessageChannel channel) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+        log.info("STOMP command: {}", accessor.getCommand());
 
         if (StompCommand.CONNECT.equals(accessor.getCommand())) {
             List<String> headers = accessor.getNativeHeader(ACCESS_TOKEN_HEADER);
@@ -37,8 +38,9 @@ public class ChatPreHandler implements ChannelInterceptor {
                 if (!CollectionUtils.isEmpty(headers)) {
                     Long userId = jwtService.parseJwtToken(headers.get(0));
                     Long chatRoomId = getChatRoomIdFromHeaders(accessor); // 채팅방 ID 추출
-                    chatSessionService.userJoined(chatRoomId, userId); // 접속 정보 저장
+                    System.out.println("ChatPreHandler / chatRoomId = " + chatRoomId);
 
+                    chatSessionService.userJoined(chatRoomId, userId); // 접속 정보 저장
                     log.info("User connected: userId={}, chatRoomId={}", userId, chatRoomId);
                 }
             } catch (MessageDeliveryException e) {
@@ -63,6 +65,15 @@ public class ChatPreHandler implements ChannelInterceptor {
 
     private Long getChatRoomIdFromHeaders(StompHeaderAccessor accessor) {
         List<String> chatRoomHeaders = accessor.getNativeHeader("ChatRoomId");
+
+        if (chatRoomHeaders == null || chatRoomHeaders.isEmpty()) {
+            log.warn("ChatRoomId is missing in headers!");
+            return null;
+        }
+
+        Long chatRoomId = Long.valueOf(chatRoomHeaders.get(0));
+        log.info("Extracted chatRoomId from header: {}", chatRoomId);
+
         return (chatRoomHeaders != null && !chatRoomHeaders.isEmpty()) ? Long.valueOf(chatRoomHeaders.get(0)) : null;
     }
 

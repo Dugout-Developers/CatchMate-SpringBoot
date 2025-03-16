@@ -1,11 +1,13 @@
 package com.back.catchmate.domain.chat.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+@Slf4j
 @Service
 public class ChatSessionService {
     // 채팅방별 접속 사용자 목록 (chatRoomId -> 사용자 ID Set)
@@ -13,6 +15,8 @@ public class ChatSessionService {
 
     // 사용자가 채팅방에 접속했을 때 호출
     public void userJoined(Long chatRoomId, Long userId) {
+        System.out.println("ChatSessionService / chatRoomId = " + chatRoomId);
+        System.out.println("ChatSessionService / userId = " + userId);
         chatRoomSessionMap
             .computeIfAbsent(chatRoomId, k -> new CopyOnWriteArraySet<>())
             .add(userId);
