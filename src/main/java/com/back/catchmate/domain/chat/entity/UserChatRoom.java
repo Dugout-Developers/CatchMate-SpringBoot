@@ -47,8 +47,10 @@ public class UserChatRoom extends BaseTimeEntity {
 
     private LocalDateTime lastReadTime;  // 마지막으로 채팅방을 읽은 시간
 
+    @Column(name = "is_new_chat_room", nullable = false)
     private Boolean isNewChatRoom;  // 마지막으로 채팅방을 읽은 시간
 
+    @Column(name = "is_notification_enabled", nullable = false)
     private boolean isNotificationEnabled = true;
 
     public void updateLastReadTime() {
