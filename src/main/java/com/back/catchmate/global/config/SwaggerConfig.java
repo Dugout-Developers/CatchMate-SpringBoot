@@ -22,18 +22,20 @@ public class SwaggerConfig {
 
         SecurityRequirement securityRequirement = new SecurityRequirement().addList("AccessToken");
 
-        Server server = new Server();
-        server.setUrl("https://catchmate.site");
-        server.setUrl("http://localhost:8080");
+        Server productionServer = new Server();
+        productionServer.setUrl("https://catchmate.site");
+
+        Server localServer = new Server();
+        localServer.setUrl("http://localhost:8080");
 
         return new OpenAPI()
                 .components(new Components().addSecuritySchemes("AccessToken", securityScheme))
                 .addSecurityItem(securityRequirement)
-                .servers(List.of(server))
+                .servers(List.of(productionServer, localServer))
                 .info(apiInfo());
     }
 
-    private Info apiInfo() {
+        private Info apiInfo() {
         return new Info()
                 .title("CATCH-MATE API")
                 .description("API documentation for CATCH-MATE application")
