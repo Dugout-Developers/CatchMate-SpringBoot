@@ -32,6 +32,8 @@ public class ChatPreHandler implements ChannelInterceptor {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
         log.info("STOMP command: {}", accessor.getCommand());
 
+        log.info("All STOMP Headers: {}", accessor.toNativeHeaderMap());
+
         if (StompCommand.CONNECT.equals(accessor.getCommand())) {
             List<String> headers = accessor.getNativeHeader(ACCESS_TOKEN_HEADER);
 
