@@ -43,6 +43,8 @@ public class ChatPreHandler implements ChannelInterceptor {
                     Long userId = jwtService.parseJwtToken(headers.get(0));
                     Long chatRoomId = getChatRoomIdFromHeaders(accessor); // 채팅방 ID 추출
                     System.out.println("ChatPreHandler / chatRoomId = " + chatRoomId);
+                    accessor.getSessionAttributes().put("userId", userId);
+                    accessor.getSessionAttributes().put("chatRoomId", chatRoomId);
 
                     chatSessionService.userJoined(chatRoomId, userId); // 접속 정보 저장
                     log.info("User connected: userId={}, chatRoomId={}", userId, chatRoomId);
