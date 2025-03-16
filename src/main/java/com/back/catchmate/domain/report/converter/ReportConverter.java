@@ -13,6 +13,7 @@ public class ReportConverter {
                 .reportedUser(reportedUser)
                 .reportType(request.getReportType())
                 .content(request.getContent())
+                .isProcessed(false)
                 .build();
     }
 }
