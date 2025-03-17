@@ -104,6 +104,7 @@ public class BoardConverter {
                 .liftUpDate(board.getLiftUpDate())
                 .gameInfo(gameInfo)
                 .userInfo(userInfo)
+                .chatRoomId(board.getChatRoom().getId())
                 .build();
     }
 
