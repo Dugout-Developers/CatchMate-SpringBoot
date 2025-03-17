@@ -213,7 +213,7 @@ public class AdminServiceImpl implements AdminService {
         String body = INQUIRY_ANSWER_BODY;
 
         fcmService.sendMessageByToken(inquiry.getUser().getFcmToken(), title, body, inquiryId);
-        notificationService.createNotification(title, body, null, inquiryId, userId);
+        notificationService.createNotification(title, body, null, inquiryId, inquiry.getUser().getId());
 
         return new StateResponse(true);
     }
