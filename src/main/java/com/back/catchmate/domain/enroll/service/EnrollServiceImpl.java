@@ -105,6 +105,11 @@ public class EnrollServiceImpl implements EnrollService {
         }
 
         enroll.delete();
+
+        Notification notification = notificationRepository.findByBoardIdAndUserIdAndDeletedAtIsNull(enroll.getBoard().getId(), enroll.getBoard().getUser().getId())
+                .orElseThrow(() -> new BaseException(ErrorCode.NOTIFICATION_NOT_FOUND));
+        notification.delete();
+
         return enrollConverter.toCancelEnrollInfo(enroll);
     }
 
@@ -203,6 +208,8 @@ public class EnrollServiceImpl implements EnrollService {
         fcmService.sendMessageByToken(enrollApplicant.getFcmToken(), title, body, enroll.getBoard().getId(), AcceptStatus.ACCEPTED, board.getChatRoom().getId());
         notificationService.createNotification(title, body, boardWriter.getProfileImageUrl(), enroll.getBoard().getId(), enrollApplicant.getId(), AcceptStatus.ACCEPTED);
 
+        enroll.respondToEnroll(AcceptStatus.REJECTED);
+        enroll.delete();
         return enrollConverter.toUpdateEnrollInfo(enroll, AcceptStatus.ACCEPTED);
     }
 
