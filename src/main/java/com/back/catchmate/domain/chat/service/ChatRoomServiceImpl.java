@@ -65,7 +65,8 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         );
     }
 
-    @Transactional(readOnly = true)
+    @Override
+//    @Transactional(readOnly = true)
     public long getUnreadMessageCount(Long userId, Long chatRoomId) {
         // 사용자의 마지막 읽은 시간 조회
         UserChatRoom userChatRoom = userChatRoomRepository.findByUserIdAndChatRoomIdAndDeletedAtIsNull(userId, chatRoomId)
