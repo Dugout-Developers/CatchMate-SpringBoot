@@ -2,6 +2,7 @@ package com.back.catchmate.domain.chat.service;
 
 import com.back.catchmate.domain.board.entity.Board;
 import com.back.catchmate.domain.chat.converter.ChatRoomConverter;
+import com.back.catchmate.domain.chat.dto.ChatRequest;
 import com.back.catchmate.domain.chat.dto.ChatResponse.ChatRoomInfo;
 import com.back.catchmate.domain.chat.dto.ChatResponse.PagedChatRoomInfo;
 import com.back.catchmate.domain.chat.entity.ChatRoom;
@@ -19,6 +20,7 @@ import com.back.catchmate.global.error.ErrorCode;
 import com.back.catchmate.global.error.exception.BaseException;
 import com.back.catchmate.global.s3.S3Service;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -43,6 +45,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     private final EnrollRepository enrollRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomConverter chatRoomConverter;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     @Transactional(readOnly = true)
@@ -54,7 +57,10 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                     ChatRoom chatRoom = userChatRoom.getChatRoom();
                     Board board = chatRoom.getBoard();
                     int unreadMessageCount = (int) getUnreadMessageCount(userId, chatRoom.getId());
-                    System.out.println("unreadMessageCount = " + unreadMessageCount);
+
+                    // 이벤트 발행
+                    applicationEventPublisher.publishEvent(new ChatRequest.ReadChatMessageRequest(userId, chatRoom.getId()));
+
                     return chatRoomConverter.toChatRoomInfo(chatRoom, userChatRoom, board, unreadMessageCount);
                 })
                 .collect(Collectors.toList());
@@ -64,6 +70,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                 userChatRoomList.isLast()
         );
     }
+
 
     @Override
 //    @Transactional(readOnly = true)
