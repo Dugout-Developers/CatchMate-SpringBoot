@@ -120,6 +120,7 @@ public class ChatServiceImpl implements ChatService {
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_CHATROOM_NOT_FOUND));
 
         userChatRoom.updateLastReadTime();
+        userChatRoomRepository.flush();
     }
 
     @Override
