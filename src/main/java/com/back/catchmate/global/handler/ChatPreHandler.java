@@ -32,17 +32,12 @@ public class ChatPreHandler implements ChannelInterceptor {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
         log.info("STOMP command: {}", accessor.getCommand());
 
-        log.info("All STOMP Headers: {}", accessor.toNativeHeaderMap());
-
         if (StompCommand.CONNECT.equals(accessor.getCommand())) {
             List<String> headers = accessor.getNativeHeader(ACCESS_TOKEN_HEADER);
-
-            System.out.println("headers = " + headers);
             try {
                 if (!CollectionUtils.isEmpty(headers)) {
                     Long userId = jwtService.parseJwtToken(headers.get(0));
                     Long chatRoomId = getChatRoomIdFromHeaders(accessor); // 채팅방 ID 추출
-                    System.out.println("ChatPreHandler / chatRoomId = " + chatRoomId);
                     accessor.getSessionAttributes().put("userId", userId);
                     accessor.getSessionAttributes().put("chatRoomId", chatRoomId);
 
@@ -59,7 +54,7 @@ public class ChatPreHandler implements ChannelInterceptor {
             Long userId = getUserIdFromSession(accessor);
             Long chatRoomId = getChatRoomIdFromSession(accessor);
             if (userId != null && chatRoomId != null) {
-                chatSessionService.userLeft(chatRoomId, userId); // 접속 정보 삭제
+                chatSessionService.userLeft(chatRoomId, userId);
                 log.info("User disconnected: userId={}, chatRoomId={}", userId, chatRoomId);
             } else {
                 log.warn("User disconnected but session info is missing.");

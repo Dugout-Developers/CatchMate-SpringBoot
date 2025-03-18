@@ -15,8 +15,6 @@ public class ChatSessionService {
 
     // 사용자가 채팅방에 접속했을 때 호출
     public void userJoined(Long chatRoomId, Long userId) {
-        System.out.println("ChatSessionService / chatRoomId = " + chatRoomId);
-        System.out.println("ChatSessionService / userId = " + userId);
         chatRoomSessionMap
             .computeIfAbsent(chatRoomId, k -> new CopyOnWriteArraySet<>())
             .add(userId);
