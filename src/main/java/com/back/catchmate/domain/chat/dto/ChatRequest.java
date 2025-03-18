@@ -25,7 +25,7 @@ public abstract class ChatRequest {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class ReadChatMessageRequest {
-        private Long chatRoomId;   // 보낸 사람
-        private Long userId;  // 메시지 내용
+        private Long chatRoomId;
+        private Long userId;
     }
 }

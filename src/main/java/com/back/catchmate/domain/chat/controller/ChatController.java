@@ -9,6 +9,7 @@ import com.google.firebase.messaging.FirebaseMessagingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 
+@Slf4j
 @Tag(name = "[사용자] 채팅 관련 API")
 @RestController
 @RequestMapping("/chats")
@@ -40,6 +42,7 @@ public class ChatController {
 
     @MessageMapping("/chat/read")
     public void updateLastReadTime(@Payload ReadChatMessageRequest request) {
+        log.info("Received chat read request: {}", request);
         chatService.updateLastReadTime(request);
     }
 
