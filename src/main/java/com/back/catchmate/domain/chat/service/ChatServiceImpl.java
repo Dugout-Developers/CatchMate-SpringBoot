@@ -115,6 +115,7 @@ public class ChatServiceImpl implements ChatService {
     @Override
     @Transactional
     public void updateLastReadTime(ChatRequest.ReadChatMessageRequest request) {
+        log.info("Updating last read time for user: {} in chatRoom: {}", request.getUserId(), request.getChatRoomId());
         UserChatRoom userChatRoom = userChatRoomRepository.findByUserIdAndChatRoomIdAndDeletedAtIsNull(request.getUserId(), request.getChatRoomId())
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_CHATROOM_NOT_FOUND));
 
