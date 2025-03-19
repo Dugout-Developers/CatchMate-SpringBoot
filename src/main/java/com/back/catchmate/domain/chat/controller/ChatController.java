@@ -50,9 +50,9 @@ public class ChatController {
     @Operation(summary = "특정 채팅방의 채팅 내역 조회 API", description = "특정 채팅방의 채팅 내역 조회 API 입니다.")
     public PagedChatMessageInfo findChatMessageList(@JwtValidation Long userId,
                                                     @PathVariable Long chatRoomId,
-                                                    @RequestParam(defaultValue = "0") int page,
+                                                    @RequestParam(required = false) String lastMessageId, // 마지막 메시지 ID
                                                     @RequestParam(defaultValue = "20") int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("id.timestamp")));
-        return chatService.getChatMessageList(userId, chatRoomId, pageable);
+        return chatService.getChatMessageList(userId, chatRoomId, lastMessageId, size);
     }
+
 }

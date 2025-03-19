@@ -19,8 +19,11 @@ import com.back.catchmate.global.error.exception.BaseException;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -135,18 +138,36 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
+    public PagedChatMessageInfo getChatMessageList(Long userId, Long roomId, Pageable pageable) {
+        return null;
+    }
+
+    @Override
     @Transactional
-    public PagedChatMessageInfo getChatMessageList(Long userId, Long chatRoomId, Pageable pageable) {
+    public PagedChatMessageInfo getChatMessageList(Long userId, Long chatRoomId, String lastMessageId, int size) {
         if (!userChatRoomRepository.existsByUserIdAndChatRoomIdAndDeletedAtIsNull(userId, chatRoomId)) {
             throw new BaseException(ErrorCode.USER_CHATROOM_NOT_FOUND);
         }
 
         UserChatRoom userChatRoom = userChatRoomRepository.findByUserIdAndChatRoomIdAndDeletedAtIsNull(userId, chatRoomId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
-
         userChatRoom.updateLastReadTime();
 
-        Page<ChatMessage> chatMessageList = chatMessageRepository.findByChatRoomIdOrderByIdDesc(chatRoomId, pageable);
-        return chatMessageConverter.toPagedChatMessageInfo(chatMessageList);
+        Page<ChatMessage> chatMessageList;
+
+        if (lastMessageId == null) {
+            chatMessageList = chatMessageRepository.findByChatRoomIdOrderByIdDesc(chatRoomId, PageRequest.of(0, size, Sort.by(Sort.Order.desc("_id"))));
+        } else {
+            Pageable pageable = PageRequest.of(0, size, Sort.by(Sort.Order.desc("_id")));
+            ObjectId lastObjectId = new ObjectId(lastMessageId);
+            chatMessageList = chatMessageRepository.findByChatRoomIdAndIdLessThanOrderByIdDesc(chatRoomId, lastObjectId, pageable);
+        }
+
+        boolean isLast = (chatMessageList.getContent().size() < size);
+        String nextLastMessageId = (isLast || chatMessageList.isEmpty())
+                ? null
+                : chatMessageList.getContent().get(chatMessageList.getContent().size() - 1).getId().toString();
+
+        return chatMessageConverter.toPagedChatMessageInfo(chatMessageList, nextLastMessageId);
     }
 }

@@ -17,7 +17,8 @@ public abstract class ChatResponse {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class ChatMessageInfo {
-        ObjectId id;
+        private ObjectId id;
+        private String chatMessageId;
         private Long roomId;
         private String content;
         private Long senderId;
@@ -30,10 +31,9 @@ public abstract class ChatResponse {
     @NoArgsConstructor
     public static class PagedChatMessageInfo {
         private List<ChatMessageInfo> chatMessageInfoList;
-        private Integer totalPages;
-        private Long totalElements;
         private Boolean isFirst;
         private Boolean isLast;
+        private String lastMessageId;
     }
 
     @Getter
