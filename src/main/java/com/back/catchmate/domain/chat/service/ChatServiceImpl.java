@@ -68,8 +68,8 @@ public class ChatServiceImpl implements ChatService {
 
             // 채팅 메시지 저장 및 전송
             ChatMessage chatMessage = chatMessageConverter.toChatMessage(chatRoomId, request.getContent(), request.getSenderId(), MessageType.TALK);
-            chatMessageRepository.insert(chatMessage);
-            messagingTemplate.convertAndSend(destination, chatMessage);
+            ChatMessage saveChatMessage = chatMessageRepository.insert(chatMessage);
+            messagingTemplate.convertAndSend(destination, saveChatMessage);
 
             // 채팅방 정보 업데이트
             ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
