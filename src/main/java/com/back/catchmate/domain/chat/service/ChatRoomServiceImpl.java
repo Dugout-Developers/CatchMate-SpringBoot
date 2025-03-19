@@ -54,7 +54,6 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                     ChatRoom chatRoom = userChatRoom.getChatRoom();
                     Board board = chatRoom.getBoard();
                     int unreadMessageCount = (int) getUnreadMessageCount(userId, chatRoom.getId());
-                    System.out.println("unreadMessageCount = " + unreadMessageCount);
                     return chatRoomConverter.toChatRoomInfo(chatRoom, userChatRoom, board, unreadMessageCount);
                 })
                 .collect(Collectors.toList());
@@ -66,7 +65,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     }
 
     @Override
-//    @Transactional(readOnly = true)
+    @Transactional(readOnly = true)
     public long getUnreadMessageCount(Long userId, Long chatRoomId) {
         // 사용자의 마지막 읽은 시간 조회
         UserChatRoom userChatRoom = userChatRoomRepository.findByUserIdAndChatRoomIdAndDeletedAtIsNull(userId, chatRoomId)

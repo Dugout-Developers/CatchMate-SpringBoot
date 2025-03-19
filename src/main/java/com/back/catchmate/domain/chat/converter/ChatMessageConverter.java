@@ -17,23 +17,23 @@ import static com.back.catchmate.domain.chat.dto.ChatRequest.ChatMessageRequest.
 
 @Component
 public class ChatMessageConverter {
-    public ChatResponse.PagedChatMessageInfo toPagedChatMessageInfo(Page<ChatMessage> chatMessageList) {
-        List<ChatMessageInfo> chatMessageInfoList = chatMessageList.stream()
+    public ChatResponse.PagedChatMessageInfo toPagedChatMessageInfo(Page<ChatMessage> chatMessageList, String lastMessageId) {
+        List<ChatMessageInfo> chatMessageInfoList = chatMessageList.getContent().stream()
                 .map(this::toChatMessageInfo)
                 .toList();
 
         return ChatResponse.PagedChatMessageInfo.builder()
                 .chatMessageInfoList(chatMessageInfoList)
-                .totalPages(chatMessageList.getTotalPages())
-                .totalElements(chatMessageList.getTotalElements())
                 .isFirst(chatMessageList.isFirst())
                 .isLast(chatMessageList.isLast())
+                .lastMessageId(lastMessageId) // 마지막 메시지 ID 추가
                 .build();
     }
 
     private ChatMessageInfo toChatMessageInfo(ChatMessage chatMessage) {
         return ChatMessageInfo.builder()
                 .id(chatMessage.getId())
+                .chatMessageId(chatMessage.getId().toString())
                 .roomId(chatMessage.getChatRoomId())
                 .content(chatMessage.getContent())
                 .senderId(chatMessage.getSenderId())
