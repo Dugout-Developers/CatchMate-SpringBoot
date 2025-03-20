@@ -2,6 +2,8 @@ package com.back.catchmate.domain.notification.dto;
 
 import com.back.catchmate.domain.board.dto.BoardResponse.BoardInfo;
 import com.back.catchmate.domain.enroll.entity.AcceptStatus;
+import com.back.catchmate.domain.inquiry.dto.InquiryResponse;
+import com.back.catchmate.domain.inquiry.dto.InquiryResponse.InquiryInfo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,6 +20,7 @@ public abstract class NotificationResponse {
     public static class NotificationInfo {
         private Long notificationId;
         private BoardInfo boardInfo;
+        private InquiryInfo inquiryInfo;
         private String senderProfileImageUrl;
         private String title;
         private String body;

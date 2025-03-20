@@ -4,6 +4,9 @@ import com.back.catchmate.domain.board.converter.BoardConverter;
 import com.back.catchmate.domain.board.dto.BoardResponse.BoardInfo;
 import com.back.catchmate.domain.board.entity.Board;
 import com.back.catchmate.domain.enroll.entity.AcceptStatus;
+import com.back.catchmate.domain.inquiry.converter.InquiryConverter;
+import com.back.catchmate.domain.inquiry.dto.InquiryResponse;
+import com.back.catchmate.domain.inquiry.dto.InquiryResponse.InquiryInfo;
 import com.back.catchmate.domain.inquiry.entity.Inquiry;
 import com.back.catchmate.domain.notification.dto.NotificationResponse.NotificationInfo;
 import com.back.catchmate.domain.notification.dto.NotificationResponse.PagedNotificationInfo;
@@ -20,6 +23,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class NotificationConverter {
     private final BoardConverter boardConverter;
+    private final InquiryConverter inquiryConverter;
 
     public Notification toEntity(User user, Board board, String senderProfileImageUrl, String title, String body, AcceptStatus acceptStatus) {
         return Notification.builder()
@@ -46,7 +50,15 @@ public class NotificationConverter {
 
     public PagedNotificationInfo toPagedNotificationInfo(Page<Notification> notificationList) {
         List<NotificationInfo> enrollRequestInfoList = notificationList.stream()
-                .map(notification -> toNotificationInfo(notification, notification.getBoard()))
+                .map(notification -> {
+                    Board board = notification.getBoard();
+                    Inquiry inquiry = notification.getInquiry();
+
+                    if (board == null) {
+                        return toNotificationInfo(notification, inquiry);
+                    }
+                    return toNotificationInfo(notification, board);
+                })
                 .collect(Collectors.toList());
 
         return PagedNotificationInfo.builder()
@@ -69,6 +81,21 @@ public class NotificationConverter {
                 .isRead(notification.isRead())
                 .acceptStatus(notification.getAcceptStatus())
                 .boardInfo(boardInfo)
+                .createdAt(notification.getCreatedAt())
+                .build();
+    }
+
+    public NotificationInfo toNotificationInfo(Notification notification, Inquiry inquiry) {
+        InquiryInfo inquiryInfo = inquiryConverter.toInquiryInfo(inquiry);
+
+        return NotificationInfo.builder()
+                .notificationId(notification.getId())
+                .title(notification.getTitle())
+                .body(notification.getBody())
+                .senderProfileImageUrl(notification.getSenderProfileImageUrl())
+                .isRead(notification.isRead())
+                .acceptStatus(notification.getAcceptStatus())
+                .inquiryInfo(inquiryInfo)
                 .createdAt(notification.getCreatedAt())
                 .build();
     }
