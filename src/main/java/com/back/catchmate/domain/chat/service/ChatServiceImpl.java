@@ -3,6 +3,7 @@ package com.back.catchmate.domain.chat.service;
 import com.back.catchmate.domain.chat.converter.ChatMessageConverter;
 import com.back.catchmate.domain.chat.dto.ChatRequest;
 import com.back.catchmate.domain.chat.dto.ChatRequest.ChatMessageRequest;
+import com.back.catchmate.domain.chat.dto.ChatResponse;
 import com.back.catchmate.domain.chat.dto.ChatResponse.LastChatMessageUpdateInfo;
 import com.back.catchmate.domain.chat.dto.ChatResponse.PagedChatMessageInfo;
 import com.back.catchmate.domain.chat.entity.ChatMessage;
@@ -69,7 +70,8 @@ public class ChatServiceImpl implements ChatService {
             // 채팅 메시지 저장 및 전송
             ChatMessage chatMessage = chatMessageConverter.toChatMessage(chatRoomId, request.getContent(), request.getSenderId(), MessageType.TALK);
             ChatMessage saveChatMessage = chatMessageRepository.insert(chatMessage);
-            messagingTemplate.convertAndSend(destination, saveChatMessage);
+            ChatResponse.ChatMessageInfo chatMessageInfo = chatMessageConverter.toChatMessageInfo(saveChatMessage);
+            messagingTemplate.convertAndSend(destination, chatMessageInfo);
 
             // 채팅방 정보 업데이트
             ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)

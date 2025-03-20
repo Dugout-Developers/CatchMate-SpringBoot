@@ -30,7 +30,7 @@ public class ChatMessageConverter {
                 .build();
     }
 
-    private ChatMessageInfo toChatMessageInfo(ChatMessage chatMessage) {
+    public ChatMessageInfo toChatMessageInfo(ChatMessage chatMessage) {
         return ChatMessageInfo.builder()
                 .id(chatMessage.getId())
                 .chatMessageId(chatMessage.getId().toString())
