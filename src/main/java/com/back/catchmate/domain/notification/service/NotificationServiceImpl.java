@@ -80,7 +80,13 @@ public class NotificationServiceImpl implements NotificationService {
             notification.markAsRead();
         }
 
-        return notificationConverter.toNotificationInfo(notification, notification.getBoard());
+        Board board = notification.getBoard();
+        Inquiry inquiry = notification.getInquiry();
+
+        if (board == null) {
+            return notificationConverter.toNotificationInfo(notification, inquiry);
+        }
+        return notificationConverter.toNotificationInfo(notification, board);
     }
 
     @Override
