@@ -67,7 +67,7 @@ jobs:
 
       # 8. EC2에 배포 (SSH 연결 후 Docker 실행)
       - name: Deploy to EC2
-        uses: appleboy/ssh-action@v0.1.1
+        uses: appleboy/ssh-action@master
         with:
           host: ${{ github.ref == 'refs/heads/develop' && secrets.EC2_DEV_HOST || secrets.EC2_PROD_HOST }}  # 개발/운영 서버에 맞는 호스트
           username: ${{ secrets.EC2_USERNAME }}  # 개발/운영 서버에 맞는 사용자명
