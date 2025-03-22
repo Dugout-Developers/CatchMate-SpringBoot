@@ -1,71 +1,85 @@
-# Workflow 이름
 name: Spring Boot & Gradle CI/CD
 
 on:
   push:
     branches:
-      - develop
+      - develop  # 개발 브랜치 (개발 서버 배포)
+      - master     # 운영 브랜치 (운영 서버 배포)
 
 permissions:
-  contents: read
+  contents: read  # read 권한만 부여
 
 jobs:
   build:
-
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # 실행 환경 (Ubuntu 최신 버전)
 
     steps:
-      - uses: actions/checkout@v3
+      # 1. 코드 체크아웃
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
-      # JDK 17 설치
+      # 2. JDK 17 설치
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: make application.yml
+      # 3. application.yml 파일 생성 (환경변수 기반 설정)
+      - name: Create application.yml
         run: |
           cd ./src/main/resources
-          touch ./application-dev.yml
-          echo "${{ secrets.APPLICATION_DEV_YML }}" >> ./application-dev.yml
+          if [ "${{ github.ref }}" == "refs/heads/develop" ]; then
+            touch ./application-dev.yml
+            echo "${{ secrets.APPLICATION_DEV_YML }}" >> ./application-dev.yml
+          elif [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            touch ./application-prod.yml
+            echo "${{ secrets.APPLICATION_PROD_YML }}" >> ./application-prod.yml
+          fi
         shell: bash
 
+      # 4. Firebase 서비스 키 디렉토리 생성 (통합된 키 사용)
       - name: Create Firebase Config Directory
         run: |
           mkdir -p src/main/resources/firebase
-          echo "${{ secrets.FIREBASE_SERVICE_KEY }}" | base64 --decode > src/main/resources/firebase/catchmate-9653a-firebase-adminsdk-kh06c-0315680471.json
+          echo "${{ secrets.FIREBASE_SERVICE_KEY }}" | base64 --decode > src/main/resources/firebase/catchmate-firebase-adminsdk.json
         shell: bash
 
-      # gradlew에 실행 권한을 부여합니다.
+      # 5. gradlew에 실행 권한 부여
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-        # test는 CI 과정에서 수행되므로 여기서는 `-x`로 테스트를 생략했습니다.
-        # `--stacktrace`로 더 자세한 로그가 출력되게 해줍니다.
+      # 6. Gradle 빌드 (테스트 제외)
       - name: Build with Gradle (without Test)
         run: ./gradlew clean build -x test --stacktrace
 
-        # docker hub에 로그인하고 이미지를 빌드합니다. 이후에 push를 진행합니다.
-        # docker_username을 적지 않으면 push 시에 요청이 거부될 수 있습니다.
+      # 7. Docker Hub에 로그인 및 이미지 빌드/푸시 (브랜치별 저장소 구분)
       - name: Docker Hub build & push
         run: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }} .
-          docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}
+          if [ "${{ github.ref }}" == "refs/heads/develop" ]; then
+            docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_DEV_REPO }} .
+            docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_DEV_REPO }}
+          elif [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_PROD_REPO }} .
+            docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_PROD_REPO }}
+          fi
 
-        # EC2에 접속하고 배포합니다.
-      - name: Deploy
-        uses: appleboy/ssh-action@master
+      # 8. EC2에 배포 (SSH 연결 후 Docker 실행)
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v0.1.1
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_PRIVATE_KEY }}
-
+          host: ${{ github.ref == 'refs/heads/develop' && secrets.EC2_DEV_HOST || secrets.EC2_PROD_HOST }}  # 개발/운영 서버에 맞는 호스트
+          username: ${{ secrets.EC2_USERNAME }}  # 개발/운영 서버에 맞는 사용자명
+          key: ${{ github.ref == 'refs/heads/develop' && secrets.EC2_DEV_PRIVATE_KEY || secrets.EC2_PROD_PRIVATE_KEY }}  # 개발/운영 서버에 맞는 개인 키
           script: |
             cd /home/ubuntu/CatchMate-SpringBoot
             sudo docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
             sudo docker rm -f $(sudo docker ps -qa)
-            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}
+            if [ "${{ github.ref }}" == "refs/heads/develop" ]; then
+              sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_DEV_REPO }}
+            elif [ "${{ github.ref }}" == "refs/heads/main" ]; then
+              sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_PROD_REPO }}
+            fi
             sudo docker-compose up -d
             sudo docker image prune -f
