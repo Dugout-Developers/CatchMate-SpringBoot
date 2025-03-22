@@ -32,7 +32,7 @@ jobs:
           if [ "${{ github.ref }}" == "refs/heads/develop" ]; then
             touch ./application-dev.yml
             echo "${{ secrets.APPLICATION_DEV_YML }}" >> ./application-dev.yml
-          elif [ "${{ github.ref }}" == "refs/heads/main" ]; then
+          elif [ "${{ github.ref }}" == "refs/heads/master" ]; then
             touch ./application-prod.yml
             echo "${{ secrets.APPLICATION_PROD_YML }}" >> ./application-prod.yml
           fi
@@ -60,7 +60,7 @@ jobs:
           if [ "${{ github.ref }}" == "refs/heads/develop" ]; then
             docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_DEV_REPO }} .
             docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_DEV_REPO }}
-          elif [ "${{ github.ref }}" == "refs/heads/main" ]; then
+          elif [ "${{ github.ref }}" == "refs/heads/master" ]; then
             docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_PROD_REPO }} .
             docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_PROD_REPO }}
           fi
@@ -78,7 +78,7 @@ jobs:
             sudo docker rm -f $(sudo docker ps -qa)
             if [ "${{ github.ref }}" == "refs/heads/develop" ]; then
               sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_DEV_REPO }}
-            elif [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            elif [ "${{ github.ref }}" == "refs/heads/master" ]; then
               sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_PROD_REPO }}
             fi
             sudo docker-compose up -d
