@@ -34,7 +34,7 @@ public class SwaggerConfig {
         return new OpenAPI()
                 .components(new Components().addSecuritySchemes("AccessToken", securityScheme))
                 .addSecurityItem(securityRequirement)
-                .servers(List.of(developServer, developServer, localServer))
+                .servers(List.of(productionServer, developServer, localServer))
                 .info(apiInfo());
     }
 
