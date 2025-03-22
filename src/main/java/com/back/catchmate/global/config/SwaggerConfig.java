@@ -25,13 +25,16 @@ public class SwaggerConfig {
         Server productionServer = new Server();
         productionServer.setUrl("https://catchmate.site");
 
+        Server developServer = new Server();
+        developServer.setUrl("http://3.34.130.89:8080");
+
         Server localServer = new Server();
         localServer.setUrl("http://localhost:8080");
 
         return new OpenAPI()
                 .components(new Components().addSecuritySchemes("AccessToken", securityScheme))
                 .addSecurityItem(securityRequirement)
-                .servers(List.of(productionServer, localServer))
+                .servers(List.of(productionServer, developServer, localServer))
                 .info(apiInfo());
     }
 

@@ -32,7 +32,7 @@ jobs:
           if [ "${{ github.ref }}" == "refs/heads/develop" ]; then
             touch ./application-dev.yml
             echo "${{ secrets.APPLICATION_DEV_YML }}" >> ./application-dev.yml
-          elif [ "${{ github.ref }}" == "refs/heads/main" ]; then
+          elif [ "${{ github.ref }}" == "refs/heads/master" ]; then
             touch ./application-prod.yml
             echo "${{ secrets.APPLICATION_PROD_YML }}" >> ./application-prod.yml
           fi
@@ -42,7 +42,7 @@ jobs:
       - name: Create Firebase Config Directory
         run: |
           mkdir -p src/main/resources/firebase
-          echo "${{ secrets.FIREBASE_SERVICE_KEY }}" | base64 --decode > src/main/resources/firebase/catchmate-firebase-adminsdk.json
+          echo "${{ secrets.FIREBASE_SERVICE_KEY }}" | base64 --decode > src/main/resources/firebase/catchmate-9653a-firebase-adminsdk-kh06c-0315680471.json
         shell: bash
 
       # 5. gradlew에 실행 권한 부여
@@ -60,14 +60,14 @@ jobs:
           if [ "${{ github.ref }}" == "refs/heads/develop" ]; then
             docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_DEV_REPO }} .
             docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_DEV_REPO }}
-          elif [ "${{ github.ref }}" == "refs/heads/main" ]; then
+          elif [ "${{ github.ref }}" == "refs/heads/master" ]; then
             docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_PROD_REPO }} .
             docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_PROD_REPO }}
           fi
 
       # 8. EC2에 배포 (SSH 연결 후 Docker 실행)
       - name: Deploy to EC2
-        uses: appleboy/ssh-action@v0.1.1
+        uses: appleboy/ssh-action@master
         with:
           host: ${{ github.ref == 'refs/heads/develop' && secrets.EC2_DEV_HOST || secrets.EC2_PROD_HOST }}  # 개발/운영 서버에 맞는 호스트
           username: ${{ secrets.EC2_USERNAME }}  # 개발/운영 서버에 맞는 사용자명
@@ -78,7 +78,7 @@ jobs:
             sudo docker rm -f $(sudo docker ps -qa)
             if [ "${{ github.ref }}" == "refs/heads/develop" ]; then
               sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_DEV_REPO }}
-            elif [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            elif [ "${{ github.ref }}" == "refs/heads/master" ]; then
               sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_PROD_REPO }}
             fi
             sudo docker-compose up -d
