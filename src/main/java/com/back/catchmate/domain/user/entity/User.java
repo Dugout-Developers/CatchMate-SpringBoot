@@ -49,7 +49,7 @@ public class User extends BaseTimeEntity {
     @Column(nullable = false)
     private Provider provider;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 2000)
     private String providerId;
 
     @Column(nullable = false)
