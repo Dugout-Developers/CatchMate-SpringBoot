@@ -40,7 +40,7 @@ public class SwaggerConfig {
 
         private Info apiInfo() {
         return new Info()
-                .title("CATCH-MATE API")
+                .title("DEVELOP CATCH-MATE API")
                 .description("API documentation for CATCH-MATE application")
                 .version("1.0.0");
     }
