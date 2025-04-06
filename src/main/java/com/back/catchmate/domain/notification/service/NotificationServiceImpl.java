@@ -32,27 +32,30 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     @Transactional
-    public void createNotification(String title, String body, String senderProfileImageUrl, Long boardId, Long userId, AcceptStatus acceptStatus) {
+    public void createNotification(String title, String body, Long senderId, Long boardId, Long userId, AcceptStatus acceptStatus) {
         User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+
+        User sender = userRepository.findByIdAndDeletedAtIsNull(senderId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
         Board board = boardRepository.findByIdAndDeletedAtIsNullAndIsCompleted(boardId)
                 .orElseThrow(() -> new BaseException(ErrorCode.BOARD_NOT_FOUND));
 
-        Notification notification = notificationConverter.toEntity(user, board, senderProfileImageUrl, title, body, acceptStatus);
+        Notification notification = notificationConverter.toEntityEnroll(user, board, sender, title, body, acceptStatus);
         notificationRepository.save(notification);
     }
 
     @Override
     @Transactional
-    public void createNotification(String title, String body, String senderProfileImageUrl, Long inquiryId, Long userId) {
+    public void createNotification(String title, String body, Long senderId, Long inquiryId, Long userId) {
         User user = userRepository.findByIdAndDeletedAtIsNull(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
         Inquiry inquiry = inquiryRepository.findByIdAndDeletedAtIsNull(inquiryId)
                 .orElseThrow(() -> new BaseException(ErrorCode.BOARD_NOT_FOUND));
 
-        Notification notification = notificationConverter.toEntity(user, inquiry, senderProfileImageUrl, title, body);
+        Notification notification = notificationConverter.toEntityInquiry(user, inquiry, title, body);
         notificationRepository.save(notification);
     }
 

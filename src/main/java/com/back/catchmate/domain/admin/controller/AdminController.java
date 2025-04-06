@@ -2,7 +2,6 @@ package com.back.catchmate.domain.admin.controller;
 
 import com.back.catchmate.domain.admin.dto.AdminRequest;
 import com.back.catchmate.domain.admin.dto.AdminRequest.AnswerInquiryRequest;
-import com.back.catchmate.domain.admin.dto.AdminResponse;
 import com.back.catchmate.domain.admin.dto.AdminResponse.*;
 import com.back.catchmate.domain.admin.service.AdminService;
 import com.back.catchmate.global.dto.StateResponse;
@@ -107,7 +106,7 @@ public class AdminController {
     @GetMapping("/report")
     @Operation(summary = "신고 내역 조회", description = "신고 내역을 페이징하여 조회하는 API 입니다.")
     public PagedReportInfo getReportList(@PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
-                                                       @Parameter(hidden = true) Pageable pageable) {
+                                         @Parameter(hidden = true) Pageable pageable) {
         return adminService.getReportList(pageable);
     }
 
@@ -126,16 +125,16 @@ public class AdminController {
     @PostMapping("/notice")
     @Operation(summary = "공지글 등록 API", description = "공지글을 등록하는 API 입니다.")
     public NoticeInfo createNotice(@JwtValidation Long userId,
-                                                 @Valid @RequestBody AdminRequest.CreateNoticeRequest request) {
+                                   @Valid @RequestBody AdminRequest.CreateNoticeRequest request) {
         return adminService.createNotice(userId, request);
     }
 
     @GetMapping("/notice/list")
     @Operation(summary = "공지사항 목록 조회 API", description = "공지사항 목록을 페이징하여 조회하는 API 입니다.")
     public PagedNoticeInfo getNoticeList(@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd") LocalDate startDate,
-                                                       @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd") LocalDate endDate,
-                                                       @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
-                                                       @Parameter(hidden = true) Pageable pageable) {
+                                         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd") LocalDate endDate,
+                                         @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
+                                         @Parameter(hidden = true) Pageable pageable) {
         return adminService.getNoticeList(startDate, endDate, pageable);
     }
 
@@ -148,8 +147,8 @@ public class AdminController {
     @PutMapping("/notice/{noticeId}")
     @Operation(summary = "공지사항 수정 API", description = "공지사항을 수정하는 API 입니다.")
     public NoticeInfo updateNotice(@JwtValidation Long userId,
-                                                 @PathVariable Long noticeId,
-                                                 @Valid @RequestBody AdminRequest.UpdateNoticeRequest request) {
+                                   @PathVariable Long noticeId,
+                                   @Valid @RequestBody AdminRequest.UpdateNoticeRequest request) {
         return adminService.updateNotice(userId, noticeId, request);
     }
 
