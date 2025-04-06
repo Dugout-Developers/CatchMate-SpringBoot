@@ -86,7 +86,7 @@ public class EnrollServiceImpl implements EnrollService {
         fcmService.sendMessageByToken(boardWriter.getFcmToken(), title, body, boardId, AcceptStatus.PENDING, null);
 
         // 데이터베이스에 저장
-        notificationService.createNotification(title, body, enroll.getUser().getProfileImageUrl(), boardId, boardWriter.getId(), AcceptStatus.PENDING);
+        notificationService.createNotification(title, body, enroll.getUser().getId(), boardId, boardWriter.getId(), AcceptStatus.PENDING);
         return enrollConverter.toCreateEnrollInfo(enroll);
     }
 
@@ -106,7 +106,7 @@ public class EnrollServiceImpl implements EnrollService {
 
         enroll.delete();
 
-        Notification notification = notificationRepository.findByBoardIdAndUserIdAndDeletedAtIsNull(enroll.getBoard().getId(), enroll.getBoard().getUser().getId())
+        Notification notification = notificationRepository.findByBoardIdAndUserIdAndSenderIdAndDeletedAtIsNull(enroll.getBoard().getId(), enroll.getBoard().getUser().getId(), userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.NOTIFICATION_NOT_FOUND));
         notification.delete();
 
@@ -206,7 +206,7 @@ public class EnrollServiceImpl implements EnrollService {
         String body = ENROLLMENT_ACCEPT_BODY;
 
         fcmService.sendMessageByToken(enrollApplicant.getFcmToken(), title, body, enroll.getBoard().getId(), AcceptStatus.ACCEPTED, board.getChatRoom().getId());
-        notificationService.createNotification(title, body, boardWriter.getProfileImageUrl(), enroll.getBoard().getId(), enrollApplicant.getId(), AcceptStatus.ACCEPTED);
+        notificationService.createNotification(title, body, boardWriter.getId(), enroll.getBoard().getId(), enrollApplicant.getId(), AcceptStatus.ACCEPTED);
 
         enroll.respondToEnroll(AcceptStatus.REJECTED);
         enroll.delete();
@@ -251,7 +251,7 @@ public class EnrollServiceImpl implements EnrollService {
         String body = ENROLLMENT_REJECT_BODY;
 
         fcmService.sendMessageByToken(enrollApplicant.getFcmToken(), title, body, enroll.getBoard().getId(), AcceptStatus.REJECTED, null);
-        notificationService.createNotification(title, body, boardWriter.getProfileImageUrl(), enroll.getBoard().getId(), enrollApplicant.getId(), AcceptStatus.REJECTED);
+        notificationService.createNotification(title, body, boardWriter.getId(), enroll.getBoard().getId(), enrollApplicant.getId(), AcceptStatus.REJECTED);
 
         enroll.respondToEnroll(AcceptStatus.REJECTED);
         enroll.delete();

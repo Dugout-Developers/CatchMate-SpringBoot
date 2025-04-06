@@ -5,7 +5,6 @@ import com.back.catchmate.domain.board.dto.BoardResponse.BoardInfo;
 import com.back.catchmate.domain.board.entity.Board;
 import com.back.catchmate.domain.enroll.entity.AcceptStatus;
 import com.back.catchmate.domain.inquiry.converter.InquiryConverter;
-import com.back.catchmate.domain.inquiry.dto.InquiryResponse;
 import com.back.catchmate.domain.inquiry.dto.InquiryResponse.InquiryInfo;
 import com.back.catchmate.domain.inquiry.entity.Inquiry;
 import com.back.catchmate.domain.notification.dto.NotificationResponse.NotificationInfo;
@@ -25,25 +24,25 @@ public class NotificationConverter {
     private final BoardConverter boardConverter;
     private final InquiryConverter inquiryConverter;
 
-    public Notification toEntity(User user, Board board, String senderProfileImageUrl, String title, String body, AcceptStatus acceptStatus) {
+    public Notification toEntityEnroll(User user, Board board, User sender, String title, String body, AcceptStatus acceptStatus) {
         return Notification.builder()
                 .user(user)
                 .board(board)
                 .title(title)
                 .body(body)
-                .senderProfileImageUrl(senderProfileImageUrl)
+                .sender(sender)
                 .isRead(false)
                 .acceptStatus(acceptStatus)
                 .build();
     }
 
-    public Notification toEntity(User user, Inquiry inquiry, String senderProfileImageUrl, String title, String body) {
+    public Notification toEntityInquiry(User user, Inquiry inquiry, String title, String body) {
         return Notification.builder()
                 .user(user)
                 .inquiry(inquiry)
                 .title(title)
                 .body(body)
-                .senderProfileImageUrl(senderProfileImageUrl)
+                .sender(null)
                 .isRead(false)
                 .build();
     }
@@ -77,7 +76,7 @@ public class NotificationConverter {
                 .notificationId(notification.getId())
                 .title(notification.getTitle())
                 .body(notification.getBody())
-                .senderProfileImageUrl(notification.getSenderProfileImageUrl())
+                .senderProfileImageUrl(notification.getSender().getProfileImageUrl())
                 .isRead(notification.isRead())
                 .acceptStatus(notification.getAcceptStatus())
                 .boardInfo(boardInfo)
@@ -92,7 +91,7 @@ public class NotificationConverter {
                 .notificationId(notification.getId())
                 .title(notification.getTitle())
                 .body(notification.getBody())
-                .senderProfileImageUrl(notification.getSenderProfileImageUrl())
+                .senderProfileImageUrl(notification.getSender().getProfileImageUrl())
                 .isRead(notification.isRead())
                 .acceptStatus(notification.getAcceptStatus())
                 .inquiryInfo(inquiryInfo)

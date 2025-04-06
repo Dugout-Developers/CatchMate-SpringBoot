@@ -7,9 +7,9 @@ import com.back.catchmate.global.dto.StateResponse;
 import org.springframework.data.domain.Pageable;
 
 public interface NotificationService {
-    void createNotification(String title, String body, String senderProfileImageUrl, Long boardId, Long userId, AcceptStatus acceptStatus);
+    void createNotification(String title, String body, Long senderId, Long boardId, Long receiverId, AcceptStatus acceptStatus);
 
-    void createNotification(String title, String body, String senderProfileImageUrl, Long inquiryId, Long userId);
+    void createNotification(String title, String body, Long senderId, Long inquiryId, Long receiverId);
 
     PagedNotificationInfo getNotificationList(Long userId, Pageable pageable);
 
