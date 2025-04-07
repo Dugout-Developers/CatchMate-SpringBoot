@@ -1,6 +1,7 @@
 package com.back.catchmate.domain.user.dto;
 
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -16,11 +17,11 @@ public abstract class UserRequest {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class UserProfileUpdateRequest {
-        @NotNull
+        @NotBlank
         private String nickName;
         @NotNull
         private Long favoriteClubId;
-        @NotNull
+        @NotBlank
         private String watchStyle;
     }
 
@@ -31,16 +32,16 @@ public abstract class UserRequest {
     public static class UserJoinRequest {
         @Email
         private String email;
-        @NotNull
+        @NotBlank
         private String providerId;
-        @NotNull
+        @NotBlank
         private String provider;
-        @NotNull
+        @NotBlank
         private String profileImageUrl;
-        @NotNull
+        @NotBlank
         private String fcmToken;
         @NotNull
-        private char gender;
+        private Character gender;
         @NotNull
         @Size(min = 2, max = 10)
         private String nickName;

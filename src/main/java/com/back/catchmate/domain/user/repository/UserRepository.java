@@ -10,26 +10,25 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
-    boolean existsByProviderIdAndDeletedAtIsNull(String providerId);
+    Optional<User> findByIdAndDeletedAtIsNull(Long userId);
 
     Optional<User> findByProviderIdAndDeletedAtIsNull(String providerId);
+
+    Page<User> findAllByDeletedAtIsNull(Pageable pageable);
+
+    Page<User> findByClubNameAndDeletedAtIsNull(String clubName, Pageable pageable);
+
+    boolean existsByProviderIdAndDeletedAtIsNull(String providerId);
 
     boolean existsByNickName(String nickName);
 
     long countByDeletedAtIsNull();
 
-    long countByGenderAndDeletedAtIsNull(char gender);
+    long countByGenderAndDeletedAtIsNull(Character gender);
 
     @Query("SELECT u.club.id, COUNT(u) FROM User u WHERE u.deletedAt IS NULL GROUP BY u.club.id")
     List<Object[]> countUsersByClub();
 
     @Query("SELECT u.watchStyle, COUNT(u) FROM User u WHERE u.deletedAt IS NULL GROUP BY u.watchStyle")
     List<Object[]> countUsersByWatchStyle();
-
-    Page<User> findAllByDeletedAtIsNull(Pageable pageable);
-
-    // 구단명으로 유저 정보를 필터링하여 조회
-    Page<User> findByClubNameAndDeletedAtIsNull(String clubName, Pageable pageable);
-
-    Optional<User> findByIdAndDeletedAtIsNull(Long userId);
 }

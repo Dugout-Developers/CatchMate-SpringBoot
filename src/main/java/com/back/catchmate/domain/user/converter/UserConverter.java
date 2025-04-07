@@ -3,9 +3,9 @@ package com.back.catchmate.domain.user.converter;
 import com.back.catchmate.domain.club.converter.ClubConverter;
 import com.back.catchmate.domain.club.dto.ClubResponse.ClubInfo;
 import com.back.catchmate.domain.club.entity.Club;
-import com.back.catchmate.domain.user.dto.UserRequest;
-import com.back.catchmate.domain.user.dto.UserResponse;
+import com.back.catchmate.domain.user.dto.UserRequest.UserJoinRequest;
 import com.back.catchmate.domain.user.dto.UserResponse.LoginInfo;
+import com.back.catchmate.domain.user.dto.UserResponse.PagedUserInfo;
 import com.back.catchmate.domain.user.dto.UserResponse.UnreadStatusInfo;
 import com.back.catchmate.domain.user.dto.UserResponse.UpdateAlarmInfo;
 import com.back.catchmate.domain.user.dto.UserResponse.UserInfo;
@@ -27,11 +27,7 @@ import java.util.stream.Collectors;
 public class UserConverter {
     private final ClubConverter clubConverter;
 
-    public User toEntity(UserRequest.UserJoinRequest request, Club favoriteClub, String providerIdWithProvider) {
-        String watchStyle = request.getWatchStyle().isEmpty()
-                ? null // 기본값 설정
-                : request.getWatchStyle();
-
+    public User toEntity(UserJoinRequest request, Club favoriteClub, String providerIdWithProvider) {
         return User.builder()
                 .email(request.getEmail())
                 .provider(Provider.of(request.getProvider()))
@@ -40,14 +36,15 @@ public class UserConverter {
                 .nickName(request.getNickName())
                 .birthDate(request.getBirthDate())
                 .club(favoriteClub)
-                .watchStyle(watchStyle)
+                .watchStyle(request.getWatchStyle().isEmpty() ? null : request.getWatchStyle())
                 .profileImageUrl(request.getProfileImageUrl())
-                .allAlarm('N')
-                .chatAlarm('N')
-                .enrollAlarm('N')
-                .eventAlarm('N')
+                .allAlarm('Y')
+                .chatAlarm('Y')
+                .enrollAlarm('Y')
+                .eventAlarm('Y')
                 .fcmToken(request.getFcmToken())
                 .authority(Authority.ROLE_USER)
+                .isReported(false)
                 .build();
     }
 
@@ -79,17 +76,17 @@ public class UserConverter {
                 .build();
     }
 
-    public UserResponse.PagedUserInfo toPagedUserInfo(Page<BlockedUser> blockedUserList) {
-        List<UserResponse.UserInfo> blockedUserInfoList = blockedUserList.stream()
+    public PagedUserInfo toPagedBlockedUserInfo(Page<BlockedUser> blockedUserPage) {
+        List<UserInfo> blockedUserInfoList = blockedUserPage.stream()
                 .map(blockedUser -> toUserInfo(blockedUser.getBlocked()))  // 차단된 유저 정보 변환
                 .collect(Collectors.toList());
 
-        return UserResponse.PagedUserInfo.builder()
+        return PagedUserInfo.builder()
                 .userInfoList(blockedUserInfoList)
-                .totalPages(blockedUserList.getTotalPages())
-                .totalElements(blockedUserList.getTotalElements())
-                .isFirst(blockedUserList.isFirst())
-                .isLast(blockedUserList.isLast())
+                .totalPages(blockedUserPage.getTotalPages())
+                .totalElements(blockedUserPage.getTotalElements())
+                .isFirst(blockedUserPage.isFirst())
+                .isLast(blockedUserPage.isLast())
                 .build();
     }
 

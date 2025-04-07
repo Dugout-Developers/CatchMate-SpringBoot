@@ -3,7 +3,7 @@ package com.back.catchmate.global.auth.service;
 import com.back.catchmate.domain.user.entity.User;
 import com.back.catchmate.domain.user.repository.UserRepository;
 import com.back.catchmate.global.auth.converter.AuthConverter;
-import com.back.catchmate.global.auth.dto.AuthRequest;
+import com.back.catchmate.global.auth.dto.AuthRequest.LoginRequest;
 import com.back.catchmate.global.auth.dto.AuthResponse.AuthInfo;
 import com.back.catchmate.global.auth.dto.AuthResponse.NicknameCheckInfo;
 import com.back.catchmate.global.auth.dto.AuthResponse.ReissueInfo;
@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
     private final JwtService jwtService;
@@ -33,40 +34,33 @@ public class AuthServiceImpl implements AuthService {
     // 로그인 메서드
     @Override
     @Transactional
-    public AuthInfo login(AuthRequest.LoginRequest loginRequest) {
-        // Provider ID와 Provider를 결합한 문자열 생성
-        String providerIdWithProvider = loginRequest.getProviderId() + PROVIDER_ID_SEPARATOR + loginRequest.getProvider();
+    public AuthInfo login(LoginRequest loginRequest) {
+        String providerIdWithProvider = generateProviderId(loginRequest);
+        Optional<User> userOptional = userRepository.findByProviderIdAndDeletedAtIsNull(providerIdWithProvider);
 
-        // 결합한 문자열로 사용자 조회
-        Optional<User> findUserOptional = userRepository.findByProviderIdAndDeletedAtIsNull(providerIdWithProvider);
-        boolean isFirstLogin = false;
-        AuthInfo authInfo;
-
-        if (findUserOptional.isEmpty()) {
-            // 사용자가 없으면 최초 회원가입 여부를 true 반환
-            isFirstLogin = true;
-            authInfo = authConverter.toAuthInfo(null, null, isFirstLogin);
-        } else {
-            // 회원가입된 사용자가 있으면 AccessToken과 RefreshToken 반환
-            User user = findUserOptional.get();
-            Long userId = user.getId();
-
-            // FCM 토큰 변경 여부 확인
-            checkFcmToken(loginRequest, user);
-
-            // AccessToken과 RefreshToken을 생성
-            String accessToken = jwtService.createAccessToken(userId);
-            String refreshToken = jwtService.createRefreshToken(userId);
-
-            // RefreshToken을 Redis에 저장
-            refreshTokenRepository.save(RefreshToken.of(refreshToken, userId));
-            authInfo = authConverter.toAuthInfo(accessToken, refreshToken, isFirstLogin);
+        // 최초 로그인
+        if (userOptional.isEmpty()) {
+            return authConverter.toAuthInfo(null, null, true);
         }
 
-        return authInfo;
+        // 기존 사용자 로그인
+        User user = userOptional.get();
+        Long userId = user.getId();
+
+        checkFcmToken(loginRequest, user);
+
+        String accessToken = jwtService.createAccessToken(userId);
+        String refreshToken = jwtService.createRefreshToken(userId);
+        refreshTokenRepository.save(RefreshToken.of(refreshToken, userId));
+
+        return authConverter.toAuthInfo(accessToken, refreshToken, false);
     }
 
-    private void checkFcmToken(AuthRequest.LoginRequest loginRequest, User user) {
+    private String generateProviderId(LoginRequest request) {
+        return request.getProviderId() + PROVIDER_ID_SEPARATOR + request.getProvider();
+    }
+
+    private void checkFcmToken(LoginRequest loginRequest, User user) {
         if (user.isNewFcmToken(loginRequest.getFcmToken())) {
             user.updateFcmToken(loginRequest.getFcmToken());
         }
@@ -74,7 +68,6 @@ public class AuthServiceImpl implements AuthService {
 
     // 닉네임 중복여부를 확인하는 메서드
     @Override
-    @Transactional(readOnly = true)
     public NicknameCheckInfo checkNickname(String nickName) {
         boolean isAvailable = !userRepository.existsByNickName(nickName);
         return new NicknameCheckInfo(isAvailable);
