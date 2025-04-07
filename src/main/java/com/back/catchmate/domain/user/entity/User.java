@@ -53,7 +53,7 @@ public class User extends BaseTimeEntity {
     private String providerId;
 
     @Column(nullable = false)
-    private char gender;
+    private Character gender;
 
     @Column(nullable = false)
     private String nickName;
@@ -68,16 +68,16 @@ public class User extends BaseTimeEntity {
     private String profileImageUrl;
 
     @Column(nullable = false)
-    private char allAlarm;           // 전체 알림
+    private Character allAlarm;           // 전체 알림
 
     @Column(nullable = false)
-    private char chatAlarm;          // 채팅 알림
+    private Character chatAlarm;          // 채팅 알림
 
     @Column(nullable = false)
-    private char enrollAlarm;        // 직관 신청 알림
+    private Character enrollAlarm;        // 직관 신청 알림
 
     @Column(nullable = false)
-    private char eventAlarm;         // 이벤트 알림
+    private Character eventAlarm;         // 이벤트 알림
 
     @Column(nullable = false)
     private String fcmToken;
@@ -92,14 +92,12 @@ public class User extends BaseTimeEntity {
     @OneToMany(mappedBy = "user")
     private List<UserChatRoom> userChatRoomList;
 
-    // 프로필 정보 수정 메서드
     public void updateProfile(UserProfileUpdateRequest request, Club favoriteClub) {
         this.nickName = request.getNickName();
-        this.club = favoriteClub;
         this.watchStyle = request.getWatchStyle();
+        this.club = favoriteClub;
     }
 
-    // 프로필 이미지 URL 설정 메서드
     public void updateProfileImageUrl(String profileImageUrl) {
         this.profileImageUrl = profileImageUrl;
     }

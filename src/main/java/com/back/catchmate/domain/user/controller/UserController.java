@@ -1,9 +1,7 @@
 package com.back.catchmate.domain.user.controller;
 
-import com.back.catchmate.domain.chat.service.UserChatRoomService;
-import com.back.catchmate.domain.notification.service.NotificationService;
-import com.back.catchmate.domain.user.converter.UserConverter;
-import com.back.catchmate.domain.user.dto.UserRequest;
+import com.back.catchmate.domain.user.dto.UserRequest.UserJoinRequest;
+import com.back.catchmate.domain.user.dto.UserRequest.UserProfileUpdateRequest;
 import com.back.catchmate.domain.user.dto.UserResponse.LoginInfo;
 import com.back.catchmate.domain.user.dto.UserResponse.PagedUserInfo;
 import com.back.catchmate.domain.user.dto.UserResponse.UnreadStatusInfo;
@@ -37,7 +35,7 @@ public class UserController {
 
     @PostMapping("/additional-info")
     @Operation(summary = "추가 정보 입력 API", description = "최초 로그인시, 추가 정보를 입력하는 API 입니다.")
-    public LoginInfo addProfile(@Valid @RequestBody UserRequest.UserJoinRequest request) {
+    public LoginInfo addProfile(@Valid @RequestBody UserJoinRequest request) {
         return userService.joinUser(request);
     }
 
@@ -54,20 +52,32 @@ public class UserController {
         return userService.getOtherUserProfile(userId, profileUserId);
     }
 
+    @GetMapping("/has-unread")
+    @Operation(summary = "읽지 않은 채팅 & 알림 여부 조회 API", description = "읽지 않은 채팅 & 알림 여부 조회하는 API 입니다.")
+    public UnreadStatusInfo hasUnreadMessagesOrNotifications(@JwtValidation Long userId) {
+        return userService.hasUnreadMessagesOrNotifications(userId);
+    }
+
     @PatchMapping("/profile")
     @Operation(summary = "나의 정보 수정 API", description = "마이페이지에서 나의 정보를 수정하는 API 입니다.")
     public StateResponse updateProfile(@JwtValidation Long userId,
-                                       @RequestPart("request") @Valid UserRequest.UserProfileUpdateRequest request,
+                                       @RequestPart("request") @Valid UserProfileUpdateRequest request,
                                        @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) throws IOException {
         return userService.updateProfile(request, profileImage, userId);
     }
 
-    @Operation(summary = "알림 설정", description = "유저의 알람 수신 여부를 변경하는 API 입니다.")
     @PatchMapping("/alarm")
+    @Operation(summary = "알림 설정", description = "유저의 알람 수신 여부를 변경하는 API 입니다.")
     public UpdateAlarmInfo updateAlarm(@JwtValidation Long userId,
                                        @RequestParam("alarmType") AlarmType alarmType,
                                        @RequestParam("isEnabled") char isEnabled) {
         return userService.updateAlarm(userId, alarmType, isEnabled);
+    }
+
+    @DeleteMapping("/withdraw")
+    @Operation(summary = "유저 탈퇴 API", description = "유저가 해당 서비스를 탈퇴하는 API 입니다.")
+    public StateResponse deleteUser(@JwtValidation Long userId) {
+        return userService.deleteUser(userId);
     }
 
     @PostMapping("/block/{blockedUserId}")
@@ -87,20 +97,8 @@ public class UserController {
     @GetMapping("/block")
     @Operation(summary = "차단한 유저 목록 API", description = "내가 차단한 유저 목록을 조회하는 API 입니다.")
     public PagedUserInfo getBlockedUserList(@JwtValidation Long userId,
-                                         @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
-                                         @Parameter(hidden = true) Pageable pageable) {
+                                            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
+                                            @Parameter(hidden = true) Pageable pageable) {
         return blockedUserService.getBlockedUserList(userId, pageable);
-    }
-
-    @DeleteMapping("/withdraw")
-    @Operation(summary = "유저 탈퇴 API", description = "유저가 해당 서비스를 탈퇴하는 API 입니다.")
-    public StateResponse deleteUser(@JwtValidation Long userId) {
-        return userService.deleteUser(userId);
-    }
-
-    @GetMapping("/has-unread")
-    @Operation(summary = "읽지 않은 채팅 & 알림 여부 조회 API", description = "읽지 않은 채팅 & 알림 여부 조회하는 API 입니다.")
-    public UnreadStatusInfo hasUnreadMessagesOrNotifications(@JwtValidation Long userId) {
-        return userService.hasUnreadMessagesOrNotifications(userId);
     }
 }

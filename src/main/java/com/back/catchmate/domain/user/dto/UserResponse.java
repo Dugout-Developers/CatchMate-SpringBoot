@@ -64,16 +64,18 @@ public abstract class UserResponse {
 
     @Getter
     @Builder
+    @NoArgsConstructor
     @AllArgsConstructor
     public static class UpdateAlarmInfo {
         private Long userId;
-        private AlarmType alarmType;  // 변경된 알림 유형
-        private char isEnabled;    // 알림 활성화 여부
+        private AlarmType alarmType;
+        private char isEnabled;
         private LocalDateTime createdAt;
     }
 
     @Getter
     @Builder
+    @NoArgsConstructor
     @AllArgsConstructor
     public static class UnreadStatusInfo {
         private boolean hasUnreadChat;

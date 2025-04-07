@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class BlockedUserServiceImpl implements BlockedUserService {
     private final UserRepository userRepository;
@@ -24,20 +25,13 @@ public class BlockedUserServiceImpl implements BlockedUserService {
     private final BlockerUserConverter blockerUserConverter;
     private final UserConverter userConverter;
 
+    @Override
     @Transactional
     public StateResponse blockUser(Long blockerId, Long blockedUserId) {
-        if (blockerId.equals(blockedUserId)) {
-            throw new BaseException(ErrorCode.SELF_BLOCK_FAILED);
-        }
+        validateBlockRequest(blockerId, blockedUserId);
 
-        if (blockedUserRepository.existsByBlockerIdAndBlockedIdAndDeletedAtIsNull(blockerId, blockedUserId)) {
-            throw new BaseException(ErrorCode.USER_BLOCK_FAILED);
-        }
-
-        User blocker = userRepository.findById(blockerId)
-                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
-        User blocked = userRepository.findById(blockedUserId)
-                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+        User blocker = getUserOrThrow(blockerId);
+        User blocked = getUserOrThrow(blockedUserId);
 
         BlockedUser blockedUser = blockerUserConverter.toEntity(blocker, blocked);
         blockedUserRepository.save(blockedUser);
@@ -52,17 +46,33 @@ public class BlockedUserServiceImpl implements BlockedUserService {
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_UNBLOCK_FAILED));
 
         blockedUser.delete();
-
         return new StateResponse(true);
     }
 
     @Override
-    @Transactional(readOnly = true)
     public PagedUserInfo getBlockedUserList(Long blockerId, Pageable pageable) {
-        User user = userRepository.findById(blockerId)
-                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+        User user = getUserOrThrow(blockerId);
 
-        Page<BlockedUser> blockedUserList = blockedUserRepository.findAllByBlockerIdAndDeletedAtIsNull(user.getId(), pageable);
-        return userConverter.toPagedUserInfo(blockedUserList);
+        Page<BlockedUser> blockedUsers = blockedUserRepository
+                .findAllByBlockerIdAndDeletedAtIsNull(user.getId(), pageable);
+
+        return userConverter.toPagedBlockedUserInfo(blockedUsers);
+    }
+
+    private void validateBlockRequest(Long blockerId, Long blockedUserId) {
+        if (blockerId.equals(blockedUserId)) {
+            throw new BaseException(ErrorCode.SELF_BLOCK_FAILED);
+        }
+
+        boolean alreadyBlocked = blockedUserRepository.existsByBlockerIdAndBlockedIdAndDeletedAtIsNull(blockerId, blockedUserId);
+
+        if (alreadyBlocked) {
+            throw new BaseException(ErrorCode.USER_BLOCK_FAILED);
+        }
+    }
+
+    private User getUserOrThrow(Long userId) {
+        return userRepository.findByIdAndDeletedAtIsNull(userId)
+                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
     }
 }

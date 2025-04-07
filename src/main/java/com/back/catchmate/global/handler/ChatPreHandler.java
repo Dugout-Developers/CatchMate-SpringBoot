@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Component
@@ -75,14 +76,14 @@ public class ChatPreHandler implements ChannelInterceptor {
         Long chatRoomId = Long.valueOf(chatRoomHeaders.get(0));
         log.info("Extracted chatRoomId from header: {}", chatRoomId);
 
-        return (chatRoomHeaders != null && !chatRoomHeaders.isEmpty()) ? Long.valueOf(chatRoomHeaders.get(0)) : null;
+        return !chatRoomHeaders.isEmpty() ? Long.valueOf(chatRoomHeaders.get(0)) : null;
     }
 
     private Long getUserIdFromSession(StompHeaderAccessor accessor) {
-        return (Long) accessor.getSessionAttributes().get("userId");
+        return (Long) Objects.requireNonNull(accessor.getSessionAttributes()).get("userId");
     }
 
     private Long getChatRoomIdFromSession(StompHeaderAccessor accessor) {
-        return (Long) accessor.getSessionAttributes().get("chatRoomId");
+        return (Long) Objects.requireNonNull(accessor.getSessionAttributes()).get("chatRoomId");
     }
 }

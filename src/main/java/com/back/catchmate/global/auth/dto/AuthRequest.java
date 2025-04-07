@@ -1,6 +1,7 @@
 package com.back.catchmate.global.auth.dto;
 
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,16 +14,15 @@ public abstract class AuthRequest {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class LoginRequest {
-        @NotNull
         @Email
         private String email;
-        @NotNull
+        @NotEmpty
         private String providerId;
-        @NotNull
+        @NotEmpty
         private String provider;
-        @NotNull
+        @NotEmpty
         private String picture;
-        @NotNull
+        @NotEmpty
         private String fcmToken;
     }
 }
