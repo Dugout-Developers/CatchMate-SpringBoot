@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -35,33 +36,50 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final String ENCODING_TYPE = "UTF-8";
 
     @Override
-    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) {
         try {
-            // 요청 헤더에서 AccessToken을 가져옴
-            String accessToken = request.getHeader(ACCESS_TOKEN_HEADER);
-            if (accessToken != null && !accessToken.isEmpty()) {
+            String accessToken = resolveAccessToken(request);
+
+            if (accessToken != null) {
                 Long userId = jwtService.parseJwtToken(accessToken);
+                User user = getUserOrThrow(userId);
 
-                // 사용자 조회 (userRepository에서 User 객체 가져오기)
-                User user = userRepository.findById(userId)
-                        .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
-
-                // 사용자 권한 확인
-                if (!user.getAuthority().name().equals("ROLE_ADMIN") && request.getRequestURI().startsWith("/admin")) {
+                if (isAdminPath(request) && !isAdmin(user)) {
                     setErrorResponse(response, ErrorCode.FORBIDDEN_ACCESS);
-                    return; // 필터 체인 실행 중단
+                    return;
                 }
 
-                // 사용자 권한 Security Context에 저장
-                List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(user.getAuthority().name()));
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(userId, null, authorities);
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                setAuthentication(userId, user);
             }
+
             filterChain.doFilter(request, response);
         } catch (Exception e) {
             setErrorResponse(response, ErrorCode.INVALID_ACCESS_TOKEN);
         }
+    }
+
+    private String resolveAccessToken(HttpServletRequest request) {
+        String token = request.getHeader(ACCESS_TOKEN_HEADER);
+        return (token != null && !token.isBlank()) ? token : null;
+    }
+
+    private User getUserOrThrow(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+    }
+
+    private boolean isAdminPath(HttpServletRequest request) {
+        return request.getRequestURI().startsWith("/admin");
+    }
+
+    private boolean isAdmin(User user) {
+        return "ROLE_ADMIN".equals(user.getAuthority().name());
+    }
+
+    private void setAuthentication(Long userId, User user) {
+        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(user.getAuthority().name()));
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userId, null, authorities);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
     // 에러 응답을 설정하는 메서드
@@ -80,7 +98,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
         } catch (IOException e) {
             // 예외 발생 시 스택 트레이스를 출력
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
         }
     }
 }
