@@ -39,8 +39,8 @@ public class EnrollController {
 
     @PostMapping("/{boardId}")
     @Operation(summary = "직관 신청 API", description = "직관 신청을 요청하는 API 입니다.")
-    public CreateEnrollInfo requestEnroll(@Valid @RequestBody CreateEnrollRequest createEnrollRequest,
-                                          @PathVariable Long boardId,
+    public CreateEnrollInfo requestEnroll(@PathVariable Long boardId,
+                                          @Valid @RequestBody CreateEnrollRequest createEnrollRequest,
                                           @JwtValidation Long userId) throws IOException {
         return enrollService.requestEnroll(createEnrollRequest, boardId, userId);
     }

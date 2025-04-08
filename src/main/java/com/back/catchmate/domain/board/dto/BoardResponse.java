@@ -67,8 +67,8 @@ public abstract class BoardResponse {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class BoardDeleteInfo {
-        Long boardId;
-        LocalDateTime deletedAt;
+        private Long boardId;
+        private LocalDateTime deletedAt;
     }
 
     @Getter

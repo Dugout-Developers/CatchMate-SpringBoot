@@ -67,7 +67,7 @@ public class UserController {
     }
 
     @PatchMapping("/alarm")
-    @Operation(summary = "알림 설정", description = "유저의 알람 수신 여부를 변경하는 API 입니다.")
+    @Operation(summary = "알림 설정 API", description = "유저의 알람 수신 여부를 변경하는 API 입니다.")
     public UpdateAlarmInfo updateAlarm(@JwtValidation Long userId,
                                        @RequestParam("alarmType") AlarmType alarmType,
                                        @RequestParam("isEnabled") char isEnabled) {

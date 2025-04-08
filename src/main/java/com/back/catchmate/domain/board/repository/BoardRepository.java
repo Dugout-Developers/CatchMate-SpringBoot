@@ -14,21 +14,21 @@ import java.util.List;
 import java.util.Optional;
 
 public interface BoardRepository extends JpaRepository<Board, Long>, BoardRepositoryCustom {
-    @Query("SELECT b FROM Board b WHERE b.id = :boardId AND b.deletedAt IS NULL AND b.isCompleted = true")
-    Optional<Board> findByIdAndDeletedAtIsNullAndIsCompleted(Long boardId);
+    long countByDeletedAtIsNullAndIsCompletedIsTrue();
 
     @Query("SELECT b FROM Board b WHERE b.id = :boardId AND b.deletedAt IS NULL")
     Optional<Board> findByIdAndDeletedAtIsNull(Long boardId);
 
-    Page<Board> findAllByUserIdAndDeletedAtIsNullAndIsCompletedIsTrue(Long userId, Pageable pageable);
-
-    Optional<Board> findTopByUserIdAndIsCompletedIsFalseAndDeletedAtIsNullOrderByCreatedAtDesc(Long userId);
-
-    long countByDeletedAtIsNullAndIsCompletedIsTrue();
-
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT b FROM Board b WHERE b.id = :boardId")
     Optional<Board> findByIdWithLock(@Param("boardId") Long boardId);
+
+    @Query("SELECT b FROM Board b WHERE b.id = :boardId AND b.deletedAt IS NULL AND b.isCompleted = true")
+    Optional<Board> findByIdAndDeletedAtIsNullAndIsCompleted(Long boardId);
+
+    Page<Board> findAllByUserIdAndDeletedAtIsNullAndIsCompletedIsTrue(Long userId, Pageable pageable);
+
+    Optional<Board> findTopByUserIdAndIsCompletedIsFalseAndDeletedAtIsNullOrderByCreatedAtDesc(Long userId);
 
     @Query("SELECT b FROM Board b WHERE b.game.gameStartDate <= :thresholdDate AND b.deletedAt IS NULL")
     List<Board> findBoardsByGameStartDatePlusSevenAndDeletedAtIsNull(@Param("thresholdDate") LocalDateTime thresholdDate);

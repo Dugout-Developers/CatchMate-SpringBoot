@@ -10,25 +10,25 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
-    Optional<User> findByIdAndDeletedAtIsNull(Long userId);
-
-    Optional<User> findByProviderIdAndDeletedAtIsNull(String providerId);
-
-    Page<User> findAllByDeletedAtIsNull(Pageable pageable);
-
-    Page<User> findByClubNameAndDeletedAtIsNull(String clubName, Pageable pageable);
-
-    boolean existsByProviderIdAndDeletedAtIsNull(String providerId);
-
-    boolean existsByNickName(String nickName);
-
-    long countByDeletedAtIsNull();
-
-    long countByGenderAndDeletedAtIsNull(Character gender);
-
     @Query("SELECT u.club.id, COUNT(u) FROM User u WHERE u.deletedAt IS NULL GROUP BY u.club.id")
     List<Object[]> countUsersByClub();
 
+    long countByDeletedAtIsNull();
+
     @Query("SELECT u.watchStyle, COUNT(u) FROM User u WHERE u.deletedAt IS NULL GROUP BY u.watchStyle")
     List<Object[]> countUsersByWatchStyle();
+
+    boolean existsByNickName(String nickName);
+
+    long countByGenderAndDeletedAtIsNull(Character gender);
+
+    Optional<User> findByIdAndDeletedAtIsNull(Long userId);
+
+    Page<User> findAllByDeletedAtIsNull(Pageable pageable);
+
+    boolean existsByProviderIdAndDeletedAtIsNull(String providerId);
+
+    Optional<User> findByProviderIdAndDeletedAtIsNull(String providerId);
+
+    Page<User> findByClubNameAndDeletedAtIsNull(String clubName, Pageable pageable);
 }
