@@ -81,6 +81,28 @@ public class BoardController {
         return boardService.getTempBoard(userId);
     }
 
+    @PatchMapping("/{boardId}")
+    @Operation(summary = "게시글 수정 API", description = "게시글을 수정하는 API 입니다.")
+    public BoardInfo updateBoard(@JwtValidation Long userId,
+                                 @PathVariable Long boardId,
+                                 @Valid @RequestBody CreateOrUpdateBoardRequest request) {
+        return boardService.createOrUpdateBoard(userId, boardId, request);
+    }
+
+    @PatchMapping("/{boardId}/lift-up")
+    @Operation(summary = "게시글 끌어올리기 API", description = "게시글을 끌어올리는 API 입니다.")
+    public LiftUpStatusInfo updateLiftUpDate(@JwtValidation Long userId,
+                                             @PathVariable Long boardId) {
+        return boardService.updateLiftUpDate(userId, boardId);
+    }
+
+    @DeleteMapping("/{boardId}")
+    @Operation(summary = "게시글 삭제 API", description = "게시글을 삭제하는 API 입니다.")
+    public BoardDeleteInfo deleteBoard(@JwtValidation Long userId,
+                                       @PathVariable Long boardId) {
+        return boardService.deleteBoard(userId, boardId);
+    }
+
     @PostMapping("/bookmark/{boardId}")
     @Operation(summary = "원하는 게시글을 찜하는 API", description = "원하는 게시글을 찜하는 API 입니다.")
     public StateResponse addBookMark(@JwtValidation Long userId,
@@ -101,27 +123,5 @@ public class BoardController {
     public StateResponse removeBookMark(@JwtValidation Long userId,
                                         @PathVariable Long boardId) {
         return bookMarkService.removeBookMark(userId, boardId);
-    }
-
-    @PatchMapping("/{boardId}")
-    @Operation(summary = "게시글 수정 API", description = "게시글을 수정하는 API 입니다.")
-    public BoardInfo updateBoard(@JwtValidation Long userId,
-                                 @PathVariable Long boardId,
-                                 @Valid @RequestBody CreateOrUpdateBoardRequest request) {
-        return boardService.createOrUpdateBoard(userId, boardId, request);
-    }
-
-    @DeleteMapping("/{boardId}")
-    @Operation(summary = "게시글 삭제 API", description = "게시글을 삭제하는 API 입니다.")
-    public BoardDeleteInfo deleteBoard(@JwtValidation Long userId,
-                                       @PathVariable Long boardId) {
-        return boardService.deleteBoard(userId, boardId);
-    }
-
-    @PatchMapping("/{boardId}/lift-up")
-    @Operation(summary = "게시글 끌어올리기 API", description = "게시글을 끌어올리는 API 입니다.")
-    public LiftUpStatusInfo updateLiftUpDate(@JwtValidation Long userId,
-                                             @PathVariable Long boardId) {
-        return boardService.updateLiftUpDate(userId, boardId);
     }
 }

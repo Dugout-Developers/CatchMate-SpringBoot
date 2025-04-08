@@ -8,7 +8,7 @@ import com.back.catchmate.domain.board.dto.BoardResponse.PagedBoardInfo;
 import com.back.catchmate.domain.board.dto.BoardResponse.TempBoardInfo;
 import com.back.catchmate.domain.board.entity.Board;
 import com.back.catchmate.domain.board.entity.BookMark;
-import com.back.catchmate.domain.board.repository.BoardRepository;
+import com.back.catchmate.domain.chat.entity.ChatRoom;
 import com.back.catchmate.domain.club.entity.Club;
 import com.back.catchmate.domain.game.converter.GameConverter;
 import com.back.catchmate.domain.game.dto.GameResponse.GameInfo;
@@ -16,8 +16,6 @@ import com.back.catchmate.domain.game.entity.Game;
 import com.back.catchmate.domain.user.converter.UserConverter;
 import com.back.catchmate.domain.user.dto.UserResponse.UserInfo;
 import com.back.catchmate.domain.user.entity.User;
-import com.back.catchmate.global.error.ErrorCode;
-import com.back.catchmate.global.error.exception.BaseException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -29,7 +27,6 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class BoardConverter {
-    private final BoardRepository boardRepository;
     private final GameConverter gameConverter;
     private final UserConverter userConverter;
 
@@ -63,15 +60,10 @@ public class BoardConverter {
                 .build();
     }
 
-    public BoardInfo toBoardInfo(Long boardId) {
-        Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new BaseException(ErrorCode.BOARD_NOT_FOUND));
-
-        // GameInfo 및 UserInfo 변환
+    public BoardInfo toBoardInfo(Board board) {
         GameInfo gameInfo = gameConverter.toGameInfo(board.getGame());
         UserInfo userInfo = userConverter.toUserInfo(board.getUser());
 
-        // BoardInfo 객체 생성
         return BoardInfo.builder()
                 .boardId(board.getId())
                 .title(board.getTitle())

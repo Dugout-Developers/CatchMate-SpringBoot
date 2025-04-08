@@ -19,8 +19,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class BookMarkServiceImpl implements BookMarkService {
+
     private final BookMarkRepository bookMarkRepository;
     private final UserRepository userRepository;
     private final BoardRepository boardRepository;
@@ -30,20 +32,10 @@ public class BookMarkServiceImpl implements BookMarkService {
     @Override
     @Transactional
     public StateResponse addBookMark(Long userId, Long boardId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+        User user = findUserById(userId);
+        Board board = findBoardById(boardId);
 
-        Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new BaseException(ErrorCode.BOARD_NOT_FOUND));
-
-        // 본인의 게시글인지 확인
-        if (!user.isDifferentUserFrom(board.getUser())) {
-            throw new BaseException(ErrorCode.BOOKMARK_BAD_REQUEST);
-        }
-
-        if (bookMarkRepository.existsByUserAndBoardAndDeletedAtIsNull(user, board)) {
-            throw new BaseException(ErrorCode.ALREADY_BOOKMARK);
-        }
+        validateBookMarkAddition(user, board);
 
         BookMark bookMark = bookMarkConverter.toEntity(user, board);
         bookMarkRepository.save(bookMark);
@@ -53,21 +45,17 @@ public class BookMarkServiceImpl implements BookMarkService {
     @Override
     @Transactional(readOnly = true)
     public PagedBoardInfo getBookMarkBoardList(Long userId, Pageable pageable) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+        User user = findUserById(userId);
+        Page<BookMark> bookMarkPage = bookMarkRepository.findAllByUserIdAndDeletedAtIsNull(user.getId(), pageable);
 
-        Page<BookMark> bookMarkList = bookMarkRepository.findAllByUserIdAndDeletedAtIsNull(user.getId(), pageable);
-        return boardConverter.toPagedBoardInfoFromBookMarkList(bookMarkList);
+        return boardConverter.toPagedBoardInfoFromBookMarkList(bookMarkPage);
     }
 
     @Override
     @Transactional
     public StateResponse removeBookMark(Long userId, Long boardId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
-
-        Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new BaseException(ErrorCode.BOARD_NOT_FOUND));
+        User user = findUserById(userId);
+        Board board = findBoardById(boardId);
 
         BookMark bookMark = bookMarkRepository.findByUserIdAndBoardIdAndDeletedAtIsNull(user.getId(), board.getId())
                 .orElseThrow(() -> new BaseException(ErrorCode.BOOKMARK_NOT_FOUND));
@@ -75,4 +63,25 @@ public class BookMarkServiceImpl implements BookMarkService {
         bookMark.delete();
         return new StateResponse(true);
     }
+
+    private User findUserById(Long userId) {
+        return userRepository.findByIdAndDeletedAtIsNull(userId)
+                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+    }
+
+    private Board findBoardById(Long boardId) {
+        return boardRepository.findByIdAndDeletedAtIsNullAndIsCompleted(boardId)
+                .orElseThrow(() -> new BaseException(ErrorCode.BOARD_NOT_FOUND));
+    }
+
+    private void validateBookMarkAddition(User user, Board board) {
+        if (!user.isDifferentUserFrom(board.getUser())) {
+            throw new BaseException(ErrorCode.BOOKMARK_BAD_REQUEST);
+        }
+
+        if (bookMarkRepository.existsByUserAndBoardAndDeletedAtIsNull(user, board)) {
+            throw new BaseException(ErrorCode.ALREADY_BOOKMARK);
+        }
+    }
 }
+

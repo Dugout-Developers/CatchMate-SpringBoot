@@ -11,12 +11,12 @@ import java.util.List;
 import java.util.Optional;
 
 public interface BlockedUserRepository extends JpaRepository<BlockedUser, Long> {
-    boolean existsByBlockerIdAndBlockedIdAndDeletedAtIsNull(Long blockerId, Long blockedId);
+    @Query("SELECT b.blocked.id FROM BlockedUser b WHERE b.blocker.id = :userId AND b.deletedAt IS NULL")
+    List<Long> findBlockedUserIdListByUserId(@Param("userId") Long userId);
 
-    Optional<BlockedUser> findByBlockerIdAndBlockedIdAndDeletedAtIsNull(Long blockerId, Long blockedId);
+    boolean existsByBlockerIdAndBlockedIdAndDeletedAtIsNull(Long blockerId, Long blockedId);
 
     Page<BlockedUser> findAllByBlockerIdAndDeletedAtIsNull(Long blockerId, Pageable pageable);
 
-    @Query("SELECT b.blocked.id FROM BlockedUser b WHERE b.blocker.id = :userId AND b.deletedAt IS NULL")
-    List<Long> findBlockedUserIdListByUserId(@Param("userId") Long userId);
+    Optional<BlockedUser> findByBlockerIdAndBlockedIdAndDeletedAtIsNull(Long blockerId, Long blockedId);
 }

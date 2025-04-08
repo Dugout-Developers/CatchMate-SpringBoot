@@ -5,5 +5,6 @@ public enum AcceptStatus {
     PENDING,
     REJECTED,
     ALREADY_ACCEPTED,
-    ALREADY_REJECTED;
+    ALREADY_REJECTED,
+    NOT_APPLIED;
 }

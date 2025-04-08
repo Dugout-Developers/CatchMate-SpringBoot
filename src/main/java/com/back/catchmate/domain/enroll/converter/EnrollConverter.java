@@ -4,16 +4,7 @@ import com.back.catchmate.domain.board.converter.BoardConverter;
 import com.back.catchmate.domain.board.dto.BoardResponse.BoardInfo;
 import com.back.catchmate.domain.board.entity.Board;
 import com.back.catchmate.domain.enroll.dto.EnrollRequest.CreateEnrollRequest;
-import com.back.catchmate.domain.enroll.dto.EnrollResponse;
-import com.back.catchmate.domain.enroll.dto.EnrollResponse.CancelEnrollInfo;
-import com.back.catchmate.domain.enroll.dto.EnrollResponse.CreateEnrollInfo;
-import com.back.catchmate.domain.enroll.dto.EnrollResponse.EnrollDescriptionInfo;
-import com.back.catchmate.domain.enroll.dto.EnrollResponse.EnrollReceiveInfo;
-import com.back.catchmate.domain.enroll.dto.EnrollResponse.EnrollRequestInfo;
-import com.back.catchmate.domain.enroll.dto.EnrollResponse.NewEnrollCountInfo;
-import com.back.catchmate.domain.enroll.dto.EnrollResponse.PagedEnrollReceiveInfo;
-import com.back.catchmate.domain.enroll.dto.EnrollResponse.PagedEnrollRequestInfo;
-import com.back.catchmate.domain.enroll.dto.EnrollResponse.UpdateEnrollInfo;
+import com.back.catchmate.domain.enroll.dto.EnrollResponse.*;
 import com.back.catchmate.domain.enroll.entity.AcceptStatus;
 import com.back.catchmate.domain.enroll.entity.Enroll;
 import com.back.catchmate.domain.user.converter.UserConverter;
@@ -87,42 +78,38 @@ public class EnrollConverter {
                 .build();
     }
 
-    public PagedEnrollReceiveInfo toPagedEnrollReceiveInfo(Page<Enroll> enrollList) {
-        // boardId 기준으로 그룹화 (Map<BoardId, List<EnrollInfo>>)
-        Map<Long, List<EnrollResponse.EnrollInfo>> groupedByBoardId = enrollList.stream()
+    public PagedEnrollReceiveInfo toPagedEnrollReceiveInfo(Page<Enroll> enrollPage) {
+        Map<Board, List<EnrollInfo>> groupedByBoardId = enrollPage.stream()
                 .collect(Collectors.groupingBy(
-                        enroll -> enroll.getBoard().getId(), // Key: boardId
-                        Collectors.mapping(this::toEnrollInfo, Collectors.toList()) // Value: EnrollInfo 리스트
+                        Enroll::getBoard,
+                        Collectors.mapping(this::toEnrollInfo, Collectors.toList())
                 ));
 
-        // 각 boardId에 대한 EnrollReceiveInfo 생성
         List<EnrollReceiveInfo> enrollInfoList = groupedByBoardId.entrySet().stream()
                 .map(entry -> {
-                    List<EnrollResponse.EnrollInfo> sortedEnrollInfoList = entry.getValue().stream()
-                            .sorted(Comparator.comparing(EnrollResponse.EnrollInfo::getRequestDate).reversed())
-                            .limit(10)  // 최근 10개만 포함
+                    List<EnrollInfo> sortedEnrollInfoList = entry.getValue().stream()
+                            .sorted(Comparator.comparing(EnrollInfo::getRequestDate).reversed())
+                            .limit(10)
                             .collect(Collectors.toList());
 
-                    // boardId와 그에 해당하는 EnrollReceiveInfo 목록을 생성
                     return EnrollReceiveInfo.builder()
-                            .boardInfo(boardConverter.toBoardInfo(entry.getKey())) // boardId에 해당하는 BoardInfo 객체 생성
+                            .boardInfo(boardConverter.toBoardInfo(entry.getKey()))
                             .enrollReceiveInfoList(sortedEnrollInfoList)
                             .build();
                 })
                 .toList();
 
-        // PagedEnrollReceiveInfo 반환
         return PagedEnrollReceiveInfo.builder()
-                .enrollInfoList(enrollInfoList) // boardId 단위로 그룹화된 신청 리스트
-                .totalPages(enrollList.getTotalPages())
-                .totalElements(enrollList.getTotalElements())
-                .isFirst(enrollList.isFirst())
-                .isLast(enrollList.isLast())
+                .enrollInfoList(enrollInfoList)
+                .totalPages(enrollPage.getTotalPages())
+                .totalElements(enrollPage.getTotalElements())
+                .isFirst(enrollPage.isFirst())
+                .isLast(enrollPage.isLast())
                 .build();
     }
 
-    public EnrollResponse.EnrollInfo toEnrollInfo(Enroll enroll) {
-        return EnrollResponse.EnrollInfo.builder()
+    public EnrollInfo toEnrollInfo(Enroll enroll) {
+        return EnrollInfo.builder()
                 .enrollId(enroll.getId())
                 .acceptStatus(enroll.getAcceptStatus())
                 .description(enroll.getDescription())

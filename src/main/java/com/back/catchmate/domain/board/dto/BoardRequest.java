@@ -1,7 +1,9 @@
 package com.back.catchmate.domain.board.dto;
 
 import com.back.catchmate.domain.game.dto.GameRequest.CreateGameRequest;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,16 +18,16 @@ public abstract class BoardRequest {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class CreateOrUpdateBoardRequest {
-        @NotNull
+        @NotEmpty
         private String title;
-        @NotNull
+        @NotEmpty
         private String content;
-        @NotNull
+        @Positive
         @Range(min = 0, max = 8)
         private int maxPerson;
         @NotNull
         private Long cheerClubId;
-        @NotNull
+        @NotEmpty
         private String preferredGender;
         @NotNull
         private List<String> preferredAgeRange;
