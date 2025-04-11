@@ -1,6 +1,6 @@
 
 
-# CatchMate-iOS
+# CatchMate-Server
 ![68747470733a2f2f6966682e63632f672f333543536b4e2e706e67](https://github.com/user-attachments/assets/4fa3bc7c-3d16-441f-8a89-ab9639a2aca1)
 ![앱 소개 이미지](https://github.com/user-attachments/assets/125c11b8-c591-4ef6-99b9-4c3b1f70e148)
 
