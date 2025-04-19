@@ -198,7 +198,7 @@ public class EnrollServiceImpl implements EnrollService {
         enroll.respondToEnroll(AcceptStatus.ACCEPTED);
         enterChatRoom(enrollApplicant, board);
 
-        Notification notification = notificationRepository.findByUserIdAndBoardIdAndAcceptStatusAndDeletedAtIsNull(enroll.getBoard().getUser().getId(), enroll.getBoard().getId(), AcceptStatus.PENDING)
+        Notification notification = notificationRepository.findByUserIdAndBoardIdAndSenderIdAndAcceptStatusAndDeletedAtIsNull(enroll.getBoard().getUser().getId(), enroll.getBoard().getId(), enrollApplicant.getId(), AcceptStatus.PENDING)
                 .orElseThrow(() -> new BaseException(ErrorCode.NOTIFICATION_NOT_FOUND));
         notification.updateAcceptStatus(AcceptStatus.ALREADY_ACCEPTED);
 
@@ -243,7 +243,7 @@ public class EnrollServiceImpl implements EnrollService {
             throw new BaseException(ErrorCode.ENROLL_REJECT_INVALID);
         }
 
-        Notification notification = notificationRepository.findByUserIdAndBoardIdAndAcceptStatusAndDeletedAtIsNull(enroll.getBoard().getUser().getId(), enroll.getBoard().getId(), AcceptStatus.PENDING)
+        Notification notification = notificationRepository.findByUserIdAndBoardIdAndSenderIdAndAcceptStatusAndDeletedAtIsNull(enroll.getBoard().getUser().getId(), enroll.getBoard().getId(), enrollApplicant.getId(), AcceptStatus.PENDING)
                 .orElseThrow(() -> new BaseException(ErrorCode.NOTIFICATION_NOT_FOUND));
         notification.updateAcceptStatus(AcceptStatus.ALREADY_REJECTED);
 
