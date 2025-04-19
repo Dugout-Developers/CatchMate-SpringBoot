@@ -20,7 +20,6 @@ public abstract class AuthRequest {
         private String providerId;
         @NotEmpty
         private String provider;
-        @NotEmpty
         private String picture;
         @NotEmpty
         private String fcmToken;
