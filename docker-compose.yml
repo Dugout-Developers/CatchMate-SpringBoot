@@ -1,15 +1,22 @@
-version: '3'
-
 services:
-  redis:
-    image: redis
-    ports:
-      - "6379:6379"
-
-  application:
-    container_name: springboot
+  my-server:
+    container_name: catch-mate-server
     image: ${DOCKER_USERNAME}/${DOCKER_REPO}
     ports:
-      - "8080:8080"
-    expose:
-      - "8080"
+      - 8080:8080
+    depends_on:
+      my-cache-server:
+        condition: service_healthy
+
+  my-cache-server:
+    container_name: catch-mate-cache-server
+    image: redis
+    ports:
+      - 6379:6379
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD}"]
+    volumes:
+      - ./redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 5s
+      retries: 10
