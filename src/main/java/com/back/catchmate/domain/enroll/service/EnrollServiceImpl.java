@@ -19,6 +19,8 @@ import com.back.catchmate.domain.enroll.dto.EnrollResponse.PagedEnrollRequestInf
 import com.back.catchmate.domain.enroll.dto.EnrollResponse.UpdateEnrollInfo;
 import com.back.catchmate.domain.enroll.entity.AcceptStatus;
 import com.back.catchmate.domain.enroll.entity.Enroll;
+import com.back.catchmate.domain.enroll.event.EnrollmentAcceptedEvent;
+import com.back.catchmate.domain.enroll.event.EnrollmentRejectedEvent;
 import com.back.catchmate.domain.enroll.repository.EnrollRepository;
 import com.back.catchmate.domain.notification.entity.Notification;
 import com.back.catchmate.domain.notification.repository.NotificationRepository;
@@ -29,6 +31,7 @@ import com.back.catchmate.domain.user.repository.UserRepository;
 import com.back.catchmate.global.error.ErrorCode;
 import com.back.catchmate.global.error.exception.BaseException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -54,6 +57,7 @@ public class EnrollServiceImpl implements EnrollService {
     private final NotificationRepository notificationRepository;
     private final EnrollConverter enrollConverter;
     private final UserChatRoomConverter userChatRoomConverter;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     @Transactional
@@ -202,13 +206,19 @@ public class EnrollServiceImpl implements EnrollService {
                 .orElseThrow(() -> new BaseException(ErrorCode.NOTIFICATION_NOT_FOUND));
         notification.updateAcceptStatus(AcceptStatus.ALREADY_ACCEPTED);
 
-        String title = ENROLLMENT_ACCEPT_TITLE;
-        String body = ENROLLMENT_ACCEPT_BODY;
+        // 이벤트 발행 로직으로 대체
+        eventPublisher.publishEvent(new EnrollmentAcceptedEvent(
+                enrollApplicant.getFcmToken(),
+                ENROLLMENT_ACCEPT_TITLE,
+                ENROLLMENT_ACCEPT_BODY,
+                enroll.getBoard().getId(),
+                AcceptStatus.ACCEPTED,
+                board.getChatRoom().getId(),
+                enrollApplicant.getId(), // receiverId
+                boardWriter.getId()      // senderId
+        ));
 
-        fcmService.sendMessageByToken(enrollApplicant.getFcmToken(), title, body, enroll.getBoard().getId(), AcceptStatus.ACCEPTED, board.getChatRoom().getId());
-        notificationService.createNotification(title, body, boardWriter.getId(), enroll.getBoard().getId(), enrollApplicant.getId(), AcceptStatus.ACCEPTED);
-
-        enroll.respondToEnroll(AcceptStatus.REJECTED);
+        enroll.respondToEnroll(AcceptStatus.ACCEPTED);
         enroll.delete();
         return enrollConverter.toUpdateEnrollInfo(enroll, AcceptStatus.ACCEPTED);
     }
@@ -247,11 +257,16 @@ public class EnrollServiceImpl implements EnrollService {
                 .orElseThrow(() -> new BaseException(ErrorCode.NOTIFICATION_NOT_FOUND));
         notification.updateAcceptStatus(AcceptStatus.ALREADY_REJECTED);
 
-        String title = ENROLLMENT_REJECT_TITLE;
-        String body = ENROLLMENT_REJECT_BODY;
-
-        fcmService.sendMessageByToken(enrollApplicant.getFcmToken(), title, body, enroll.getBoard().getId(), AcceptStatus.REJECTED, null);
-        notificationService.createNotification(title, body, boardWriter.getId(), enroll.getBoard().getId(), enrollApplicant.getId(), AcceptStatus.REJECTED);
+        // 이벤트 발행 로직으로 대체
+        eventPublisher.publishEvent(new EnrollmentRejectedEvent(
+                enrollApplicant.getFcmToken(),
+                ENROLLMENT_REJECT_TITLE,
+                ENROLLMENT_REJECT_BODY,
+                enroll.getBoard().getId(),
+                AcceptStatus.REJECTED,
+                enrollApplicant.getId(), // receiverId
+                boardWriter.getId()      // senderId
+        ));
 
         enroll.respondToEnroll(AcceptStatus.REJECTED);
         enroll.delete();

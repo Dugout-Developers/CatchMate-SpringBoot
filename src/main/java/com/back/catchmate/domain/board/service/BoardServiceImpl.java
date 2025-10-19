@@ -215,9 +215,6 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     public PagedBoardInfo getBoardListByUserId(Long loginUserId, Long userId, Pageable pageable) {
-        User loginUser = userRepository.findById(userId)
-                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
-
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 

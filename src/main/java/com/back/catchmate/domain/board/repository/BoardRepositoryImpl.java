@@ -2,8 +2,10 @@ package com.back.catchmate.domain.board.repository;
 
 import com.back.catchmate.domain.board.entity.Board;
 import com.back.catchmate.domain.board.entity.QBoard;
+import com.back.catchmate.domain.chat.entity.QChatRoom;
 import com.back.catchmate.domain.club.entity.QClub;
 import com.back.catchmate.domain.game.entity.QGame;
+import com.back.catchmate.domain.user.entity.QUser;
 import com.back.catchmate.domain.user.repository.BlockedUserRepository;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -26,6 +28,8 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
         QBoard board = QBoard.board;
         QGame game = QGame.game;
         QClub club = QClub.club;
+        QChatRoom chatRoom = QChatRoom.chatRoom;
+        QUser user = QUser.user;
 
         BooleanBuilder builder = new BooleanBuilder();
 
@@ -63,6 +67,8 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
                 .selectFrom(board)
                 .leftJoin(board.club, club).fetchJoin()
                 .leftJoin(board.game, game).fetchJoin()
+                .leftJoin(board.chatRoom, chatRoom).fetchJoin()
+                .leftJoin(board.user, user).fetchJoin()
                 .where(builder)
                 .orderBy(board.liftUpDate.desc());
 
