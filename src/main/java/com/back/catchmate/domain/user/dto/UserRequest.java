@@ -23,6 +23,8 @@ public abstract class UserRequest {
         private Long favoriteClubId;
         @NotBlank
         private String watchStyle;
+
+        
     }
 
     @Getter

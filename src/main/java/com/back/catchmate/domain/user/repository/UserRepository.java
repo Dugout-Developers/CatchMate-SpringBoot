@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
+    // ADMIN
     @Query("SELECT u.club.id, COUNT(u) FROM User u WHERE u.deletedAt IS NULL GROUP BY u.club.id")
     List<Object[]> countUsersByClub();
 
@@ -18,6 +19,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT u.watchStyle, COUNT(u) FROM User u WHERE u.deletedAt IS NULL GROUP BY u.watchStyle")
     List<Object[]> countUsersByWatchStyle();
 
+    // USER
     boolean existsByNickName(String nickName);
 
     long countByGenderAndDeletedAtIsNull(Character gender);

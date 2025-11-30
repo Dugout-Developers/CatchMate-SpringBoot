@@ -23,6 +23,7 @@ import java.util.Objects;
 @Entity
 @Getter
 @Builder
+@Table(name = "users")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class User extends BaseTimeEntity {
@@ -79,7 +80,7 @@ public class User extends BaseTimeEntity {
     @Column(nullable = false)
     private Character eventAlarm;         // 이벤트 알림
 
-    @Column(nullable = false)
+    @Column
     private String fcmToken;
 
     @Enumerated(EnumType.STRING)

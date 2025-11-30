@@ -12,6 +12,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static com.back.catchmate.domain.notice.dto.NoticeResponse.*;
+
 @Service
 @RequiredArgsConstructor
 public class NoticeServiceImpl implements NoticeService {
@@ -20,14 +22,14 @@ public class NoticeServiceImpl implements NoticeService {
 
     @Override
     @Transactional(readOnly = true)
-    public com.back.catchmate.domain.notice.dto.NoticeResponse.PagedNoticeInfo getNoticeList(Pageable pageable) {
+    public PagedNoticeInfo getNoticeList(Pageable pageable) {
         Page<Notice> noticeList = noticeRepository.findAllByDeletedAtIsNull(pageable);
         return noticeConverter.toPagedNoticeInfo(noticeList);
     }
 
     @Override
-    @Transactional
-    public NoticeResponse.NoticeInfo getNotice(Long noticeId) {
+    @Transactional(readOnly = true)
+    public NoticeInfo getNotice(Long noticeId) {
         Notice notice = noticeRepository.findByIdAndDeletedAtIsNull(noticeId)
                 .orElseThrow(() -> new BaseException(ErrorCode.NOTICE_NOT_FOUND));
 

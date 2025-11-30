@@ -1,5 +1,6 @@
 package com.back.catchmate.domain.user.controller;
 
+import com.back.catchmate.domain.user.dto.UserRequest;
 import com.back.catchmate.domain.user.dto.UserRequest.UserJoinRequest;
 import com.back.catchmate.domain.user.dto.UserRequest.UserProfileUpdateRequest;
 import com.back.catchmate.domain.user.dto.UserResponse.LoginInfo;

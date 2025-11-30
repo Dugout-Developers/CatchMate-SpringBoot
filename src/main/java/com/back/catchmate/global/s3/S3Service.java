@@ -1,5 +1,6 @@
 package com.back.catchmate.global.s3;
 
+import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,7 @@ public class S3Service {
     private String bucket;
     @Value("${cloud.aws.region.static}")
     private String region;
-    private final AmazonS3Client amazonS3Client;
+    private final AmazonS3 amazonS3;
 
     public String uploadFile(MultipartFile file) throws IOException {
         String uniqueFileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
@@ -25,7 +26,7 @@ public class S3Service {
         metadata.setContentType(file.getContentType());
         metadata.setContentLength(file.getSize());
 
-        amazonS3Client.putObject(bucket, uniqueFileName, file.getInputStream(), metadata);
+        amazonS3.putObject(bucket, uniqueFileName, file.getInputStream(), metadata);
         return getPublicUrl(uniqueFileName);
     }
 

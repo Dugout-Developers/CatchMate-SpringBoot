@@ -48,4 +48,8 @@ public class Notice extends BaseTimeEntity {
         this.title = title;
         this.content = content;
     }
+
+    public void delete() {
+        this.deletedAt = LocalDateTime.now();
+    }
 }

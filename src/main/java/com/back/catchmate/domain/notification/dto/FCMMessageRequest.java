@@ -4,9 +4,11 @@ import com.back.catchmate.domain.enroll.entity.AcceptStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Builder
+@NoArgsConstructor
 @AllArgsConstructor
 public class FCMMessageRequest {
     private boolean validateOnly;
@@ -15,6 +17,7 @@ public class FCMMessageRequest {
     @Getter
     @Builder
     @AllArgsConstructor
+    @NoArgsConstructor
     public static class Message {
         private Notification notification;
         private String token;
@@ -24,6 +27,7 @@ public class FCMMessageRequest {
     @Getter
     @Builder
     @AllArgsConstructor
+    @NoArgsConstructor
     public static class Notification {
         private String title;
         private String body;
@@ -32,6 +36,7 @@ public class FCMMessageRequest {
     @Getter
     @Builder
     @AllArgsConstructor
+    @NoArgsConstructor
     public static class Data {
         private String boardId;
         private String chatRoomId;

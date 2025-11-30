@@ -17,6 +17,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
+        // 스프링에게 "이 리졸버도 사용해줘"라고 등록
         resolvers.add(jwtValidateArgumentResolver);
     }
 

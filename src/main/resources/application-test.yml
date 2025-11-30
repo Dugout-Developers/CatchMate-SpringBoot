@@ -1,0 +1,59 @@
+spring:
+  config:
+    activate:
+      on-profile: test
+
+  # 1. DB: H2 인메모리 (유지) - 아주 좋습니다.
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  # 2. Redis: Testcontainers를 쓸 게 아니라면, 일단 가짜 값으로 둡니다.
+  # (테스트 코드에서 Redis 관련 빈을 Mocking 해야 함)
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: "" # 테스트용이니 비밀번호 없어도 됨 (Mocking 전제)
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.H2Dialect
+
+  sql:
+    init:
+      mode: never
+
+# 3. JWT: 테스트용 고정 키 사용 (유지)
+jwt:
+  secretKey: "test-secret-key-must-be-long-enough-for-security-algorithms" # 임의의 값
+  access:
+    expiration: 3600000
+    header: AccessToken
+  refresh:
+    expiration: 2592000000
+    header: RefreshToken
+
+# 4. 외부 API: 절대 실제 경로/키를 넣지 마세요! (가짜 값 주입)
+fcm:
+  firebase_config_path: "dummy-path.json" # 파일 없어도 됨 (Mocking 할 거니까)
+  firebase_api_uri: "https://dummy-uri.com"
+
+cloud:
+  aws:
+    s3:
+      bucket: "test-bucket"
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false
+    credentials:
+      accessKey: "TEST_ACCESS_KEY" # 가짜 키
+      secretKey: "TEST_SECRET_KEY" # 가짜 키

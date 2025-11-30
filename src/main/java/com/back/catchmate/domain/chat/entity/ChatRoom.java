@@ -19,6 +19,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -37,8 +38,9 @@ public class ChatRoom extends BaseTimeEntity {
     @JoinColumn(name = "board_id", nullable = false)
     private Board board;
 
+    @Builder.Default
     @OneToMany(mappedBy = "chatRoom")
-    private List<UserChatRoom> userChatRoomList;
+    private List<UserChatRoom> userChatRoomList = new ArrayList<>();
 
     // 현재 채팅방에 참여중인 참가자 수
     @Column(nullable = false)

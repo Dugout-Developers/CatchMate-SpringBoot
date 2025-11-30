@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.2.8'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'jacoco'
 }
 
 group = 'com.back'
@@ -36,7 +37,10 @@ dependencies {
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
 
     compileOnly 'org.projectlombok:lombok'
+    testCompileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -44,6 +48,7 @@ dependencies {
 
     // Security
     implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.security:spring-security-test'
 
     // JWT
     implementation('io.jsonwebtoken:jjwt-api:0.11.2')
@@ -78,8 +83,91 @@ dependencies {
     // MongoDB
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+
+    // H2 Database
+    testRuntimeOnly 'com.h2database:h2'
 }
 
-//tasks.named('test') {
-//    useJUnitPlatform()
-//}
+// --- JaCoCo 설정 시작 ---
+
+// 제외할 파일 패턴 정의
+def jacocoExcludePatterns = [
+        // 애플리케이션 실행 메인 클래스
+        "**/CatchmateApplication*",
+
+        // QueryDSL 생성 클래스 (QClass)
+        "**/Q*",
+
+        // 설정 파일 (Config)
+        "**/global/config/**",
+
+        // 데이터 전송 객체 (DTO) - Request, Response 포함
+        "**/dto/**",
+        "**/*Request*",
+        "**/*Response*",
+
+        // 엔티티 (단순 Getter/Setter/Builder 제외)
+        "**/entity/**",
+
+        // 예외 클래스
+        "**/global/error/exception/**",
+        "**/global/error/ErrorCode*",
+        "**/global/error/ErrorResponse*"
+]
+
+test {
+    useJUnitPlatform()
+    finalizedBy 'jacocoTestReport' // 테스트 종료 후 리포트 생성
+}
+
+jacoco {
+    toolVersion = "0.8.10"
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true
+        html.required = true
+    }
+
+    // 리포트 생성 시 제외 패턴 적용
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: jacocoExcludePatterns)
+        }))
+    }
+}
+
+jacocoTestCoverageVerification {
+    // 커버리지 검증 시 제외 패턴 적용
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: jacocoExcludePatterns)
+        }))
+    }
+
+    violationRules {
+        rule {
+            // 'element'가 없으면 기본값은 BUNDLE (프로젝트 전체)
+            enabled = true
+
+            // 제외할 클래스 패턴 (패키지 경로 포함)
+            excludes = [
+                    '*.CatchmateApplication',
+                    '*.global.config.*',
+                    '*.dto.*',
+                    '*.entity.*',
+                    '*.Q*'
+            ]
+
+            // 예시: 라인 커버리지 0% 이상 (테스트 코드 작성이 시작 단계라면 낮게 잡거나 주석 처리)
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.00
+            }
+        }
+    }
+}
+// --- JaCoCo 설정 끝 ---

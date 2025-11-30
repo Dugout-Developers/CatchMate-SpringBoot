@@ -37,20 +37,11 @@ public class FCMService {
     private String FIREBASE_CONFIG_PATH;
     @Value("${fcm.firebase_api_uri}")
     private String FIREBASE_ALARM_SEND_API_URI;
+    private final FcmTokenProvider fcmTokenProvider;
+    private final OkHttpClient okHttpClient;
 
     private final ObjectMapper objectMapper;
     private final UserChatRoomRepository userChatRoomRepository;
-
-    // Firebase로 부터 Access Token을 가져오는 메서드
-    private String getAccessToken() throws IOException {
-        GoogleCredentials googleCredentials = GoogleCredentials
-                .fromStream(new ClassPathResource(FIREBASE_CONFIG_PATH).getInputStream())
-                .createScoped(List.of("https://www.googleapis.com/auth/cloud-platform"));
-
-        googleCredentials.refreshIfExpired();
-
-        return googleCredentials.getAccessToken().getTokenValue();
-    }
 
     // 신청 알림 파라미터들을 요구하는 body 형태로 가공
     public String makeEnrollMessage(String targetToken, String title, String body, Long boardId, AcceptStatus acceptStatus, Long chatRoomId) throws JsonProcessingException {
@@ -79,30 +70,6 @@ public class FCMService {
         return objectMapper.writeValueAsString(fcmMessage);
     }
 
-    // 사용자의 FCM 토큰을 사용하여 푸쉬 알림을 보내는 역할을 하는 메서드
-    @Async("asyncTask")
-    public void sendMessageByToken(String targetToken, String title, String body, Long boardId, AcceptStatus acceptStatus, Long chatRoomId) throws IOException {
-        String message = makeEnrollMessage(targetToken, title, body, boardId, acceptStatus, chatRoomId);
-
-        OkHttpClient client = new OkHttpClient();
-        RequestBody requestBody = RequestBody.create(message, MediaType.get("application/json; charset=utf-8"));
-
-        Request request = new Request.Builder()
-                .url(FIREBASE_ALARM_SEND_API_URI)
-                .post(requestBody)
-                .addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken())
-                .addHeader(HttpHeaders.CONTENT_TYPE, "application/json; UTF-8")
-                .build();
-
-        Response response = client.newCall(request).execute();
-
-        if (response.body() == null) {
-            throw new BaseException(ErrorCode.EMPTY_FCM_RESPONSE);
-        }
-
-        log.info(response.body().string());
-    }
-
     // 신청 알림 파라미터들을 요구하는 body 형태로 가공
     public String makeInquiryMessage(String targetToken, String title, String body, Long inquiryId) throws JsonProcessingException {
         FCMMessageRequest fcmMessage = FCMMessageRequest.builder()
@@ -128,30 +95,38 @@ public class FCMService {
         return objectMapper.writeValueAsString(fcmMessage);
     }
 
-    // 사용자의 FCM 토큰을 사용하여 푸쉬 알림을 보내는 역할을 하는 메서드
+    @Async("asyncTask")
+    public void sendMessageByToken(String targetToken, String title, String body, Long boardId, AcceptStatus acceptStatus, Long chatRoomId) throws IOException {
+        String message = makeEnrollMessage(targetToken, title, body, boardId, acceptStatus, chatRoomId);
+        sendRequest(message);
+    }
+
     @Async("asyncTask")
     public void sendMessageByToken(String targetToken, String title, String body, Long inquiryId) throws IOException {
         String message = makeInquiryMessage(targetToken, title, body, inquiryId);
+        sendRequest(message);
+    }
 
-        OkHttpClient client = new OkHttpClient();
+    // 공통 전송 로직 분리
+    private void sendRequest(String message) throws IOException {
         RequestBody requestBody = RequestBody.create(message, MediaType.get("application/json; charset=utf-8"));
 
         Request request = new Request.Builder()
                 .url(FIREBASE_ALARM_SEND_API_URI)
                 .post(requestBody)
-                .addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken())
+                // [변경] this.getAccessToken() -> fcmTokenProvider.getAccessToken()
+                .addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + fcmTokenProvider.getAccessToken())
                 .addHeader(HttpHeaders.CONTENT_TYPE, "application/json; UTF-8")
                 .build();
 
-        Response response = client.newCall(request).execute();
-
-        if (response.body() == null) {
-            throw new BaseException(ErrorCode.EMPTY_FCM_RESPONSE);
+        // [변경] new OkHttpClient() -> okHttpClient
+        try (Response response = okHttpClient.newCall(request).execute()) {
+            if (response.body() == null) {
+                throw new BaseException(ErrorCode.EMPTY_FCM_RESPONSE);
+            }
+            log.info(response.body().string());
         }
-
-        log.info(response.body().string());
     }
-
     // 특정 채팅방의 모든 사용자에게 FCM 메시지 전송
     @Async("asyncTask")
     public void sendMessagesByTokens(Long chatRoomId, String title, String body, String senderToken) throws FirebaseMessagingException {

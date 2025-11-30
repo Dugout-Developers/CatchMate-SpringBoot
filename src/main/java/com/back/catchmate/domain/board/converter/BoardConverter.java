@@ -8,7 +8,6 @@ import com.back.catchmate.domain.board.dto.BoardResponse.PagedBoardInfo;
 import com.back.catchmate.domain.board.dto.BoardResponse.TempBoardInfo;
 import com.back.catchmate.domain.board.entity.Board;
 import com.back.catchmate.domain.board.entity.BookMark;
-import com.back.catchmate.domain.chat.entity.ChatRoom;
 import com.back.catchmate.domain.club.entity.Club;
 import com.back.catchmate.domain.game.converter.GameConverter;
 import com.back.catchmate.domain.game.dto.GameResponse.GameInfo;
@@ -76,7 +75,7 @@ public class BoardConverter {
                 .liftUpDate(board.getLiftUpDate())
                 .gameInfo(gameInfo)
                 .userInfo(userInfo)
-                .chatRoomId(board.getChatRoom().getId())
+                .chatRoomId(board.getChatRoom() != null ? board.getChatRoom().getId() : null)
                 .build();
     }
 
@@ -118,7 +117,7 @@ public class BoardConverter {
                 .buttonStatus(buttonStatus)
                 .gameInfo(gameInfo)
                 .userInfo(userInfo)
-                .chatRoomId(board.getChatRoom().getId())
+                .chatRoomId(board.getChatRoom() != null ? board.getChatRoom().getId() : null)
                 .build();
     }
 

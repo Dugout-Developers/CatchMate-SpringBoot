@@ -19,6 +19,9 @@ public class JwtValidateArgumentResolver implements HandlerMethodArgumentResolve
 
     private static final String ACCESS_TOKEN_HEADER = "AccessToken";
 
+    /*
+    addArgumentResolvers 메서드는 WebMvcConfigurer 인터페이스의 메서드로, 개발자가 정의한 HandlerMethodArgumentResolver를 스프링의 파라미터 처리 목록에 추가합니다.
+     */
     // 메서드 파라미터가 @JwtValidation 어노테이션을 가지고 있고, 타입이 Long일 경우 true를 반환
     @Override
     public boolean supportsParameter(MethodParameter parameter) {

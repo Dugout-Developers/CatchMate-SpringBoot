@@ -5,6 +5,8 @@ import com.back.catchmate.domain.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.io.IOException;
@@ -17,7 +19,8 @@ public class EnrollmentEventListener {
     private final FCMService fcmService;
     private final NotificationService notificationService;
 
-    @TransactionalEventListener
+    @Transactional(propagation = org.springframework.transaction.annotation.Propagation.REQUIRES_NEW)
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleEnrollmentAcceptedEvent(EnrollmentAcceptedEvent event) {
         try {
             // 1. FCM 푸시 알림 전송
@@ -46,7 +49,8 @@ public class EnrollmentEventListener {
         }
     }
 
-    @TransactionalEventListener
+    @Transactional(propagation = org.springframework.transaction.annotation.Propagation.REQUIRES_NEW)
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleEnrollmentRejectedEvent(EnrollmentRejectedEvent event) {
         try {
             // 1. FCM 푸시 알림 전송

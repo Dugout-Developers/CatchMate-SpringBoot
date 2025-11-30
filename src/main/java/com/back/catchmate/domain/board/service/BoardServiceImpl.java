@@ -18,6 +18,7 @@ import com.back.catchmate.domain.chat.repository.ChatRoomRepository;
 import com.back.catchmate.domain.chat.repository.UserChatRoomRepository;
 import com.back.catchmate.domain.club.entity.Club;
 import com.back.catchmate.domain.club.repository.ClubRepository;
+import com.back.catchmate.domain.club.service.ClubService;
 import com.back.catchmate.domain.enroll.entity.AcceptStatus;
 import com.back.catchmate.domain.enroll.entity.Enroll;
 import com.back.catchmate.domain.enroll.repository.EnrollRepository;
@@ -47,8 +48,7 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class BoardServiceImpl implements BoardService {
-    private static final Long DEFAULT_CLUB_ID = 0L;
-
+    private final ClubService clubService;
     private final GameRepository gameRepository;
     private final ClubRepository clubRepository;
     private final UserRepository userRepository;
@@ -70,10 +70,10 @@ public class BoardServiceImpl implements BoardService {
         User user = userRepository.findByIdAndDeletedAtIsNull(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
-        // 응원 구단 및 홈 구단 및 원정 구단 조회
-        Club cheerClub = findOrDefaultClub(request.getCheerClubId());
-        Club homeClub = findOrDefaultClub(request.getGameRequest().getHomeClubId());
-        Club awayClub = findOrDefaultClub(request.getGameRequest().getAwayClubId());
+        // [변경] 메서드 호출 한 줄로 깔끔하게 정리됨
+        Club cheerClub = clubService.getClub(request.getCheerClubId());
+        Club homeClub = clubService.getClub(request.getGameRequest().getHomeClubId());
+        Club awayClub = clubService.getClub(request.getGameRequest().getAwayClubId());
 
         Game game = findOrCreateGame(homeClub, awayClub, request.getGameRequest());
         Board board = (boardId != null)
@@ -81,17 +81,6 @@ public class BoardServiceImpl implements BoardService {
                 : createNewBoardWithChatRoom(user, cheerClub, game, request);
 
         return boardConverter.toBoardInfo(board, game);
-    }
-
-    private Club findOrDefaultClub(Long clubId) {
-        return (clubId != 0)
-                ? clubRepository.findById(clubId).orElseThrow(() -> new BaseException(ErrorCode.CLUB_NOT_FOUND))
-                : getDefaultClub();
-    }
-
-    private Club getDefaultClub() {
-        return clubRepository.findById(DEFAULT_CLUB_ID)
-                .orElseThrow(() -> new BaseException(ErrorCode.CLUB_NOT_FOUND));
     }
 
     private Game findOrCreateGame(Club homeClub, Club awayClub, CreateGameRequest createGameRequest) {

@@ -4,6 +4,7 @@ import com.back.catchmate.global.auth.dto.AuthRequest.LoginRequest;
 import com.back.catchmate.global.auth.dto.AuthResponse.AuthInfo;
 import com.back.catchmate.global.auth.dto.AuthResponse.NicknameCheckInfo;
 import com.back.catchmate.global.auth.dto.AuthResponse.ReissueInfo;
+import com.back.catchmate.global.auth.service.AuthService;
 import com.back.catchmate.global.auth.service.AuthServiceImpl;
 import com.back.catchmate.global.dto.StateResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
-    private final AuthServiceImpl authService;
+    private final AuthService authService;
 
     @PostMapping("/login")
     @Operation(summary = "로그인 & 회원가입 API", description = "회원가입/로그인을 통해 토큰을 발급하는 API 입니다.")
